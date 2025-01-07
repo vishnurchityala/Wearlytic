@@ -1,7 +1,5 @@
 # WebIntelTool
 A data analysis tool to extract and analyze product details from various websites. ProductInsight helps businesses gain insights into competitors and market trends by collecting data like product descriptions, prices, images, and metadata.
 
-<div style="color: red; padding: 10px; border: 1px solid red; background-color: #fdd;">
-    <strong>Warning:</strong> Every Changes should be done to beta branch then to main
-</div>
+[! Every Changes should be done to beta branch then to main ]
 
