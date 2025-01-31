@@ -3,5 +3,3 @@ A data analysis tool to extract and analyze product details from various website
 
 > [!WARNING]
 > Every Changes should be done to beta branch then to main
-
-
