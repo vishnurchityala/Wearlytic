@@ -21,5 +21,5 @@
 - Competitive analysis for pricing and trend tracking  
 - Insights for product development and customer preference analysis  
 
-> **Warning**  
+> [!Warning] 
 > This project is currently under development. Features and functionalities are subject to change.  
