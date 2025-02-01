@@ -23,3 +23,4 @@
 
 > [!Warning] 
 > This project is currently under development. Features and functionalities are subject to change.  
+> The scraping agent is currently being built, which will handle concurrent scraping requests and will be used for data extraction.
