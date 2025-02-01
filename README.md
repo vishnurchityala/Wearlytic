@@ -9,13 +9,6 @@
 - **Trend Prediction** – Identifies emerging fashion trends and forecasts product viability.  
 - **Interactive Dashboards** – Visualizes key metrics for informed decision-making.  
 
-## Tech Stack
-- **Frontend:** React.js / Next.js  
-- **Backend:** Node.js / Python (FastAPI)  
-- **Database:** PostgreSQL / MongoDB / Vector DB  
-- **AI & ML:** NLP, Trend Analysis, Price Prediction  
-- **Web Scraping:** Scrapy / Selenium / Puppeteer  
-
 ## Use Cases
 - Market research for fashion brands and retailers  
 - Competitive analysis for pricing and trend tracking  
