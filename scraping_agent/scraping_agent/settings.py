@@ -94,3 +94,15 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
+# Enable Playwright
+DOWNLOAD_HANDLERS = {
+    "http": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
+    "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
+}# Configure Playwright
+PLAYWRIGHT_BROWSER_TYPE = "chromium"
+PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 60000
+
+DEFAULT_REQUEST_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+}
