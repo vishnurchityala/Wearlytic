@@ -6,7 +6,15 @@
 import scrapy
 
 
-class ScrapingAgentItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+import scrapy
+
+class ProductItem(scrapy.Item):
+    product_name = scrapy.Field()
+    brand = scrapy.Field()
+    category = scrapy.Field()
+    description = scrapy.Field()
+    price = scrapy.Field()
+    image_url = scrapy.Field()
+    product_url = scrapy.Field()
+    colors = scrapy.Field()
+    timestamp = scrapy.Field()

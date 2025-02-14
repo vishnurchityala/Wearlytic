@@ -1,13 +1,22 @@
 import scrapy
 from scrapy_playwright.page import PageMethod
-import time
+from datetime import datetime
+import re
+
 
 class MyntraSpider(scrapy.Spider):
     name = "myntra_spider"
     allowed_domains = ["myntra.com"]
 
     start_urls = [
-        "https://www.myntra.com/oversized-tshirts"
+        f"https://www.myntra.com/{category}?p={i}"
+        for category in
+        [
+            # "tshirts","oversized-tshirts", "shirts"
+             "jeans", "trousers", "jackets"
+            # "sweatshirts", "shorts", "dresses"
+         ]
+        for i in range(1, 3)
     ]
 
     def start_requests(self):
@@ -20,7 +29,7 @@ class MyntraSpider(scrapy.Spider):
             )
 
     def parse(self, response):
-        product_links = response.css("li.product-base a::attr(href)").getall()
+        product_links = response.xpath("//li[@class='product-base']/a/@href").getall()
         for link in product_links:
             product_url = response.urljoin(link)
             yield scrapy.Request(
@@ -30,21 +39,33 @@ class MyntraSpider(scrapy.Spider):
                 callback=self.parse_product
             )
 
-        next_page = response.css("a.pagination-next::attr(href)").get()
-        if next_page:
-            yield response.follow(next_page, callback=self.parse)
-
     def parse_product(self, response):
-        yield {
-            "timestamp": time.time(),
+        image_style = response.xpath("//div[@class='image-grid-image']/@style").get()
+        image_url = None
+
+        if image_style:
+            match = re.search(r'url\("(.+?)"\)', image_style)
+            if match:
+                image_url = match.group(1)
+
+        material = response.xpath("//div[contains(text(), 'Fabric')]/following-sibling::div/text()").get()
+
+        timestamp = datetime.utcnow().timestamp()
+
+        item = {
+            "timestamp": timestamp,
             "source": "myntra.com",
             "product_url": response.url,
-            "product_name": response.css("h1.pdp-name::text").get(),
-            "brand": response.css("h1.pdp-title::text").get(),
-            "category": response.css("div.breadcrumbs-container a.breadcrumbs-link:nth-last-of-type(3)::text").get(),
-            "description": response.css(".pdp-product-description-content::text").get(),
-            "price": response.css("span.pdp-price strong::text").get(),
-            "colors": response.css(".pdp-color-options-container img::attr(alt)").getall(),
-            "material": response.css(".pdp-material-composition::text").get(),
-            "image_url": response.css(".image-grid img::attr(src)").get(),
+            "product_name": response.xpath(
+                "//div[@class='breadcrumbs-container']//a[contains(@class, 'breadcrumbs-link')][last()-1]/text()").get(),
+            "brand": response.xpath("//h1[contains(@class, 'pdp-title')]/text()").get(),
+            "category": response.xpath(
+                "//div[@class='breadcrumbs-container']//a[contains(@class, 'breadcrumbs-link')][last()-2]/text()").get(),
+            "description": response.xpath("//h1[contains(@class, 'pdp-name')]/text()").get(),
+            "price": response.xpath("//span[contains(@class, 'pdp-price')]//strong/text()").get(),
+            "colors": response.xpath("//div[@class='pdp-color-options-container']//img/@alt").getall(),
+            "material": material,
+            "image_url": image_url,
         }
+        print(item)
+        yield item

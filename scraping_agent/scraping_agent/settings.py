@@ -65,9 +65,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "scraping_agent.pipelines.ScrapingAgentPipeline": 300,
-#}
+ITEM_PIPELINES = {
+    'scraping_agent.pipelines.FirebasePipeline': 300,  # Replace with your actual project name
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

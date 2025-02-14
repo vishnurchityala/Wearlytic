@@ -8,6 +8,8 @@ logs/
 
 __pychache__
 
+/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.json
+
 # Lock files
 package-lock.json
 yarn.lock
@@ -31,3 +33,7 @@ venv/
 # Build directories
 dist/
 build/
+scraping_agent/scraping_agent/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.json
+scraping_agent/scraping_agent/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.json
+scraping_agent/scraping_agent/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.json
+scraping_agent/scraping_agent/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.json
