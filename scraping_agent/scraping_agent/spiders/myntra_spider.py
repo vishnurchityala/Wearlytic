@@ -13,8 +13,8 @@ class MyntraSpider(scrapy.Spider):
         for category in
         [
             # "tshirts","oversized-tshirts", "shirts"
-             "jeans", "trousers", "jackets"
-            # "sweatshirts", "shorts", "dresses"
+            #  "jeans", "trousers", "jackets"
+            "sweatshirts", "shorts", "dresses"
          ]
         for i in range(1, 3)
     ]
