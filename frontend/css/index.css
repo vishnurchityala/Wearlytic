@@ -117,6 +117,9 @@ body {
     .hero-subtitle {
         font-size: 1.1rem;
     }
+    .hero-section {
+        padding: 20px 20px 100px; /* Reduce top padding for mobile */
+    }
     .hero-navbar {
         position: fixed;
         bottom: 0;
