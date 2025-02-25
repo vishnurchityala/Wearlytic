@@ -41,3 +41,4 @@ scraping_agent/scraping_agent/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.jso
 *.pyc
 *.pyc
 /scraping_agent/scraping_agent/outputs
+*.pyc

@@ -45,7 +45,6 @@ class FlipkartSpider(scrapy.Spider):
             "category": breadcrumb_links[-3].xpath("text()").get() if len(breadcrumb_links) >= 3 else None,
             "description": response.xpath("//span[contains(@class, 'VU-ZEz')]/text()").get(),
             "price": response.xpath("//div[contains(@class, 'Nx9bqj CxhGGd')]/text()").get(),
-            "colors": response.xpath("//div[contains(@class, '_3aYEat')]/text()").getall(),
             "material": response.xpath("//div[contains(@class, 'col col-9-12 -gXFvC')]/text()").get(),
             "image_url": response.xpath("//div[contains(@class, 'gqcSqV YGE0gZ')]/img/@src").get()
         }

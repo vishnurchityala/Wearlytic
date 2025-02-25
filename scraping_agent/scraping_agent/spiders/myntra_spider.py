@@ -63,7 +63,6 @@ class MyntraSpider(scrapy.Spider):
                 "//div[@class='breadcrumbs-container']//a[contains(@class, 'breadcrumbs-link')][last()-2]/text()").get(),
             "description": response.xpath("//h1[contains(@class, 'pdp-name')]/text()").get(),
             "price": response.xpath("//span[contains(@class, 'pdp-price')]//strong/text()").get(),
-            "colors": response.xpath("//div[@class='pdp-color-options-container']//img/@alt").getall(),
             "material": material,
             "image_url": image_url,
         }

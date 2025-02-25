@@ -29,5 +29,3 @@ class FirebasePipeline:
             self.db.collection(collection_name).add(filtered_data)
 
         return item
-
-
