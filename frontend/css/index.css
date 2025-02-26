@@ -219,6 +219,9 @@ body {
         padding: 40px 18px; /* Maintain good spacing on mobile */
         min-height: auto; /* Adjust for smaller screens */
         margin-bottom: 40px; /* Added margin to separate cards */
+        width:87% !important;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .feature-icon {
