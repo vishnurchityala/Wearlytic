@@ -173,7 +173,10 @@ body {
 }
 
 .small-input {
-    width: 45%;
+    width: 30%;
+    font-size: small;
+    border-radius: 50px;
+    padding: 5px 10px;
 }
 
 /* Hover effect */
@@ -188,6 +191,9 @@ body {
     cursor: not-allowed;
 }
 
+.small{
+    font-size: small;
+}
 /* Mobile Pagination Styling */
 @media (max-width: 768px) {
     .custom-pagination .black-btn {

@@ -1,48 +1,3 @@
-
-document.addEventListener("DOMContentLoaded", function () {
-function updatePriceInputs(value, isMobile = false) {
-    if (isMobile) {
-        document.getElementById("mobileMinPrice").value = 0;
-        document.getElementById("mobileMaxPrice").value = value;
-    } else {
-        document.getElementById("minPrice").value = 0;
-        document.getElementById("maxPrice").value = value;
-    }
-}
-
-function updatePriceSlider(isMobile = false) {
-    if (isMobile) {
-        let minPrice = parseInt(document.getElementById("mobileMinPrice").value);
-        let maxPrice = parseInt(document.getElementById("mobileMaxPrice").value);
-        document.getElementById("mobilePriceRange").value = maxPrice;
-    } else {
-        let minPrice = parseInt(document.getElementById("minPrice").value);
-        let maxPrice = parseInt(document.getElementById("maxPrice").value);
-        document.getElementById("priceRange").value = maxPrice;
-    }
-}
-
-document.getElementById("priceRange").addEventListener("input", function () {
-    updatePriceInputs(this.value);
-});
-document.getElementById("minPrice").addEventListener("input", function () {
-    updatePriceSlider();
-});
-document.getElementById("maxPrice").addEventListener("input", function () {
-    updatePriceSlider();
-});
-
-document.getElementById("mobilePriceRange").addEventListener("input", function () {
-    updatePriceInputs(this.value, true);
-});
-document.getElementById("mobileMinPrice").addEventListener("input", function () {
-    updatePriceSlider(true);
-});
-document.getElementById("mobileMaxPrice").addEventListener("input", function () {
-    updatePriceSlider(true);
-});
-});
-
 document.addEventListener("DOMContentLoaded", function () {
     const products = [
         {
@@ -92,8 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
             image: "https://picsum.photos/250/200?random=6",
             category: "accessories",
             source: "bagshop.com"
-        }
-        ,
+        },
         {
             id: 7,
             name: "Backpack",
@@ -101,8 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             image: "https://picsum.photos/250/200?random=6",
             category: "accessories",
             source: "bagshop.com"
-        }
-        ,
+        },
         {
             id: 8,
             name: "Backpack",
@@ -115,7 +68,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderListings(products) {
         const listingsContainer = document.getElementById("listings");
-        listingsContainer.innerHTML = ""; // Clear existing content
+        listingsContainer.innerHTML = "";
+
+        const currentDate = new Date().toLocaleDateString();
 
         products.forEach((product, index) => {
             const productCard = `
@@ -126,8 +81,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             <p class="fw-bold text-dark mb-1 small">$${product.price}</p>
                             <h6 class="fw-semibold mb-1 small">${product.name}</h6>
                             <p class="text-muted mb-2 small">Source: <a href="https://${product.source}" target="_blank" class="text-decoration-none small">${product.source}</a></p>
+                            <p class="text-muted mb-2 small">Date Fetched: ${currentDate}</p>
                             <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-dark rounded-pill px-2">View Product</button>
+                                <button class="btn btn-sm btn-dark rounded-pill px-3 small">View Product</button>
                                 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 refresh-btn" data-index="${index}">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
@@ -150,6 +106,57 @@ document.addEventListener("DOMContentLoaded", function () {
     function refreshProduct(index) {
         const newImageUrl = `https://picsum.photos/250/200?random=${Math.random() * 1000}`;
         document.getElementById(`product-image-${index}`).src = newImageUrl;
+    }
+
+    try {
+        const priceRangeSlider = document.getElementById("priceRange");
+        const minPriceInput = document.getElementById("minPrice");
+        const maxPriceInput = document.getElementById("maxPrice");
+
+        if (priceRangeSlider && minPriceInput && maxPriceInput) {
+            priceRangeSlider.value = maxPriceInput.value;
+
+            priceRangeSlider.addEventListener("input", function () {
+                maxPriceInput.value = this.value;
+            });
+
+            maxPriceInput.addEventListener("input", function () {
+                if (parseInt(this.value) < parseInt(minPriceInput.value)) {
+                    this.value = minPriceInput.value;
+                }
+                priceRangeSlider.value = this.value;
+            });
+
+            minPriceInput.addEventListener("input", function () {
+                if (parseInt(this.value) > parseInt(maxPriceInput.value)) {
+                    this.value = maxPriceInput.value;
+                }
+            });
+        }
+
+        const modalPriceRangeSlider = document.getElementById("modalPriceRange");
+        const modalMinPriceInput = document.getElementById("modalMinPrice");
+        const modalMaxPriceInput = document.getElementById("modalMaxPrice");
+
+        if (modalPriceRangeSlider && modalMinPriceInput && modalMaxPriceInput) {
+            modalPriceRangeSlider.value = modalMaxPriceInput.value;
+
+            modalPriceRangeSlider.addEventListener("input", function () {
+                modalMaxPriceInput.value = this.value;
+            });
+
+            modalMaxPriceInput.addEventListener("input", function () {
+                modalPriceRangeSlider.value = this.value;
+            });
+
+            modalMinPriceInput.addEventListener("input", function () {
+                if (parseInt(this.value) > parseInt(modalMaxPriceInput.value)) {
+                    this.value = modalMaxPriceInput.value;
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error setting up price range sliders:", error);
     }
 
     renderListings(products);

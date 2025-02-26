@@ -37,7 +37,7 @@
     </div>    
 
     <div class="container-fluid d-flex justify-content-center align-items-center mt-4 ps-0 ps-md-5">
-        <img src="./img/logo.png" height="100px" class="ms-3 ms-md-5" alt="">
+        <img src="./img/logo.png" height="100px" class="ms-3 ms-md-5 mt-3" alt="">
         <h1 class="fw-bold page-title ms-0">Wearltyic Listings</h1>
     </div>
 
@@ -49,20 +49,20 @@
             
                     <label class="fw-semibold">Search</label>
                     <div class="input-group mt-2">
-                        <input type="text" class="form-control bg-light border rounded-start-pill shadow-sm px-3" placeholder="Search listings...">
+                        <input type="text" class="form-control bg-light border rounded-start-pill shadow-sm px-3 small" placeholder="Search Listings">
                         <span class="input-group-text bg-dark text-white rounded-end-pill">
                             <i class="fas fa-search"></i>
                         </span>
                     </div>
             
                     <label class="fw-semibold mt-3">Sort by Price</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                    <select class="form-select rounded-pill mt-2 shadow-sm small">
                         <option value="low-high">Low to High</option>
                         <option value="high-low">High to Low</option>
                     </select>
             
                     <label class="fw-semibold mt-3">Category</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                    <select class="form-select rounded-pill mt-2 shadow-sm small">
                         <option value="all">All Categories</option>
                         <option value="clothing">Clothing</option>
                         <option value="accessories">Accessories</option>
@@ -84,9 +84,7 @@
                 </div>
             </aside>
 
-            <!-- Listings Section -->
             <div class="col-md-9">
-                <!-- Mobile Pagination & Filter Button Row -->
                 <div class="d-flex justify-content-between align-items-center mb-3 d-md-none pagination-mobile">
                     <div class="d-flex gap-2">
                         <a class="btn btn-dark black-btn mobile-pagination-btn rounded-pill" href="#" tabindex="-1" id="prevPage">
@@ -103,20 +101,18 @@
                 
                 <!-- Listings -->
                 <div class="row" id="listings">
-                    <!-- Product cards will be inserted here -->
                 </div>
 
-                <!-- Pagination Component (Only Next & Previous) -->
                 <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3">
                     <ul class="pagination custom-pagination">
                         <li class="page-item">
                             <a class="page-link black-btn" href="#" tabindex="-1" id="prevPage">
-                                <i class="fas fa-chevron-left"></i> Previous Page
+                                <i class="fas fa-chevron-left me-2"></i> Previous Page
                             </a>
                         </li>
                         <li class="page-item">
                             <a class="page-link black-btn" href="#" id="nextPage">
-                                Next Page<i class="fas fa-chevron-right"></i>
+                                Next Page<i class="fas fa-chevron-right ms-2"></i>
                             </a>
                         </li>
                     </ul>
@@ -125,7 +121,6 @@
         </div>
     </section>
 
-    <!-- Mobile Filter Modal -->
     <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
