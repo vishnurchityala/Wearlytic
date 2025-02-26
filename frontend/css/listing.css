@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    background-color: #f8f8f8;
+    color: #333;
+    line-height: 1.5;
+    user-select: none;
+}
+
+.hero-navbar, .social-navbar {
+    transition: all 0.3s ease-in-out;
+}
+
+.hover-effect {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.hover-effect:hover {
+    background-color: #efefef;
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.github-text {
+    white-space: nowrap;
+}
+
+.nav-separator {
+    display: inline-block;
+    width: 1.5px;
+    height: 16px;
+    background-color: #ccc;
+    margin: 0 5px;
+}
+
+.social-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+
+@media (max-width: 768px) {
+    /* Parent container is fixed at bottom */
+    .navbar-container {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        z-index: 1000;
+        display: flex;
+        padding-bottom: 16px;
+    }
+
+
+    /* Hide social media links in mobile view */
+    .social-navbar, .social-btn {
+        display: none !important;
+    }
+}
