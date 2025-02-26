@@ -179,6 +179,11 @@ body {
     padding: 5px 10px;
 }
 
+.listing-container {
+    max-height: 750px;
+    overflow-y: scroll;
+}
+
 /* Hover effect */
 .custom-pagination .black-btn:hover {
     background: #333;
@@ -218,5 +223,9 @@ body {
 
     .social-navbar {
         display: none !important;
+    }
+    .listing-container {
+        max-height: 900px;
+        overflow-y: scroll;
     }
 }

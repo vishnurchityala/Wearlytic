@@ -63,6 +63,54 @@ document.addEventListener("DOMContentLoaded", function () {
             image: "https://picsum.photos/250/200?random=6",
             category: "accessories",
             source: "bagshop.com"
+        },
+        {
+            id: 8,
+            name: "Backpack",
+            price: 90,
+            image: "https://picsum.photos/250/200?random=6",
+            category: "accessories",
+            source: "bagshop.com"
+        },
+        {
+            id: 8,
+            name: "Backpack",
+            price: 90,
+            image: "https://picsum.photos/250/200?random=6",
+            category: "accessories",
+            source: "bagshop.com"
+        },
+        {
+            id: 8,
+            name: "Backpack",
+            price: 90,
+            image: "https://picsum.photos/250/200?random=6",
+            category: "accessories",
+            source: "bagshop.com"
+        },
+        {
+            id: 8,
+            name: "Backpack",
+            price: 90,
+            image: "https://picsum.photos/250/200?random=6",
+            category: "accessories",
+            source: "bagshop.com"
+        },
+        {
+            id: 8,
+            name: "Backpack",
+            price: 90,
+            image: "https://picsum.photos/250/200?random=6",
+            category: "accessories",
+            source: "bagshop.com"
+        },
+        {
+            id: 8,
+            name: "Backpack",
+            price: 90,
+            image: "https://picsum.photos/250/200?random=6",
+            category: "accessories",
+            source: "bagshop.com"
         }
     ];
 
