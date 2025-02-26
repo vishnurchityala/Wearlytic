@@ -225,7 +225,7 @@ body {
         display: none !important;
     }
     .listing-container {
-        max-height: 900px;
+        max-height: fit-content;
         overflow-y: scroll;
     }
 }
