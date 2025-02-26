@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         products.forEach((product, index) => {
             const productCard = `
-                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                <div class="col-6 col-md-6 col-lg-3 mb-3">
                     <div class="card shadow-sm border-0 rounded-3 p-2">
                         <img id="product-image-${index}" src="${product.image}" class="card-img-top rounded-3" alt="${product.name}" style="height: 200px; object-fit: cover;">
                         <div class="card-body p-2">
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <h6 class="fw-semibold mb-1 small">${product.name}</h6>
                             <p class="text-muted mb-2 small">Source: <a href="https://${product.source}" target="_blank" class="text-decoration-none small">${product.source}</a></p>
                             <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-dark rounded-pill px-2">View Page</button>
+                                <button class="btn btn-sm btn-dark rounded-pill px-2">View Product</button>
                                 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 refresh-btn" data-index="${index}">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
