@@ -11,19 +11,13 @@
     <link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
 </head>
 <body class="bg-light">
-
-    <!-- Navbar -->
     <div class="container text-center mt-3 navbar-container">
         <div class="d-flex flex-column flex-md-row align-items-center gap-2">
             <nav class="bg-white rounded-pill border shadow-sm px-4 py-2 d-inline-flex hero-navbar">
                 <div class="d-flex align-items-center gap-2">
-                    <a href="index.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">
-                        Home
-                    </a>
+                    <a href="index.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">Home</a>
                     <span class="nav-separator"></span> 
-                    <a href="analytics.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">
-                        Analytics
-                    </a>
+                    <a href="analytics.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">Analytics</a>
                     <span class="nav-separator"></span> 
                     <a href="https://github.com/your-repo" target="_blank" 
                     class="text-decoration-none text-dark fw-bold fs-6 px-2 py-1 rounded-pill hover-effect d-inline-flex align-items-center gap-1">
@@ -31,8 +25,6 @@
                     </a>
                 </div>
             </nav> 
-
-            <!-- Social Media Button -->
             <nav class="bg-white rounded-pill border shadow-sm p-2 d-inline-flex social-navbar">
                 <div class="d-flex align-items-center">
                     <a href="https://linkedin.com/your-profile" target="_blank" 
@@ -42,27 +34,155 @@
                 </div>
             </nav> 
         </div>
+    </div>    
+
+    <div class="container-fluid d-flex justify-content-center align-items-center mt-4 ps-0 ps-md-5">
+        <img src="./img/logo.png" height="100px" class="ms-0 ms-md-5" alt="">
+        <h1 class="fw-bold page-title ms-0">Wearltyic Listings</h1>
     </div>
 
-    <!-- Footer -->
+    <section class="container mt-4 p-4 rounded-4">
+        <div class="row">
+            <aside class="col-md-3 d-none d-md-block">
+                <div class="p-4 shadow-sm rounded-4 bg-white border">
+                    <h5 class="fw-bold mb-3">Filters</h5>
+            
+                    <label class="fw-semibold">Search</label>
+                    <div class="input-group mt-2">
+                        <input type="text" class="form-control bg-light border rounded-start-pill shadow-sm px-3" placeholder="Search listings...">
+                        <span class="input-group-text bg-dark text-white rounded-end-pill">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+            
+                    <label class="fw-semibold mt-3">Sort by Price</label>
+                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                        <option value="low-high">Low to High</option>
+                        <option value="high-low">High to Low</option>
+                    </select>
+            
+                    <label class="fw-semibold mt-3">Category</label>
+                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                        <option value="all">All Categories</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="footwear">Footwear</option>
+                    </select>
+
+                    <label class="fw-semibold mt-3">Price Range</label>
+                    <div class="d-flex flex-column gap-2">
+                        <input type="range" id="priceRange" class="custom-slider" min="0" max="1000" step="10" value="500">
+                        <div class="d-flex justify-content-between">
+                            <input type="number" id="minPrice" class="form-control small-input text-center" value="0" min="0" max="1000">
+                            <input type="number" id="maxPrice" class="form-control small-input text-center" value="1000" min="0" max="1000">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-dark w-100 rounded-pill mt-3 py-2 shadow-sm">
+                        <i class="fas fa-filter me-1"></i> Apply Filters
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Listings Section -->
+            <div class="col-md-9">
+                <!-- Mobile Pagination & Filter Button Row -->
+                <div class="d-flex justify-content-between align-items-center mb-3 d-md-none pagination-mobile">
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-dark black-btn mobile-pagination-btn rounded-pill" href="#" tabindex="-1" id="prevPage">
+                            <i class="fas fa-chevron-left"></i> Prev
+                        </a>
+                        <a class="btn btn-dark black-btn mobile-pagination-btn rounded-pill" href="#" id="nextPage">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                    <button class="btn btn-dark rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+                        <i class="fas fa-filter"></i> 
+                    </button>
+                </div>
+                
+                <!-- Listings -->
+                <div class="row" id="listings">
+                    <!-- Product cards will be inserted here -->
+                </div>
+
+                <!-- Pagination Component (Only Next & Previous) -->
+                <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3">
+                    <ul class="pagination custom-pagination">
+                        <li class="page-item">
+                            <a class="page-link black-btn" href="#" tabindex="-1" id="prevPage">
+                                <i class="fas fa-chevron-left"></i> Previous Page
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link black-btn" href="#" id="nextPage">
+                                Next Page<i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Filter Modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filter Listings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="fw-semibold">Search</label>
+                    <div class="input-group mt-2">
+                        <input type="text" class="form-control bg-light border rounded-start-pill shadow-sm px-3" placeholder="Search listings...">
+                        <span class="input-group-text bg-dark text-white rounded-end-pill">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+            
+                    <label class="fw-semibold mt-3">Sort by Price</label>
+                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                        <option value="low-high">Low to High</option>
+                        <option value="high-low">High to Low</option>
+                    </select>
+            
+                    <label class="fw-semibold mt-3">Category</label>
+                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                        <option value="all">All Categories</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="footwear">Footwear</option>
+                    </select>
+
+                    <label class="fw-semibold mt-3">Price Range</label>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <input type="number" id="modalMinPrice" class="form-control small-input text-center" value="0" min="0" max="1000">
+
+                            <input type="range" id="modalPriceRange" class="custom-slider" min="0" max="1000" step="10" value="500">
+
+                            <input type="number" id="modalMaxPrice" class="form-control small-input text-center" value="1000" min="0" max="1000">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark rounded-pill">Apply Filters</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
     <footer class="text-center py-4 mt-5 border-top">
         <div class="d-flex flex-column align-items-center justify-content-end mt-5">
             <h5 class="fw-bold fs-6">© 2025 Wearlytic</h5>
-            <div class="d-flex gap-4 mt-3 mb-3">
-                <a href="https://linkedin.com/in/your-profile" target="_blank" class="text-dark fs-5">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="https://instagram.com/your-profile" target="_blank" class="text-dark fs-5">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="mailto:your-email@gmail.com" class="text-dark fs-5">
-                    <i class="fas fa-envelope"></i>
-                </a>
-            </div>
             <p class="mb-2 fs-6 fw-bold text-muted">Created with 🖤 by VRC 🔥🔥</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="./js/listing.js"></script>
 </body>
 </html>
