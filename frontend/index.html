@@ -9,35 +9,96 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="./css/index.css">
 </head>
+
+<style>
+
+</style>
+
 <body class="bg-light">
-    <div class="container text-center mt-3">
-        <nav class="d-inline-flex bg-white rounded-pill border border-gray shadow-sm px-4 py-2 hero-navbar">
-            <div class="d-flex align-items-center gap-2">
-                <a href="listing.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">
-                    Listing
-                </a>
-                <span class="nav-separator"></span> 
-                <a href="analytics.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">
-                    Analytics
-                </a>
-                <span class="nav-separator"></span> 
-                <a href="https://github.com/your-repo" target="_blank" 
-                class="text-decoration-none text-dark fw-bold fs-6 px-2 py-1 rounded-pill hover-effect d-inline-flex align-items-center gap-1">
-                    <i class="fab fa-github"></i> <span class="github-text">GitHub</span>
-                </a>
-            </div>
-        </nav>
+    <div class="container text-center mt-3 navbar-container">
+        <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+            <!-- Main Navbar -->
+            <nav class="bg-white rounded-pill border shadow-sm px-4 py-2 d-inline-flex hero-navbar">
+                <div class="d-flex align-items-center gap-2">
+                    <a href="listing.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">
+                        Listing
+                    </a>
+                    <span class="nav-separator"></span> 
+                    <a href="analytics.html" class="text-decoration-none text-dark fs-6 px-2 py-1 rounded-pill">
+                        Analytics
+                    </a>
+                    <span class="nav-separator"></span> 
+                    <a href="https://github.com/your-repo" target="_blank" 
+                    class="text-decoration-none text-dark fw-bold fs-6 px-2 py-1 rounded-pill hover-effect d-inline-flex align-items-center gap-1">
+                        <i class="fab fa-github"></i> <span class="github-text">GitHub</span>
+                    </a>
+                </div>
+            </nav> 
+
+            <!-- Social Media Button -->
+            <nav class="bg-white rounded-pill border shadow-sm p-2 d-inline-flex social-navbar">
+                <div class="d-flex align-items-center">
+                    <a href="https://linkedin.com/your-profile" target="_blank" 
+                    class="text-decoration-none text-dark fs-5 px-2 py-1 rounded-circle d-inline-flex align-items-center justify-content-center social-btn">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </nav> 
+        </div>
     </div>
-    
+
     <div class="container text-center mt-5 hero-section">
         <h1 class="fw-bold hero-title">Wearlytic</h1>
         <p class="hero-subtitle">
-            Your go to tool for real time clothing trend analytics and automated data updates.
+            Your go-to tool for real-time clothing trend analytics and automated data updates.
         </p>
         <a href="listing.html" class="btn hero-btn rounded-pill mt-4">
             Explore Listings <i class="fas fa-arrow-right"></i>
         </a>
     </div>
+    <div class="container text-center mt-5 about-section">
+        <h1 class="fw-bold about-title">About</h1>
+        <p class="about-subtitle">
+            Wearlytic is an AI-powered tool that tracks real-time fashion trends by scraping data from leading clothing websites. It automates data updates and applies analytics to uncover hidden market insights, helping you stay ahead in the fashion industry.
+        </p>
+    
+        <div class="row mt-4">
+            <!-- Feature 1: Real-time Data Scraping -->
+            <div class="col-md-4 d-flex">
+                <div class="feature-card w-100 border">
+                    <i class="fas fa-database feature-icon"></i>
+                    <h5 class="feature-title">Real-time Data Scraping</h5>
+                    <p class="feature-description">
+                        We continuously extract clothing data from Flipkart, Myntra, and other leading fashion websites to keep you updated on the latest trends.
+                    </p>
+                </div>
+            </div>
+    
+            <!-- Feature 2: Automated Data Updates -->
+            <div class="col-md-4 d-flex">
+                <div class="feature-card w-100 border">
+                    <i class="fas fa-robot feature-icon"></i>
+                    <h5 class="feature-title">Automated Data Updates</h5>
+                    <p class="feature-description">
+                        Our system automatically refreshes the data, eliminating the need for manual tracking and ensuring accuracy at all times.
+                    </p>
+                </div>
+            </div>
+    
+            <!-- Feature 3: AI & Data Analytics -->
+            <div class="col-md-4 d-flex">
+                <div class="feature-card w-100 border">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h5 class="feature-title">AI-Powered Insights</h5>
+                    <p class="feature-description">
+                        Advanced AI algorithms analyze fashion data, uncovering hidden trends and predicting the next big styles before they go mainstream.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -17,7 +17,7 @@ body {
     user-select: none;
 }
 
-.hero-navbar {
+.hero-navbar, .social-navbar {
     transition: all 0.3s ease-in-out;
 }
 
@@ -38,13 +38,30 @@ body {
 .nav-separator {
     display: inline-block;
     width: 1.5px;
-    height: px;
+    height: 16px;
     background-color: #ccc;
     margin: 0 5px;
 }
 
+/* Social button */
+.social-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .hero-section {
-    padding: 100px 20px;
+    padding: 20px 20px;
     max-width: 800px;
     margin: 0 auto;
     text-align: center;
@@ -59,11 +76,11 @@ body {
 }
 
 .hero-subtitle {
-    font-size: 1.5rem; 
+    font-size: 1.5rem;
     font-weight: 500;
     color: #555;
-    line-height: 1.8; 
-    max-width: 700px; 
+    line-height: 1.8;
+    max-width: 700px;
     margin: 0 auto;
 }
 
@@ -102,39 +119,109 @@ body {
     outline-offset: 2px;
 }
 
-.nav-separator {
-    display: inline-block;
-    width: 1.5px;
-    height: 16px;
-    background-color: #ccc;
-    margin: 0 5px;
+/* About Section */
+.about-section {
+    padding: 80px 20px;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
+.about-title {
+    font-size: 4rem;
+    color: #111;
+}
+
+.about-subtitle {
+    font-size: 1.3rem;
+    color: #555;
+    max-width: 600px;
+    margin: 40px auto 100px auto; /* Added margin-top and increased margin-bottom */
+}
+
+.feature-card {
+    background: #fff;
+    padding: 40px 20px; /* Increased padding */
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px; /* Increased height slightly for consistency */
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #000; /* Black icon */
+    margin-bottom: 20px;
+}
+
+.feature-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.feature-description {
+    font-size: 0.9rem;
+    color: #666;
+    padding: 0 10px; /* Added slight padding inside */
+}
+
+/* Mobile View */
 @media (max-width: 768px) {
     .hero-title {
         font-size: 3.6rem;
     }
+
     .hero-subtitle {
         font-size: 1.1rem;
     }
+
     .hero-section {
-        padding: 20px 20px 100px; /* Reduce top padding for mobile */
+        padding: 20px 20px 10px; /* Reduce top padding for mobile */
     }
-    .hero-navbar {
+
+    /* Parent container is fixed at bottom */
+    .navbar-container {
         position: fixed;
         bottom: 0;
         left: 50%;
         transform: translateX(-50%);
         width: auto;
-        margin-bottom: 10px;
-        padding: 8px 16px;
-        background-color: white;
         z-index: 1000;
-        border-radius: 50px;
-        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        padding-bottom: 16px;
     }
+
+    /* Shrink buttons slightly */
     .hero-btn {
         font-size: 0.75rem;
         padding: 6px 12px;
+    }
+
+    /* Hide social media links in mobile view */
+    .social-navbar, .social-btn {
+        display: none !important;
+    }
+
+    /* About Section Mobile Optimization */
+    .about-title {
+        font-size: 2rem;
+    }
+
+    .about-subtitle {
+        font-size: 1.1rem;
+        margin: 50px auto 50px auto; /* Consistent spacing for mobile */
+    }
+
+    .feature-card {
+        padding: 40px 18px; /* Maintain good spacing on mobile */
+        min-height: auto; /* Adjust for smaller screens */
+        margin-bottom: 40px; /* Added margin to separate cards */
+    }
+
+    .feature-icon {
+        font-size: 2rem;
     }
 }
