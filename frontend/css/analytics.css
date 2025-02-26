@@ -67,7 +67,9 @@ body {
     padding: 0px;
     max-width: 300px;
 }
-
+.small{
+    font-size: small !important;
+}
 
 @media (max-width: 768px) {
     /* Parent container is fixed at bottom */

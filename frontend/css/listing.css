@@ -197,7 +197,7 @@ body {
 }
 
 .small{
-    font-size: small;
+    font-size: small !important;
 }
 /* Mobile Pagination Styling */
 @media (max-width: 768px) {
