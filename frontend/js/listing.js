@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <h6 class="fw-semibold mb-1 small">${product.name}</h6>
                             <p class="text-muted mb-2 small">Source: <a href="https://${product.source}" target="_blank" class="text-decoration-none small">${product.source}</a></p>
                             <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-dark rounded-pill px-2">View</button>
+                                <button class="btn btn-sm btn-dark rounded-pill px-2">View Page</button>
                                 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 refresh-btn" data-index="${index}">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
