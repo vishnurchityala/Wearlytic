@@ -204,7 +204,7 @@ body {
     display: flex;
     gap: 5px;
     margin-bottom: 10px;
-    max-width: 75px; gap: 4px; overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+    max-width: 75px; gap: 6px; overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
 }
 
 .color-circle {
