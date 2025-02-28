@@ -199,6 +199,36 @@ body {
 .small{
     font-size: small !important;
 }
+
+.color-options {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+    max-width: 75px; gap: 4px; overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+}
+
+.color-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid #f5f5f5;
+    cursor: pointer;
+}
+
+.color-radio {
+    display: inline-block;
+    cursor: pointer;
+}
+.color-radio input {
+    display: none;
+}
+
+.color-radio input:checked + .color-circle {
+    border: 2.5px solid #383838;
+}
+
+
 /* Mobile Pagination Styling */
 @media (max-width: 768px) {
     .custom-pagination .black-btn {
