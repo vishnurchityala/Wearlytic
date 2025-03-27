@@ -45,8 +45,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-FIREBASE_CREDENTIALS = "firebase-credentials-key.json"
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
