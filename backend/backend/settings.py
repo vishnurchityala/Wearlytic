@@ -123,10 +123,7 @@ STATIC_URL = "static/"
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-ALLOWED_HOSTS = [
-    "wearlytic-backend.vercel.app",
-    "127.0.0.1",
-    "localhost",
+ALLOWED_HOSTS = [ "*"
 ]
 
 
