@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 throw new Error("Failed to fetch products");
             }
             const data = await response.json();
+            console.log(data);
             renderListings(data.results); // Assuming API returns products in 'results' key
         } catch (error) {
             console.error("Error fetching products:", error);
