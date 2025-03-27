@@ -1,3 +1,5 @@
+import os
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,7 +9,8 @@ from firebase_admin import credentials, firestore
 from django.conf import settings
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS)
+    firebase_credentials_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+    cred = credentials.Certificate(firebase_credentials_json)
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()

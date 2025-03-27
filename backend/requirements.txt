@@ -1,4 +1,5 @@
 django
 djangorestframework
 firebase-admin
-python-dotenv  # If you're using .env files for local development
+python-dotenv
+os
