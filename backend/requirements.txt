@@ -2,4 +2,3 @@ django
 djangorestframework
 firebase-admin
 python-dotenv
-os
