@@ -13,18 +13,18 @@ import os
 import json
 from django.core.exceptions import ImproperlyConfigured
 
-firebase_credentials_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+# firebase_credentials_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
 
-if firebase_credentials_json:
-    try:
-        # Ensure it's properly loaded
-        FIREBASE_CREDENTIALS = json.loads(firebase_credentials_json)
-    except json.JSONDecodeError as e:
-        raise ImproperlyConfigured(f"Error: Invalid JSON format in FIREBASE_CREDENTIALS_JSON: {e}")
-else:
-    raise ImproperlyConfigured("Error: FIREBASE_CREDENTIALS_JSON environment variable is missing")
+# if firebase_credentials_json:
+#     try:
+#         # Ensure it's properly loaded
+#         FIREBASE_CREDENTIALS = json.loads(firebase_credentials_json)
+#     except json.JSONDecodeError as e:
+#         raise ImproperlyConfigured(f"Error: Invalid JSON format in FIREBASE_CREDENTIALS_JSON: {e}")
+# else:
+#     raise ImproperlyConfigured("Error: FIREBASE_CREDENTIALS_JSON environment variable is missing")
 
-
+FIREBASE_CREDENTIALS = "firebase-key.json"
 
 from pathlib import Path
 
