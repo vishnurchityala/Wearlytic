@@ -69,7 +69,7 @@ def get_products(request):
             prev_docs = list(prev_query.stream())
 
             if len(prev_docs) > 1:
-                prev_cursor = base64.b64encode(prev_docs[-2].id.encode('utf-8')).decode('utf-8')
+                prev_cursor = base64.b64encode(prev_docs[-1].id.encode('utf-8')).decode('utf-8')
 
         # Generate next and prev URLs
         base_url = request.build_absolute_uri(request.path)
