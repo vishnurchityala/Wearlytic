@@ -9,6 +9,24 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
+import json
+from django.core.exceptions import ImproperlyConfigured
+
+firebase_credentials_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+
+if firebase_credentials_json:
+    try:
+        # Ensure the string is properly formatted
+        firebase_credentials_json = firebase_credentials_json.replace("\\n", "\n")
+
+        # Convert the JSON string into a dictionary
+        FIREBASE_CREDENTIALS = json.loads(firebase_credentials_json)
+    except json.JSONDecodeError:
+        raise ImproperlyConfigured("Error: Invalid JSON format in FIREBASE_CREDENTIALS_JSON")
+else:
+    raise ImproperlyConfigured("Error: FIREBASE_CREDENTIALS_JSON environment variable is missing")
+
 
 from pathlib import Path
 
