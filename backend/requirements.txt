@@ -2,3 +2,4 @@ django
 djangorestframework
 firebase-admin
 python-dotenv
+django-cors-headers
