@@ -17,15 +17,13 @@ firebase_credentials_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
 
 if firebase_credentials_json:
     try:
-        # Ensure the string is properly formatted
-        firebase_credentials_json = firebase_credentials_json.replace("\\n", "\n")
-
-        # Convert the JSON string into a dictionary
+        # Ensure it's properly loaded
         FIREBASE_CREDENTIALS = json.loads(firebase_credentials_json)
-    except json.JSONDecodeError:
-        raise ImproperlyConfigured("Error: Invalid JSON format in FIREBASE_CREDENTIALS_JSON")
+    except json.JSONDecodeError as e:
+        raise ImproperlyConfigured(f"Error: Invalid JSON format in FIREBASE_CREDENTIALS_JSON: {e}")
 else:
     raise ImproperlyConfigured("Error: FIREBASE_CREDENTIALS_JSON environment variable is missing")
+
 
 
 from pathlib import Path
