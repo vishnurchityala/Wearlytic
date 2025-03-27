@@ -43,3 +43,4 @@ scraping_agent/scraping_agent/wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.jso
 /scraping_agent/scraping_agent/outputs
 *.pyc
 backend/firebase-credentials-key.json
+backend/firebase-key.json
