@@ -25,7 +25,7 @@ def get_products(request):
 
     try:
         products_ref = db.collection('products')  # Collection reference
-        query = products_ref.order_by("__name__").limit(page_size)
+        query = products_ref.order_by("product_name").limit(page_size)
 
         # If start_after is provided, fetch the document snapshot
         if start_after:
