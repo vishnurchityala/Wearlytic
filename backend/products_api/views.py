@@ -4,52 +4,50 @@ from rest_framework import status
 import firebase_admin
 from firebase_admin import credentials, firestore
 from django.conf import settings
-from urllib.parse import urlencode
 
-# Initialize Firebase
+# Initialize Firebase if not already initialized
 if not firebase_admin._apps:
     cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS)
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
+PAGE_SIZE = 30  # Number of products per page
+
 @api_view(['GET'])
 def get_products(request):
     try:
-        page = int(request.GET.get("page", 1))  # Default to page 1
-        page_size = int(request.GET.get("page_size", 30))  # Default page size 30
-        base_url = request.build_absolute_uri(request.path)  # Get API base URL
+        page = int(request.GET.get("page", 1))
+        last_doc_id = request.GET.get("last_doc", None)
 
-        if page < 1:
-            return Response({"error": "Page number must be >= 1"}, status=status.HTTP_400_BAD_REQUEST)
+        print(f"📌 Fetching Page: {page} | Last Doc ID: {last_doc_id}")
 
-        products_ref = db.collection("products").order_by("created_at")  # Order by creation time
+        # Query Firestore, ordered by a known field (created_at)
+        products_ref = db.collection("products").order_by("created_at")
 
-        total_count = len(list(products_ref.stream()))  # Count total products
-        total_pages = (total_count + page_size - 1) // page_size  # Calculate total pages
+        # Apply pagination cursor
+        if last_doc_id:
+            last_doc = db.collection("products").document(last_doc_id).get()
+            if last_doc.exists:
+                products_ref = products_ref.start_after(last_doc)
 
-        products = []
-        paginated_ref = products_ref.offset((page - 1) * page_size).limit(page_size)  # Skip previous pages
-        for doc in paginated_ref.stream():
-            data = doc.to_dict()
-            data["id"] = doc.id
-            products.append(data)
+        # Fetch the products
+        docs = products_ref.limit(PAGE_SIZE).stream()
+        products = [doc.to_dict() | {"id": doc.id} for doc in docs]
 
-        # Generate next and previous page URLs
-        next_page = f"{base_url}?{urlencode({'page': page + 1, 'page_size': page_size})}" if page < total_pages else None
-        prev_page = f"{base_url}?{urlencode({'page': page - 1, 'page_size': page_size})}" if page > 1 else None
+        # Set next page cursor (last document ID in this batch)
+        next_page_cursor = products[-1]["id"] if len(products) == PAGE_SIZE else None
 
         return Response({
             "products": products,
             "page": page,
-            "page_size": page_size,
-            "total_pages": total_pages,
-            "total_products": total_count,
-            "has_next": page < total_pages,
+            "page_size": PAGE_SIZE,
+            "has_next": bool(next_page_cursor),
             "has_prev": page > 1,
-            "next_page": next_page,
-            "prev_page": prev_page
+            "next_page_url": f"/api/products/?page={page + 1}&last_doc={next_page_cursor}" if next_page_cursor else None,
+            "prev_page_url": f"/api/products/?page={page - 1}" if page > 1 else None
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
+        print(f"❌ Error fetching products: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
