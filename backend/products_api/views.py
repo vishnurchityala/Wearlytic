@@ -20,7 +20,6 @@ class ProductPagination(PageNumberPagination):
 @api_view(['GET'])
 def get_products(request):
     try:
-        # Hellloooo
         products_ref = db.collection('products')
         all_products = [doc.to_dict() for doc in products_ref.stream()]
 
