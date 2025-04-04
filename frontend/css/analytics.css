@@ -71,6 +71,15 @@ body {
     font-size: small !important;
 }
 
+.btn-tiny {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    width: fit-content;
+    margin: auto;
+    margin-top: 1.0rem;
+}
+
+
 @media (max-width: 768px) {
     /* Parent container is fixed at bottom */
     .navbar-container {

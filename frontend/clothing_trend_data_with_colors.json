@@ -1,0 +1,602 @@
+[
+  {
+    "age_group": "19-25",
+    "preferred_color": "black",
+    "preferred_design": "regular",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "beige",
+    "preferred_design": "regular",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "beige",
+    "preferred_design": "regular",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "pastel pink",
+    "preferred_design": "drifit",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "maroon",
+    "preferred_design": "oversized",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "lavender",
+    "preferred_design": "anime print",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "lavender",
+    "preferred_design": "regular",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "pastel pink",
+    "preferred_design": "oversized",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "black",
+    "preferred_design": "oversized",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "blue",
+    "preferred_design": "regular",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "lavender",
+    "preferred_design": "drifit",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "lavender",
+    "preferred_design": "funky",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "black",
+    "preferred_design": "oversized",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "lavender",
+    "preferred_design": "anime print",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "lavender",
+    "preferred_design": "drifit",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "neon green",
+    "preferred_design": "regular",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "pastel pink",
+    "preferred_design": "anime print",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "beige",
+    "preferred_design": "regular",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "white",
+    "preferred_design": "funky",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "neon green",
+    "preferred_design": "funky",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "neon green",
+    "preferred_design": "oversized",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "pastel pink",
+    "preferred_design": "anime print",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "blue",
+    "preferred_design": "anime print",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "pastel pink",
+    "preferred_design": "regular",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "white",
+    "preferred_design": "oversized",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "blue",
+    "preferred_design": "anime print",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "blue",
+    "preferred_design": "regular",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "black",
+    "preferred_design": "regular",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "beige",
+    "preferred_design": "drifit",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "oversized",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "white",
+    "preferred_design": "funky",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "white",
+    "preferred_design": "anime print",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "lavender",
+    "preferred_design": "anime print",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "white",
+    "preferred_design": "drifit",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "white",
+    "preferred_design": "oversized",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "white",
+    "preferred_design": "drifit",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "pastel pink",
+    "preferred_design": "funky",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "neon green",
+    "preferred_design": "anime print",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "black",
+    "preferred_design": "funky",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "regular",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "pastel pink",
+    "preferred_design": "funky",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "funky",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "white",
+    "preferred_design": "anime print",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "black",
+    "preferred_design": "anime print",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "maroon",
+    "preferred_design": "regular",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "black",
+    "preferred_design": "drifit",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "neon green",
+    "preferred_design": "drifit",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "maroon",
+    "preferred_design": "anime print",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "maroon",
+    "preferred_design": "anime print",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "lavender",
+    "preferred_design": "funky",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "beige",
+    "preferred_design": "drifit",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "black",
+    "preferred_design": "anime print",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "white",
+    "preferred_design": "funky",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "maroon",
+    "preferred_design": "anime print",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "blue",
+    "preferred_design": "oversized",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "white",
+    "preferred_design": "funky",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "lavender",
+    "preferred_design": "anime print",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "blue",
+    "preferred_design": "anime print",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "beige",
+    "preferred_design": "regular",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "pastel pink",
+    "preferred_design": "anime print",
+    "color_code": "#FFD1DC"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "lavender",
+    "preferred_design": "oversized",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "lavender",
+    "preferred_design": "oversized",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "neon green",
+    "preferred_design": "anime print",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "lavender",
+    "preferred_design": "funky",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "maroon",
+    "preferred_design": "funky",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "black",
+    "preferred_design": "anime print",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "neon green",
+    "preferred_design": "regular",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "black",
+    "preferred_design": "funky",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "lavender",
+    "preferred_design": "oversized",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "neon green",
+    "preferred_design": "funky",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "black",
+    "preferred_design": "drifit",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "lavender",
+    "preferred_design": "funky",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "beige",
+    "preferred_design": "regular",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "beige",
+    "preferred_design": "funky",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "maroon",
+    "preferred_design": "drifit",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "beige",
+    "preferred_design": "oversized",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "neon green",
+    "preferred_design": "anime print",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "black",
+    "preferred_design": "anime print",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "black",
+    "preferred_design": "regular",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "neon green",
+    "preferred_design": "regular",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "36-50",
+    "preferred_color": "blue",
+    "preferred_design": "drifit",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "lavender",
+    "preferred_design": "drifit",
+    "color_code": "#E6E6FA"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "white",
+    "preferred_design": "oversized",
+    "color_code": "#FFFFFF"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "beige",
+    "preferred_design": "drifit",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "neon green",
+    "preferred_design": "oversized",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "neon green",
+    "preferred_design": "drifit",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "beige",
+    "preferred_design": "regular",
+    "color_code": "#F5F5DC"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "neon green",
+    "preferred_design": "funky",
+    "color_code": "#39FF14"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "black",
+    "preferred_design": "anime print",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "13-18",
+    "preferred_color": "maroon",
+    "preferred_design": "anime print",
+    "color_code": "#800000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "blue",
+    "preferred_design": "funky",
+    "color_code": "#0000FF"
+  },
+  {
+    "age_group": "26-35",
+    "preferred_color": "black",
+    "preferred_design": "anime print",
+    "color_code": "#000000"
+  },
+  {
+    "age_group": "19-25",
+    "preferred_color": "blue",
+    "preferred_design": "drifit",
+    "color_code": "#0000FF"
+  }
+]

@@ -1,33 +1,40 @@
 document.addEventListener("DOMContentLoaded", async function () {
     const apiUrlBase = "https://wearlytic-backend.vercel.app/api/products/?format=json";
     const listingsContainer = document.getElementById("listings");
-    let currentPageUrl = apiUrlBase; // Default API URL
+    const loader = document.getElementById("loader");
+    const sortSelect = document.getElementById("sortProducts");
+    const materialSelect = document.getElementById("selectMaterial");
+    const materialSelectModal = document.getElementById("selectMaterialModal");
+    let currentPageUrl = apiUrlBase;
+    let productList = [];
+    let originalProductList = [];
 
     async function fetchProducts(pageUrl) {
         try {
+            showLoader();
             const response = await fetch(pageUrl);
             if (!response.ok) {
                 throw new Error("Failed to fetch products");
             }
             const data = await response.json();
-            renderListings(data.products);
+            originalProductList = data.products || [];
+            productList = [...originalProductList];
+            populateMaterialFilter();
             renderPagination(data.next_page, data.prev_page);
-            currentPageUrl = pageUrl;
+            applyFilters();
         } catch (error) {
             console.error("Error fetching products:", error);
+        } finally {
+            hideLoader();
         }
     }
 
-    function renderListings(products) {
-        if (!Array.isArray(products)) {
-            console.error("Invalid products data. Expected an array.");
-            return;
-        }
-        
+    function populateContainer() {
+        showLoader();
         listingsContainer.innerHTML = "";
         const currentDate = new Date().toLocaleDateString();
-
-        products.forEach((product, index) => {
+        
+        productList.forEach(product => {
             const colorCircles = (product.colors || []).map(color => 
                 `<span class="color-circle d-inline-block" style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;"></span>`
             ).join('');
@@ -60,35 +67,93 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             listingsContainer.innerHTML += productCard;
         });
+        hideLoader();
+    }
+
+    function extractPrice(priceString) {
+        return parseFloat(priceString.replace(/[^0-9.]/g, '')) || 0;
+    }
+
+    function sortProducts(order) {
+        if (order === "low-high") {
+            productList.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+        } else if (order === "high-low") {
+            productList.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+        }
+        populateContainer();
+    }
+
+    function populateMaterialFilter() {
+        const materials = new Set(["all"]);
+        originalProductList.forEach(product => {
+            if (product.material) {
+                materials.add(product.material.toLowerCase());
+            }
+        });
+
+        const materialOptions = Array.from(materials)
+            .map(material => `<option value="${material}">${material.charAt(0).toUpperCase() + material.slice(1)}</option>`)
+            .join('');
+
+        materialSelect.innerHTML = materialOptions;
+        materialSelectModal.innerHTML = materialOptions;
+    }
+
+    function filterByMaterial(material) {
+        if (material === "all") {
+            productList = [...originalProductList];
+        } else {
+            productList = originalProductList.filter(product => product.material && product.material.toLowerCase() === material);
+        }
+        populateContainer();
     }
 
     function renderPagination(nextUrl, prevUrl) {
-
-        document.getElementById("prevPage").addEventListener("click", function (event) {
+        document.getElementById("prevPage").onclick = function (event) {
             event.preventDefault();
-            if (prevUrl) {
-                fetchProducts(prevUrl);
-            } else {
-                console.log("No previous page available.");
-            }
-        });
-        document.getElementById("nextPage").addEventListener("click", function (event) {
+            if (prevUrl) fetchProducts(prevUrl);
+        };
+        document.getElementById("nextPage").onclick = function (event) {
             event.preventDefault();
             if (nextUrl) fetchProducts(nextUrl);
-        });
-        document.getElementById("prevPage1").addEventListener("click", function (event) {
+        };
+        document.getElementById("prevPage1").onclick = function (event) {
             event.preventDefault();
-            if (prevUrl) {
-                fetchProducts(prevUrl);
-            } else {
-                console.log("No previous page available.");
-            }
-        });
-        document.getElementById("nextPage1").addEventListener("click", function (event) {
+            if (prevUrl) fetchProducts(prevUrl);
+        };
+        document.getElementById("nextPage1").onclick = function (event) {
             event.preventDefault();
             if (nextUrl) fetchProducts(nextUrl);
-        });
+        };
     }
 
+    function applyFilters() {
+        sortProducts(sortSelect.value);
+        filterByMaterial(materialSelect.value);
+    }
+
+    function showLoader() {
+        if (loader) loader.style.display = "flex";
+    }
+
+    function hideLoader() {
+        if (loader) loader.style.display = "none";
+    }
+
+    sortSelect.addEventListener("change", function () {
+        sortProducts(this.value);
+    });
+
+    materialSelect.addEventListener("change", function () {
+        materialSelectModal.value = this.value;
+        filterByMaterial(this.value);
+    });
+
+    materialSelectModal.addEventListener("change", function () {
+        materialSelect.value = this.value;
+        filterByMaterial(this.value);
+    });
+
     await fetchProducts(currentPageUrl);
+    populateContainer();
 });

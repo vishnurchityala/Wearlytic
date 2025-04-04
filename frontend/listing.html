@@ -11,6 +11,9 @@
     <link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
 </head>
 <body class="bg-light">
+    <div id="loader" class="loader-container">
+        <div class="spinner"></div>
+    </div>    
     <div class="container text-center mt-3 navbar-container">
         <div class="d-flex flex-column flex-md-row align-items-center gap-2">
             <nav class="bg-white rounded-pill border shadow-sm px-4 py-2 d-inline-flex hero-navbar">
@@ -56,7 +59,7 @@
                     </div>
             
                     <label class="fw-semibold mt-3">Sort by Price</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm small">
+                    <select id="sortProducts" class="form-select rounded-pill mt-2 shadow-sm small">
                         <option value="low-high">Low to High</option>
                         <option value="high-low">High to Low</option>
                     </select>
@@ -105,12 +108,7 @@
                     <input type="date" class="form-control rounded-pill mt-2 shadow-sm small">
                 
                     <label class="fw-semibold mt-3">Material</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm small">
-                        <option value="all">All Materials</option>
-                        <option value="cotton">Cotton</option>
-                        <option value="leather">Leather</option>
-                        <option value="denim">Denim</option>
-                        <option value="polyester">Polyester</option>
+                    <select id="selectMaterial" class="form-select rounded-pill mt-2 shadow-sm small">
                     </select>
 
                     <button class="btn btn-dark w-100 rounded-pill mt-3 py-2 shadow-sm">
@@ -173,7 +171,7 @@
                     </div>
             
                     <label class="fw-semibold mt-3">Sort by Price</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                    <select id="sortProductsModal" class="form-select rounded-pill mt-2 shadow-sm">
                         <option value="low-high">Low to High</option>
                         <option value="high-low">High to Low</option>
                     </select>
@@ -224,7 +222,7 @@
                     <input type="date" class="form-control rounded-pill mt-2 shadow-sm small">
                 
                     <label class="fw-semibold mt-3">Material</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm small">
+                    <select id="selectMaterialModal" class="form-select rounded-pill mt-2 shadow-sm small">
                         <option value="all">All Materials</option>
                         <option value="cotton">Cotton</option>
                         <option value="leather">Leather</option>
