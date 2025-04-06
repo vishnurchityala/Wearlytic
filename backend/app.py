@@ -11,6 +11,7 @@ app = Flask(__name__)
 api = Api(app)
 
 mongo_uri = os.getenv('MONGODB_URI')
+
 client = MongoClient(mongo_uri)
 db = client['wearlytic']
 products_collection = db['products']
