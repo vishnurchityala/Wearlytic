@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const apiUrlBase = "https://wearlytic-backend.vercel.app/api/products/?format=json";
+    const apiUrlBase = "https://wearlytic-backend.vercel.app/api/products";
     const listingsContainer = document.getElementById("listings");
     const loader = document.getElementById("loader");
     const sortSelect = document.getElementById("sortProducts");
