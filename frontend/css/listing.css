@@ -228,6 +228,69 @@ body {
     border: 2.5px solid #383838;
 }
 
+.color-radio input:checked + .rainbow-gradient {
+    position: relative;
+}
+
+.color-radio input:checked + .rainbow-gradient::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, 
+        #ff0000, 
+        #ff8000, 
+        #ffff00, 
+        #00ff00, 
+        #00ffff, 
+        #0000ff, 
+        #8000ff, 
+        #ff00ff
+    );
+    z-index: -1;
+    animation: rainbow 8s ease infinite;
+    background-size: 400% 400%;
+}
+
+.rainbow-gradient {
+    position: relative;
+    background: #000;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.rainbow-gradient::after {
+    content: 'All';
+    position: absolute;
+    inset: 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 1;
+}
+
+@keyframes rainbow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 .loader-container {
     position: fixed;
     top: 0;

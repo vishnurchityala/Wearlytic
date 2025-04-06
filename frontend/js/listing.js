@@ -11,7 +11,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     const maxPriceInput = document.getElementById("maxPrice");
     const modalMinPrice = document.getElementById("modalMinPrice");
     const modalMaxPrice = document.getElementById("modalMaxPrice");
+    const categorySelect = document.getElementById("selectCategory");
+    const categorySelectModal = document.getElementById("selectCategoryModal");
+    const colorFilters = document.getElementById("colorFilters");
+    const colorFiltersModal = document.getElementById("colorFiltersModal");
+    const pageSizeSelect = document.getElementById("pageSize");
+    const pageSizeSelectModal = document.getElementById("pageSizeModal");
     let currentPage = 1;
+    let itemsPerPage = 12;
     let productList = [];
     let originalProductList = [];
     let searchTimeout;
@@ -25,7 +32,75 @@ document.addEventListener("DOMContentLoaded", async function () {
         return parseFloat(numericValue) || 0;
     }
 
-    async function fetchProducts(page = 1, perPage = 12, searchTerm = '', minPrice = null, maxPrice = null) {
+    function populateCategoryFilter() {
+        const categories = new Set(["all"]);
+        originalProductList.forEach(product => {
+            if (product.category) {
+                categories.add(product.category.toLowerCase());
+            }
+        });
+
+        const categoryOptions = Array.from(categories)
+            .map(category => `<option value="${category}">${category.charAt(0).toUpperCase() + category.slice(1)}</option>`)
+            .join('');
+
+        categorySelect.innerHTML = categoryOptions;
+        categorySelectModal.innerHTML = categoryOptions;
+    }
+
+    function filterByCategory(category) {
+        if (category === "all") {
+            productList = [...originalProductList];
+        } else {
+            productList = originalProductList.filter(product => 
+                product.category && product.category.toLowerCase() === category
+            );
+        }
+        populateContainer();
+    }
+
+    function populateColorFilters() {
+        const colors = new Set(["all"]);
+        originalProductList.forEach(product => {
+            if (product.colors && Array.isArray(product.colors)) {
+                product.colors.forEach(color => {
+                    if (color) {
+                        colors.add(color.toLowerCase());
+                    }
+                });
+            }
+        });
+
+        const colorOptions = Array.from(colors)
+            .map(color => {
+                const colorClass = color === 'all' ? 'bg-light border' : `bg-${color}`;
+                return `
+                    <label class="color-radio">
+                        <input type="radio" name="color" value="${color}" ${color === 'all' ? 'checked' : ''}>
+                        <span class="color-circle ${colorClass}">${color === 'all' ? 'All' : ''}</span>
+                    </label>
+                `;
+            })
+            .join('');
+
+        colorFilters.innerHTML = colorOptions;
+        colorFiltersModal.innerHTML = colorOptions.replace(/name="color"/g, 'name="modalColor"');
+    }
+
+    function filterByColor(color) {
+        if (color === "all") {
+            productList = [...originalProductList];
+        } else {
+            productList = originalProductList.filter(product => 
+                product.colors && 
+                Array.isArray(product.colors) && 
+                product.colors.some(c => c.toLowerCase() === color)
+            );
+        }
+        populateContainer();
+    }
+
+    async function fetchProducts(page = 1, perPage = itemsPerPage, searchTerm = '', minPrice = null, maxPrice = null, category = 'all', color = 'all') {
         try {
             showLoader();
             const url = new URL(apiUrlBase);
@@ -40,6 +115,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
             if (maxPrice !== null && maxPrice !== '') {
                 url.searchParams.append('max_price', maxPrice);
+            }
+            if (category !== 'all') {
+                url.searchParams.append('category', category);
+            }
+            if (color !== 'all') {
+                url.searchParams.append('color', color);
             }
             
             const response = await fetch(url);
@@ -64,6 +145,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             originalProductList = filteredProducts;
             productList = [...originalProductList];
             populateMaterialFilter();
+            populateCategoryFilter();
+            populateColorFilters();
             renderPagination(data.pagination);
             applyFilters();
         } catch (error) {
@@ -192,6 +275,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     function applyFilters() {
         sortProducts(sortSelect.value);
         filterByMaterial(materialSelect.value);
+        filterByCategory(categorySelect.value);
+        const selectedColor = document.querySelector('input[name="color"]:checked').value;
+        filterByColor(selectedColor);
     }
 
     function showLoader() {
@@ -206,7 +292,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         const searchTerm = this.value.trim();
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-            fetchProducts(1, 12, searchTerm, parseInt(minPriceInput.value), parseInt(maxPriceInput.value) || null);
+            const selectedColor = document.querySelector('input[name="color"]:checked').value;
+            fetchProducts(
+                1, 
+                itemsPerPage, 
+                searchTerm, 
+                parseInt(minPriceInput.value), 
+                parseInt(maxPriceInput.value) || null,
+                categorySelect.value,
+                selectedColor
+            );
         }, 1000);
     }
 
@@ -224,7 +319,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         
         clearTimeout(priceTimeout);
         priceTimeout = setTimeout(() => {
-            fetchProducts(1, 12, searchInput.value.trim(), minPrice, maxPrice);
+            const selectedColor = document.querySelector('input[name="color"]:checked').value;
+            fetchProducts(
+                1, 
+                itemsPerPage, 
+                searchInput.value.trim(), 
+                minPrice, 
+                maxPrice,
+                categorySelect.value,
+                selectedColor
+            );
         }, 1000);
     }
 
@@ -260,6 +364,71 @@ document.addEventListener("DOMContentLoaded", async function () {
         materialSelect.value = this.value;
         filterByMaterial(this.value);
     });
+
+    // Add event listeners for category selection
+    categorySelect.addEventListener("change", function () {
+        categorySelectModal.value = this.value;
+        filterByCategory(this.value);
+    });
+
+    categorySelectModal.addEventListener("change", function () {
+        categorySelect.value = this.value;
+        filterByCategory(this.value);
+    });
+
+    // Add event listeners for color selection
+    colorFilters.addEventListener("change", function(e) {
+        if (e.target.name === 'color') {
+            const selectedColor = e.target.value;
+            const modalInput = document.querySelector(`input[name="modalColor"][value="${selectedColor}"]`);
+            if (modalInput) {
+                modalInput.checked = true;
+            }
+            filterByColor(selectedColor);
+        }
+    });
+
+    colorFiltersModal.addEventListener("change", function(e) {
+        if (e.target.name === 'modalColor') {
+            const selectedColor = e.target.value;
+            const mainInput = document.querySelector(`input[name="color"][value="${selectedColor}"]`);
+            if (mainInput) {
+                mainInput.checked = true;
+            }
+            filterByColor(selectedColor);
+        }
+    });
+
+    // Add event listeners for page size selection
+    pageSizeSelect.addEventListener("change", function() {
+        pageSizeSelectModal.value = this.value;
+        itemsPerPage = parseInt(this.value);
+        handlePageSizeChange();
+    });
+
+    pageSizeSelectModal.addEventListener("change", function() {
+        pageSizeSelect.value = this.value;
+        itemsPerPage = parseInt(this.value);
+        handlePageSizeChange();
+    });
+
+    function handlePageSizeChange() {
+        currentPage = 1; // Reset to first page when changing page size
+        const searchTerm = searchInput.value.trim();
+        const minPrice = minPriceInput.value ? parseInt(minPriceInput.value) : null;
+        const maxPrice = maxPriceInput.value ? parseInt(maxPriceInput.value) : null;
+        const selectedColor = document.querySelector('input[name="color"]:checked').value;
+        
+        fetchProducts(
+            currentPage,
+            itemsPerPage,
+            searchTerm,
+            minPrice,
+            maxPrice,
+            categorySelect.value,
+            selectedColor
+        );
+    }
 
     await fetchProducts(currentPage);
     populateContainer();

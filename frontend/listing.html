@@ -63,56 +63,58 @@
                         <option value="low-high">Low to High</option>
                         <option value="high-low">High to Low</option>
                     </select>
+
+                    <label class="fw-semibold mt-3">Items per Page</label>
+                    <select id="pageSize" class="form-select rounded-pill mt-2 shadow-sm small">
+                        <option value="12">12 Items</option>
+                        <option value="24">24 Items</option>
+                        <option value="36">36 Items</option>
+                        <option value="48">48 Items</option>
+                    </select>
             
                     <label class="fw-semibold mt-3">Category</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm small">
+                    <select id="selectCategory" class="form-select rounded-pill mt-2 shadow-sm small">
                         <option value="all">All Categories</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="accessories">Accessories</option>
-                        <option value="footwear">Footwear</option>
                     </select>
 
                     <label class="fw-semibold mt-3">Price Range</label>
                     <div class="d-flex flex-column gap-2">
                         <div class="d-flex justify-content-between">
-                            <input type="number" id="minPrice" class="form-control small-input text-center" value="0" min="0" max="1000" placeholder="Min">
-                            <input type="number" id="maxPrice" class="form-control small-input text-center" value="1000" min="0" max="1000" placeholder="Max">
+                            <input type="number" id="minPrice" class="form-control small-input text-center"  min="0" max="1000" placeholder="Min">
+                            <input type="number" id="maxPrice" class="form-control small-input text-center"  min="0" max="1000" placeholder="Max">
                         </div>
                     </div>
-                    <label class="fw-semibold mt-3">Color</label>
-                    <div class="d-flex flex-wrap gap-2 mt-2">
+                    <label class="fw-semibold mt-3 d-none">Color</label>
+                    <div class="d-flex flex-wrap gap-2 mt-2 d-none" id="colorFilters">
                         <label class="color-radio">
-                            <input type="radio" name="modalColor" value="red">
+                            <input type="radio" name="color" value="all" checked>
+                            <span class="color-circle rainbow-gradient"></span>
+                        </label>
+                        <label class="color-radio">
+                            <input type="radio" name="color" value="red">
                             <span class="color-circle bg-danger"></span>
                         </label>
                         <label class="color-radio">
-                            <input type="radio" name="modalColor" value="blue">
+                            <input type="radio" name="color" value="blue">
                             <span class="color-circle bg-primary"></span>
                         </label>
                         <label class="color-radio">
-                            <input type="radio" name="modalColor" value="green">
+                            <input type="radio" name="color" value="green">
                             <span class="color-circle bg-success"></span>
                         </label>
                         <label class="color-radio">
-                            <input type="radio" name="modalColor" value="black">
+                            <input type="radio" name="color" value="black">
                             <span class="color-circle bg-dark"></span>
                         </label>
                         <label class="color-radio">
-                            <input type="radio" name="modalColor" value="white">
+                            <input type="radio" name="color" value="white">
                             <span class="color-circle bg-light border"></span>
                         </label>
                     </div>
                 
-                    <label class="fw-semibold mt-3">Date</label>
-                    <input type="date" class="form-control rounded-pill mt-2 shadow-sm small">
-                
                     <label class="fw-semibold mt-3">Material</label>
                     <select id="selectMaterial" class="form-select rounded-pill mt-2 shadow-sm small">
                     </select>
-
-                    <button class="btn btn-dark w-100 rounded-pill mt-3 py-2 shadow-sm">
-                        <i class="fas fa-filter me-1"></i> Apply Filters
-                    </button>
                 </div>
             </aside>
 
@@ -174,13 +176,18 @@
                         <option value="low-high">Low to High</option>
                         <option value="high-low">High to Low</option>
                     </select>
+
+                    <label class="fw-semibold mt-3">Items per Page</label>
+                    <select id="pageSizeModal" class="form-select rounded-pill mt-2 shadow-sm">
+                        <option value="12">12 Items</option>
+                        <option value="24">24 Items</option>
+                        <option value="36">36 Items</option>
+                        <option value="48">48 Items</option>
+                    </select>
             
                     <label class="fw-semibold mt-3">Category</label>
-                    <select class="form-select rounded-pill mt-2 shadow-sm">
+                    <select id="selectCategoryModal" class="form-select rounded-pill mt-2 shadow-sm">
                         <option value="all">All Categories</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="accessories">Accessories</option>
-                        <option value="footwear">Footwear</option>
                     </select>
 
                     <label class="fw-semibold mt-3">Price Range</label>
@@ -190,8 +197,12 @@
                             <input type="number" id="modalMaxPrice" class="form-control small-input text-center" value="1000" min="0" max="1000" placeholder="Max">
                         </div>
                     </div>
-                    <label class="fw-semibold mt-3">Color</label>
-                    <div class="d-flex flex-wrap gap-2 mt-2">
+                    <label class="fw-semibold mt-3 d-none">Color</label>
+                    <div class="d-flex flex-wrap gap-2 mt-2 d-none" id="colorFiltersModal">
+                        <label class="color-radio">
+                            <input type="radio" name="modalColor" value="all" checked>
+                            <span class="color-circle rainbow-gradient"></span>
+                        </label>
                         <label class="color-radio">
                             <input type="radio" name="modalColor" value="red">
                             <span class="color-circle bg-danger"></span>
@@ -214,9 +225,6 @@
                         </label>
                     </div>
                 
-                    <label class="fw-semibold mt-3">Date</label>
-                    <input type="date" class="form-control rounded-pill mt-2 shadow-sm small">
-                
                     <label class="fw-semibold mt-3">Material</label>
                     <select id="selectMaterialModal" class="form-select rounded-pill mt-2 shadow-sm small">
                         <option value="all">All Materials</option>
@@ -226,11 +234,6 @@
                         <option value="polyester">Polyester</option>
                     </select>
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-dark rounded-pill">Apply Filters</button>
-                </div>
-                
             </div>
         </div>
     </div>
