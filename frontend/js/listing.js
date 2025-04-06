@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             originalProductList = data.products || [];
             productList = [...originalProductList];
             populateMaterialFilter();
-            renderPagination(data.next_page, data.prev_page);
+            renderPagination(data.next, data.prev);
             applyFilters();
         } catch (error) {
             console.error("Error fetching products:", error);
