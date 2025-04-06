@@ -502,6 +502,74 @@ def get_stats():
         logger.error(f"Error in get_stats: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api-usage', methods=['GET'])
+def api_usage():
+    """Provide usage instructions for the API"""
+    usage_info = {
+        "endpoints": {
+            "/annotate": {
+                "method": "POST",
+                "description": "Annotate a single product.",
+                "request_body": {
+                    "product_id": "string, required",
+                    "image_url": "string, required",
+                    "category": "string, optional"
+                },
+                "response": {
+                    "success": "boolean",
+                    "message": "string",
+                    "data": {
+                        "dominant_color": {
+                            "rgb": "tuple",
+                            "name": "string",
+                            "hex": "string"
+                        },
+                        "tags": "array of strings",
+                        "colors": "array of strings"
+                    }
+                }
+            },
+            "/batch-annotate": {
+                "method": "POST",
+                "description": "Annotate multiple products in parallel.",
+                "request_body": {
+                    "batch_size": "integer, optional (default: 50)",
+                    "max_workers": "integer, optional (default: 5)"
+                },
+                "response": {
+                    "success": "boolean",
+                    "message": "string"
+                }
+            },
+            "/annotate-all": {
+                "method": "POST",
+                "description": "Annotate all products in the database.",
+                "request_body": {
+                    "batch_size": "integer, optional (default: 100)",
+                    "max_workers": "integer, optional (default: 5)"
+                },
+                "response": {
+                    "success": "boolean",
+                    "message": "string",
+                    "total_products": "integer",
+                    "successful_updates": "integer"
+                }
+            },
+            "/stats": {
+                "method": "GET",
+                "description": "Get annotation statistics.",
+                "response": {
+                    "total_products": "integer",
+                    "annotated_products": "integer",
+                    "remaining_products": "integer",
+                    "color_distribution": "array of objects",
+                    "top_tags": "array of objects"
+                }
+            }
+        }
+    }
+    return jsonify(usage_info)
+
 @app.errorhandler(Exception)
 def handle_error(error):
     """Global error handler"""
