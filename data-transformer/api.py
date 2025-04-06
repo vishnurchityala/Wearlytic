@@ -12,12 +12,12 @@ import time
 from typing import Optional, Tuple, List, Dict, Any
 import json
 
+# Configure logging to only use console output (no file logging)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('api.log'),
-        logging.StreamHandler()
+        logging.StreamHandler()  # Only use console logging
     ]
 )
 logger = logging.getLogger(__name__)
