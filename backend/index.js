@@ -58,6 +58,14 @@ const buildPaginationLinks = (req, page, totalPages, query) => {
     };
 };
 
+// Helper function to extract numeric price from string
+function extractNumericPrice(priceString) {
+    if (!priceString) return 0;
+    // Remove rupee symbol and any other non-numeric characters except decimal point
+    const numericValue = priceString.replace(/[^0-9.]/g, '');
+    return parseFloat(numericValue) || 0;
+}
+
 // Routes
 app.get('/api/products', async (req, res) => {
     try {
@@ -98,32 +106,30 @@ app.get('/api/products', async (req, res) => {
             query.brand = { $regex: brand, $options: 'i' };
         }
 
-        // Add price range filter
+        // Get all products first
+        let products = await Product.find(query)
+            .select('-_id description product_url source product_name image_url category price colors brand material timestamp');
+
+        // Apply price filtering
         if (min_price || max_price) {
-            const priceQuery = {};
-            if (min_price) {
-                const minPriceFloat = parseFloat(min_price.replace('₹', '').trim());
-                priceQuery.$gte = minPriceFloat;
-            }
-            if (max_price) {
-                const maxPriceFloat = parseFloat(max_price.replace('₹', '').trim());
-                priceQuery.$lte = maxPriceFloat;
-            }
-            if (Object.keys(priceQuery).length > 0) {
-                query.price = priceQuery;
-            }
+            const minPrice = min_price ? parseFloat(min_price) : null;
+            const maxPrice = max_price ? parseFloat(max_price) : null;
+
+            products = products.filter(product => {
+                const productPrice = extractNumericPrice(product.price);
+                if (minPrice !== null && productPrice < minPrice) return false;
+                if (maxPrice !== null && productPrice > maxPrice) return false;
+                return true;
+            });
         }
 
-        // Get total count
-        const totalProducts = await Product.countDocuments(query);
+        // Calculate pagination after filtering
+        const totalProducts = products.length;
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
-        // Get paginated results
+        // Apply pagination
         const skip = (currentPage - 1) * itemsPerPage;
-        const products = await Product.find(query)
-            .select('-_id description product_url source product_name image_url category price colors brand material timestamp')
-            .skip(skip)
-            .limit(itemsPerPage);
+        products = products.slice(skip, skip + itemsPerPage);
 
         const executionTime = Date.now() - startTime;
         console.log(`Query executed in ${executionTime}ms`);

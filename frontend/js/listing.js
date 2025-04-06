@@ -5,23 +5,63 @@ document.addEventListener("DOMContentLoaded", async function () {
     const sortSelect = document.getElementById("sortProducts");
     const materialSelect = document.getElementById("selectMaterial");
     const materialSelectModal = document.getElementById("selectMaterialModal");
+    const searchInput = document.querySelector('.input-group input[type="text"]');
+    const modalSearchInput = document.querySelector('#filterModal .input-group input[type="text"]');
+    const minPriceInput = document.getElementById("minPrice");
+    const maxPriceInput = document.getElementById("maxPrice");
+    const modalMinPrice = document.getElementById("modalMinPrice");
+    const modalMaxPrice = document.getElementById("modalMaxPrice");
     let currentPage = 1;
     let productList = [];
     let originalProductList = [];
+    let searchTimeout;
+    let priceTimeout;
 
-    async function fetchProducts(page = 1, perPage = 12) {
+    // Helper function to extract numeric price from string
+    function extractNumericPrice(priceString) {
+        if (!priceString) return 0;
+        // Remove rupee symbol and any other non-numeric characters except decimal point
+        const numericValue = priceString.replace(/[^0-9.]/g, '');
+        return parseFloat(numericValue) || 0;
+    }
+
+    async function fetchProducts(page = 1, perPage = 12, searchTerm = '', minPrice = null, maxPrice = null) {
         try {
             showLoader();
             const url = new URL(apiUrlBase);
             url.searchParams.append('page', page);
             url.searchParams.append('per_page', perPage);
             
+            if (searchTerm) {
+                url.searchParams.append('search', searchTerm);
+            }
+            if (minPrice !== null && minPrice !== '') {
+                url.searchParams.append('min_price', minPrice);
+            }
+            if (maxPrice !== null && maxPrice !== '') {
+                url.searchParams.append('max_price', maxPrice);
+            }
+            
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error("Failed to fetch products");
             }
             const data = await response.json();
-            originalProductList = data.products || [];
+            
+            // Filter products based on price range
+            let filteredProducts = data.products || [];
+            if (minPrice !== null && minPrice !== '') {
+                filteredProducts = filteredProducts.filter(product => 
+                    extractNumericPrice(product.price) >= minPrice
+                );
+            }
+            if (maxPrice !== null && maxPrice !== '') {
+                filteredProducts = filteredProducts.filter(product => 
+                    extractNumericPrice(product.price) <= maxPrice
+                );
+            }
+            
+            originalProductList = filteredProducts;
             productList = [...originalProductList];
             populateMaterialFilter();
             renderPagination(data.pagination);
@@ -74,15 +114,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         hideLoader();
     }
 
-    function extractPrice(priceString) {
-        return parseFloat(priceString.replace(/[^0-9.]/g, '')) || 0;
-    }
-
     function sortProducts(order) {
         if (order === "low-high") {
-            productList.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+            productList.sort((a, b) => extractNumericPrice(a.price) - extractNumericPrice(b.price));
         } else if (order === "high-low") {
-            productList.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+            productList.sort((a, b) => extractNumericPrice(b.price) - extractNumericPrice(a.price));
         }
         populateContainer();
     }
@@ -165,6 +201,51 @@ document.addEventListener("DOMContentLoaded", async function () {
     function hideLoader() {
         if (loader) loader.style.display = "none";
     }
+
+    function handleSearch() {
+        const searchTerm = this.value.trim();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            fetchProducts(1, 12, searchTerm, parseInt(minPriceInput.value), parseInt(maxPriceInput.value) || null);
+        }, 1000);
+    }
+
+    function handlePriceChange() {
+        const minPrice = minPriceInput.value ? parseInt(minPriceInput.value) : null;
+        const maxPrice = maxPriceInput.value ? parseInt(maxPriceInput.value) : null;
+        
+        // Validate prices
+        if (minPrice !== null && minPrice < 0) {
+            minPriceInput.value = 0;
+        }
+        if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+            minPriceInput.value = maxPrice;
+        }
+        
+        clearTimeout(priceTimeout);
+        priceTimeout = setTimeout(() => {
+            fetchProducts(1, 12, searchInput.value.trim(), minPrice, maxPrice);
+        }, 1000);
+    }
+
+    // Add event listeners for search
+    searchInput.addEventListener('input', handleSearch);
+    modalSearchInput.addEventListener('input', function() {
+        searchInput.value = this.value;
+        handleSearch.call(this);
+    });
+
+    // Add event listeners for price inputs
+    minPriceInput.addEventListener('input', handlePriceChange);
+    maxPriceInput.addEventListener('input', handlePriceChange);
+    modalMinPrice.addEventListener('input', function() {
+        minPriceInput.value = this.value;
+        handlePriceChange();
+    });
+    modalMaxPrice.addEventListener('input', function() {
+        maxPriceInput.value = this.value;
+        handlePriceChange();
+    });
 
     sortSelect.addEventListener("change", function () {
         sortProducts(this.value);
