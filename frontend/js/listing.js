@@ -5,14 +5,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     const sortSelect = document.getElementById("sortProducts");
     const materialSelect = document.getElementById("selectMaterial");
     const materialSelectModal = document.getElementById("selectMaterialModal");
-    let currentPageUrl = apiUrlBase;
+    let currentPage = 1;
     let productList = [];
     let originalProductList = [];
 
-    async function fetchProducts(pageUrl) {
+    async function fetchProducts(page = 1, perPage = 12) {
         try {
             showLoader();
-            const response = await fetch(pageUrl);
+            const url = new URL(apiUrlBase);
+            url.searchParams.append('page', page);
+            url.searchParams.append('per_page', perPage);
+            
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error("Failed to fetch products");
             }
@@ -20,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             originalProductList = data.products || [];
             productList = [...originalProductList];
             populateMaterialFilter();
-            renderPagination(data.next, data.prev);
+            renderPagination(data.pagination);
             applyFilters();
         } catch (error) {
             console.error("Error fetching products:", error);
@@ -108,23 +112,45 @@ document.addEventListener("DOMContentLoaded", async function () {
         populateContainer();
     }
 
-    function renderPagination(nextUrl, prevUrl) {
+    function renderPagination(pagination) {
+        const { page, total_pages, links } = pagination;
+        currentPage = page;
+
+        // Update mobile pagination buttons
         document.getElementById("prevPage").onclick = function (event) {
             event.preventDefault();
-            if (prevUrl) fetchProducts(prevUrl);
+            if (links.prev) fetchProducts(page - 1);
         };
         document.getElementById("nextPage").onclick = function (event) {
             event.preventDefault();
-            if (nextUrl) fetchProducts(nextUrl);
+            if (links.next) fetchProducts(page + 1);
         };
+
+        // Update desktop pagination buttons
         document.getElementById("prevPage1").onclick = function (event) {
             event.preventDefault();
-            if (prevUrl) fetchProducts(prevUrl);
+            if (links.prev) fetchProducts(page - 1);
         };
         document.getElementById("nextPage1").onclick = function (event) {
             event.preventDefault();
-            if (nextUrl) fetchProducts(nextUrl);
+            if (links.next) fetchProducts(page + 1);
         };
+
+        // Disable/enable buttons based on current page
+        const prevButtons = [document.getElementById("prevPage"), document.getElementById("prevPage1")];
+        const nextButtons = [document.getElementById("nextPage"), document.getElementById("nextPage1")];
+
+        prevButtons.forEach(btn => {
+            btn.classList.toggle("disabled", !links.prev);
+            btn.style.pointerEvents = links.prev ? "auto" : "none";
+            btn.style.opacity = links.prev ? "1" : "0.5";
+        });
+
+        nextButtons.forEach(btn => {
+            btn.classList.toggle("disabled", !links.next);
+            btn.style.pointerEvents = links.next ? "auto" : "none";
+            btn.style.opacity = links.next ? "1" : "0.5";
+        });
     }
 
     function applyFilters() {
@@ -154,6 +180,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         filterByMaterial(this.value);
     });
 
-    await fetchProducts(currentPageUrl);
+    await fetchProducts(currentPage);
     populateContainer();
 });
