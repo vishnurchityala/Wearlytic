@@ -570,6 +570,11 @@ def api_usage():
     }
     return jsonify(usage_info)
 
+@app.route('/', methods=['GET'])
+def root():
+    """Redirect root to API usage documentation"""
+    return api_usage()
+
 @app.errorhandler(Exception)
 def handle_error(error):
     """Global error handler"""
