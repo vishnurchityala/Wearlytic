@@ -37,6 +37,24 @@ const productSchema = new mongoose.Schema({
     timestamp: Number
 });
 
+// Create text index for searchable fields
+productSchema.index({ 
+    description: 'text', 
+    product_name: 'text', 
+    brand: 'text', 
+    category: 'text', 
+    material: 'text' 
+}, { 
+    weights: { 
+        product_name: 10, 
+        brand: 5, 
+        description: 3, 
+        category: 2, 
+        material: 1 
+    },
+    name: "product_search_index"
+});
+
 const Product = mongoose.model('Product', productSchema);
 
 // Helper function to build pagination links
@@ -88,12 +106,10 @@ app.get('/api/products', async (req, res) => {
         // Build query
         const query = {};
         
-        // Search in description and brand
+        // Use MongoDB text search if search parameter is provided
         if (search) {
-            query.$or = [
-                { description: { $regex: search, $options: 'i' } },
-                { brand: { $regex: search, $options: 'i' } }
-            ];
+            query.$text = { $search: search };
+            console.log('Using text search with query:', JSON.stringify(query));
         }
 
         // Add category filter
@@ -108,7 +124,8 @@ app.get('/api/products', async (req, res) => {
 
         // Get all products first
         let products = await Product.find(query)
-            .select('-_id description product_url source product_name image_url category price colors brand material timestamp');
+            .select('-_id description product_url source product_name image_url category price colors brand material timestamp')
+            .sort(search ? { score: { $meta: "textScore" } } : { timestamp: -1 });
 
         // Apply price filtering
         if (min_price || max_price) {
