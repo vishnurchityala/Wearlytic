@@ -286,24 +286,71 @@ document.addEventListener("DOMContentLoaded", async function () {
         const { page, total_pages, links } = pagination;
         currentPage = page;
 
+        // Get current filter values
+        const currentSearchTerm = searchInput.value.trim();
+        const currentMinPrice = minPriceInput.value ? parseInt(minPriceInput.value) : 0;
+        const currentMaxPrice = maxPriceInput.value ? parseInt(maxPriceInput.value) : null;
+        const currentCategory = categorySelect.value;
+        const selectedColor = document.querySelector('input[name="color"]:checked').value;
+
         // Update mobile pagination buttons
         document.getElementById("prevPage").onclick = function (event) {
             event.preventDefault();
-            if (links.prev) fetchProducts(page - 1);
+            if (links.prev) {
+                fetchProducts(
+                    page - 1,
+                    itemsPerPage,
+                    currentSearchTerm,
+                    currentMinPrice,
+                    currentMaxPrice,
+                    currentCategory,
+                    selectedColor
+                );
+            }
         };
         document.getElementById("nextPage").onclick = function (event) {
             event.preventDefault();
-            if (links.next) fetchProducts(page + 1);
+            if (links.next) {
+                fetchProducts(
+                    page + 1,
+                    itemsPerPage,
+                    currentSearchTerm,
+                    currentMinPrice,
+                    currentMaxPrice,
+                    currentCategory,
+                    selectedColor
+                );
+            }
         };
 
         // Update desktop pagination buttons
         document.getElementById("prevPage1").onclick = function (event) {
             event.preventDefault();
-            if (links.prev) fetchProducts(page - 1);
+            if (links.prev) {
+                fetchProducts(
+                    page - 1,
+                    itemsPerPage,
+                    currentSearchTerm,
+                    currentMinPrice,
+                    currentMaxPrice,
+                    currentCategory,
+                    selectedColor
+                );
+            }
         };
         document.getElementById("nextPage1").onclick = function (event) {
             event.preventDefault();
-            if (links.next) fetchProducts(page + 1);
+            if (links.next) {
+                fetchProducts(
+                    page + 1,
+                    itemsPerPage,
+                    currentSearchTerm,
+                    currentMinPrice,
+                    currentMaxPrice,
+                    currentCategory,
+                    selectedColor
+                );
+            }
         };
 
         // Disable/enable buttons based on current page
