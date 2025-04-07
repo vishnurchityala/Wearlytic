@@ -363,6 +363,10 @@ def api_all():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/', methods=['GET'])
+def index():
+    return app.redirect('/api/colors')
+
 @app.errorhandler(Exception)
 def handle_error(error):
     return jsonify({"error": str(error)}), 500
