@@ -155,13 +155,13 @@ function renderAveragePricingComponent(data) {
   const style = document.createElement("style");
   style.textContent = `
     #pricing-wrapper {
-      max-width: 1000px;
-      margin: 40px auto;
+      max-width: 1200px;
+      margin: 20px auto;
       font-family: 'Inter', sans-serif;
     }
 
     .pricing-title {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 700;
       text-align: center;
       margin-bottom: 20px;
@@ -170,34 +170,72 @@ function renderAveragePricingComponent(data) {
 
     #pricing-container {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       overflow-x: auto;
-      padding-bottom: 12px;
+      padding: 0 12px 12px;
       scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    #pricing-container::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    #pricing-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    #pricing-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
     }
 
     .pricing-card {
-      flex: 0 0 180px;
+      flex: 0 0 160px;
       background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-      padding: 20px;
+      font-size: 0.6rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      padding: 12px 8px;
       text-align: center;
-      transition: transform 0.2s;
+      height: 120px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .category-title {
-      font-size: 1.1rem;
+      font-size: 0.6rem;
       font-weight: 600;
-      margin-bottom: 8px;
-      color: #111;
+      margin-bottom: 4px;
+      color: #444;
       text-transform: capitalize;
+      line-height: 1.2;
     }
 
     .average-price {
-      font-size: 1.4rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #2b2b2b;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 768px) {
+      .pricing-card {
+        flex: 0 0 140px;
+        height: 70px;
+        padding: 8px 6px;
+      }
+      .category-title {
+        font-size: 0.6rem;
+        margin-bottom: 2px;
+      }
+      .average-price {
+        font-size: 0.95rem;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -305,53 +343,77 @@ function renderTrendingColors(data) {
 
 // Render trending designs
 function renderTrendingDesigns(data) {
-  const container = document.querySelector('#trendingColor:nth-of-type(2)');
+  const container = document.getElementById("trendingDesigns");
   if (!container || !data) return;
   
-  // Get top 5 designs by count
-  const topDesigns = Object.entries(data.designData)
-    .sort((a, b) => b[1].count - a[1].count)
-    .slice(0, 5);
+  // Clear existing content
+  container.innerHTML = '';
   
-  // Update product cards
-  const productCardsContainer = container.querySelector('.d-flex.flex-wrap');
-  if (productCardsContainer) {
-    productCardsContainer.innerHTML = '';
+  // Add title
+  const title = document.createElement('p');
+  title.className = 'fw-bold text-center mt-2 mb-3 fs-4';
+  title.textContent = 'Trending Designs';
+  container.appendChild(title);
+  
+  // Get designs data and sort by count
+  const designsData = Object.entries(data.designData)
+    .sort((a, b) => b[1].count - a[1].count);
+  
+  // Create section for each design category
+  designsData.forEach(([design, designData]) => {
+    const section = document.createElement('div');
+    section.className = 'container mb-4';
     
-    // Get products from top designs
-    const topProducts = [];
-    topDesigns.forEach(([design, designData]) => {
-      if (designData.products && designData.products.length > 0) {
-        topProducts.push(...designData.products.slice(0, 2));
-      }
-    });
+    const header = document.createElement('div');
+    header.className = 'd-flex align-items-center justify-content-center gap-3 mb-4';
     
-    // Limit to 5 products
-    const productsToShow = topProducts.slice(0, 5);
+    // Add design circle
+    const designCircle = document.createElement('div');
+    designCircle.className = 'rounded-circle d-flex align-items-center justify-content-center flex-shrink-0';
+    designCircle.style.cssText = 'width: 40px; height: 40px; background-color: #f8f9fa; border: 1px solid #dee2e6;';
+    designCircle.innerHTML = `<span class="fs-6">${design.charAt(0).toUpperCase()}</span>`;
     
-    productsToShow.forEach(product => {
+    // Add design title and count
+    const designTitle = document.createElement('div');
+    designTitle.className = 'fs-5 fw-semibold';
+    designTitle.innerHTML = `${design.charAt(0).toUpperCase() + design.slice(1)} <span class="text-muted">(${designData.count} items)</span>`;
+    
+    header.appendChild(designCircle);
+    header.appendChild(designTitle);
+    section.appendChild(header);
+    
+    // Create scrollable container for products
+    const productsContainer = document.createElement('div');
+    productsContainer.className = 'd-flex gap-3 pb-2 justify-content-center flex-wrap';
+    productsContainer.style.cssText = 'padding-left: 1rem; padding-right: 1rem;';
+    
+    // Add products
+    const products = designData.products || [];
+    products.forEach(product => {
       const card = document.createElement('div');
-      card.className = 'card shadow-sm border-0 rounded-3 p-2';
+      card.className = 'card shadow-sm border-0 rounded-3 p-2 m-2';
       card.style.width = '160px';
       
-      // Extract brand from title
-      const brand = product.title.split(' ')[0];
+      const [brand, ...nameParts] = product.title.split(' ');
       
       card.innerHTML = `
-        <img src="https://via.placeholder.com/160x150?text=${encodeURIComponent(brand)}" 
+        <img src="${product.image_url}" 
              class="card-img-top rounded-3" alt="${product.title}" style="height: 150px; object-fit: cover;">
         <div class="card-body p-2 text-center">
           <div class="d-grid mt-2">
-            <a href="${product.url}" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
+            <a href="${product.url}" target="_blank" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
           </div>
           <p class="fw-bold text-dark mb-1 mt-2">${product.price}</p>
           <h6 class="fw-semibold mb-1 small">${brand}</h6>
         </div>
       `;
       
-      productCardsContainer.appendChild(card);
+      productsContainer.appendChild(card);
     });
-  }
+    
+    section.appendChild(productsContainer);
+    container.appendChild(section);
+  });
 }
 
 // Render trending clothes
@@ -359,59 +421,110 @@ function renderTrendingClothes(data) {
   const container = document.getElementById("trendingClothes");
   if (!container || !data) return;
   
-  // Get all products from colors and designs
-  const allProducts = [];
-  
-  // Add products from colors
-  Object.values(data.colorData).forEach(colorData => {
-    if (colorData.products && colorData.products.length > 0) {
-      allProducts.push(...colorData.products);
+  // Add styles for category sections
+  const style = document.createElement('style');
+  style.textContent = `
+    .main-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 2rem 0 1.5rem;
+      padding-left: 1rem;
+      color: #222;
     }
-  });
-  
-  // Add products from designs
-  Object.values(data.designData).forEach(designData => {
-    if (designData.products && designData.products.length > 0) {
-      allProducts.push(...designData.products);
+
+    .category-section {
+      margin-bottom: 2rem;
     }
-  });
-  
-  // Remove duplicates based on URL
-  const uniqueProducts = [];
-  const seenUrls = new Set();
-  
-  allProducts.forEach(product => {
-    if (!seenUrls.has(product.url)) {
-      seenUrls.add(product.url);
-      uniqueProducts.push(product);
-    }
-  });
-  
-  // Sort by price (ascending) to show affordable options first
-  uniqueProducts.sort((a, b) => {
-    const priceA = getNumericPrice(a.price);
-    const priceB = getNumericPrice(b.price);
-    return priceA - priceB;
-  });
-  
-  // Get top 5 products
-  const topProducts = uniqueProducts.slice(0, 5);
-  
-  // Update product cards
-  const productCardsContainer = container.querySelector('.d-flex.flex-wrap');
-  if (productCardsContainer) {
-    productCardsContainer.innerHTML = '';
     
-    topProducts.forEach(product => {
+    .category-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 1rem 0;
+      padding-left: 1rem;
+      color: #333;
+      text-transform: capitalize;
+    }
+    
+    .products-scroll-container {
+      display: flex;
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      padding: 1rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scroll-behavior: smooth;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    .product-card {
+      flex: 0 0 auto;
+      width: 120px;
+    }
+
+    .design-count {
+      font-size: 1rem;
+      font-weight: normal;
+      color: #666;
+      margin-left: 0.5rem;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Add main title for Trending Designs
+  const mainTitle = document.createElement('h1');
+  mainTitle.className = 'main-title';
+  mainTitle.textContent = 'Trending Designs';
+  container.appendChild(mainTitle);
+  
+  // Get designs data and sort by count
+  const designsData = Object.entries(data.designData)
+    .sort((a, b) => b[1].count - a[1].count);
+  
+  // Create section for each design category
+  designsData.forEach(([design, designData]) => {
+    const section = document.createElement('div');
+    section.className = 'category-section';
+    
+    const title = document.createElement('h2');
+    title.className = 'category-title';
+    title.innerHTML = `${design} <span class="design-count">(${designData.count} items)</span>`;
+    section.appendChild(title);
+    
+    const productsContainer = document.createElement('div');
+    productsContainer.className = 'products-scroll-container';
+    
+    const products = designData.products || [];
+    products.sort((a, b) => getNumericPrice(a.price) - getNumericPrice(b.price));
+    
+    products.forEach(product => {
       const card = document.createElement('div');
-      card.className = 'card shadow-sm border-0 rounded-3 p-2';
-      card.style.width = '160px';
+      card.className = 'card shadow-sm border-0 rounded-3 p-2 product-card';
       
-      // Extract brand from title
-      const brand = product.title.split(' ')[0];
+      const [brand, ...nameParts] = product.title.split(' ');
+      const category = nameParts.join(' ');
       
       card.innerHTML = `
-        <img src="https://via.placeholder.com/160x150?text=${encodeURIComponent(brand)}" 
+        <img src="${product.image_url}" 
              class="card-img-top rounded-3" alt="${product.title}" style="height: 150px; object-fit: cover;">
         <div class="card-body p-2 text-center">
           <div class="d-grid mt-2">
@@ -419,12 +532,16 @@ function renderTrendingClothes(data) {
           </div>
           <p class="fw-bold text-dark mb-1 mt-2">${product.price}</p>
           <h6 class="fw-semibold mb-1 small">${brand}</h6>
+          <p class="text-muted small mb-0">${category}</p>
         </div>
       `;
       
-      productCardsContainer.appendChild(card);
+      productsContainer.appendChild(card);
     });
-  }
+    
+    section.appendChild(productsContainer);
+    container.appendChild(section);
+  });
 }
 
 // Initialize analytics when the page loads
