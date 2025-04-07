@@ -35,7 +35,7 @@ def get_top_colors_and_products(limit: int = 5, products_per_color: int = 5) -> 
     
     products_with_colors = list(products_collection.find(
         {"dominant_color.name": {"$exists": True}},
-        {"_id": 1, "product_name": 1, "price": 1, "dominant_color": 1, "product_url": 1}
+        {"_id": 1, "product_name": 1, "price": 1, "dominant_color": 1, "product_url": 1, "image_url": 1}
     ))
     
     if not products_with_colors:
@@ -55,7 +55,8 @@ def get_top_colors_and_products(limit: int = 5, products_per_color: int = 5) -> 
             {
                 "title": p.get("product_name", "Unknown"),
                 "price": p.get("price", "N/A"),
-                "url": p.get("product_url", "N/A")
+                "url": p.get("product_url", "N/A"),
+                "image_url": p.get("image_url", "N/A")
             }
             for p in products_with_colors 
             if p.get("dominant_color", {}).get("name") == color
@@ -75,7 +76,7 @@ def get_top_designs_and_products(limit: int = 5, products_per_design: int = 5) -
     
     products_with_tags = list(products_collection.find(
         {"tags": {"$exists": True}},
-        {"_id": 1, "product_name": 1, "price": 1, "tags": 1, "product_url": 1}
+        {"_id": 1, "product_name": 1, "price": 1, "tags": 1, "product_url": 1, "image_url": 1}
     ))
     
     if not products_with_tags:
@@ -105,7 +106,8 @@ def get_top_designs_and_products(limit: int = 5, products_per_design: int = 5) -
             {
                 "title": p.get("product_name", "Unknown"),
                 "price": p.get("price", "N/A"),
-                "url": p.get("product_url", "N/A")
+                "url": p.get("product_url", "N/A"),
+                "image_url": p.get("image_url", "N/A")
             }
             for p in products_with_tags 
             if tag in [t for t in p.get("tags", []) 

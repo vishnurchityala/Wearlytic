@@ -1,0 +1,1294 @@
+{
+  "brands": {
+    "avg_price_by_brand": {
+      "AD By Arvind": 1532.75,
+      "AND": 774,
+      "AR-FIT": 1075,
+      "ATHLISIS": 901.888888888889,
+      "Allen Solly": 2193.09090909091,
+      "Allen Solly Sport": 2644.5,
+      "Andamen": 2072,
+      "Arrow": 1528.1,
+      "Arrow Sport": 949,
+      "BAESD": 849,
+      "BEAT LONDON by PEPE JEANS": 2999,
+      "BLUE TYGA": 1095.66666666667,
+      "BONKIDS": 619,
+      "BROADSTAR": 1349,
+      "Banana Club": 1797,
+      "Bene Kleed": 1618,
+      "Bewakoof": 761.5,
+      "Blackberrys": 813,
+      "Blissclub": 1159,
+      "CHIC BY TOKYO TALKIES": 438.666666666667,
+      "CODE by Lifestyle": 949,
+      "CORSICA": 799,
+      "Campus Sutra": 759,
+      "Cantabil": 1599,
+      "Cherry Crumble": 839,
+      "Cot'N Soft": 557,
+      "Cottinfab": 1999,
+      "CrayonFlakes": 299,
+      "Crazymonk": 851.5,
+      "Creatures of Habit": 1775.19047619048,
+      "Cutiekins": 459,
+      "DENIMLOOK": 599,
+      "DILLINGER": 531.714285714286,
+      "DL Woman": 999,
+      "DOLCE CRUDO": 1328,
+      "Difference of Opinion": 549.75,
+      "DressBerry": 432,
+      "Enamor": 423.666666666667,
+      "FABFARM": 539,
+      "FASHIONFIBRE": 1259,
+      "FCK-3": 1494,
+      "FORCLAZ By Decathlon": 1399,
+      "Fabflee": 244.25,
+      "Fame Forever by Lifestyle": 399,
+      "Flying Machine": 1608,
+      "Funday Fashion": 521,
+      "Genzy": 599,
+      "Googo Gaaga": 552,
+      "Greenfibre": 1119,
+      "H&M": 1200.14285714286,
+      "HELLCAT": 404.714285714286,
+      "HERE&NOW": 678,
+      "HIGH BUY": 1200,
+      "HIGHLANDER": 424.615384615385,
+      "HRX by Hrithik Roshan": 719,
+      "Hancock": 1649,
+      "Harvard": 898,
+      "High Star": 988,
+      "Hikabae": 1660,
+      "House of Koala": 959,
+      "INVICTUS": 819,
+      "JADE BLUE": 2239,
+      "JUSTICE": 599,
+      "Jack & Jones": 5210.11111111111,
+      "Jack & Jones Junior": 439,
+      "Jockey": 1664,
+      "KETCH": 219,
+      "KOTTY BIZwear": 379,
+      "Kazo": 3245,
+      "KiddoPanti": 583.5,
+      "Kids Cave": 719,
+      "Kook N Keech": 651.142857142857,
+      "Kook N Keech Disney": 438.333333333333,
+      "Kook N Keech Marvel": 395,
+      "Kotty": 732.333333333333,
+      "Leotude": 289,
+      "Levis": 1716.5,
+      "Louis Philippe Jeans": 1219,
+      "MANGO": 2769.33333333333,
+      "MASCLN SASSAFRAS": 1253,
+      "MINI KLUB": 714,
+      "Madame": 979,
+      "Maniac": 575.7,
+      "Mark & Mia": 653,
+      "Marks & Spencer": 2499,
+      "Mast & Harbour": 908.3,
+      "Minicult": 624,
+      "Minions by Kook N Keech": 369,
+      "Miss Chase": 1198,
+      "Mr Bowerbird": 1325,
+      "Mufti": 5879,
+      "NOBERO": 690.666666666667,
+      "NUSYL": 373,
+      "Nautica": 869,
+      "Next One": 944,
+      "NoBarr": 779,
+      "Noh.Voh - SASSAFRAS Kids": 649.5,
+      "ONLY": 2546.5,
+      "PERFKT-U": 887,
+      "PINACOLADA": 644,
+      "PRONK": 689,
+      "Pantaloons Junior": 684.75,
+      "Park Avenue": 1282.75,
+      "Pepe Jeans": 2894.08333333333,
+      "Peter England": 944,
+      "Powerlook": 935,
+      "Purple United Kids": 569,
+      "Quechua By Decathlon": 909,
+      "R&B": 599,
+      "RARE ONES": 1234,
+      "RARE RABBIT": 2329.48,
+      "Raymond": 1231.85714285714,
+      "Red Tape": 2309,
+      "Reslag": 959,
+      "Roadster": 846.028571428572,
+      "SASSAFRAS": 826.4,
+      "SASSAFRAS BASICS": 879,
+      "SASSAFRAS Curve": 911,
+      "SASSAFRAS worklyf": 797,
+      "SPORT SUN": 1499,
+      "STI": 1999,
+      "STREET 9": 839,
+      "Silvertraq": 1919,
+      "Somersault": 599,
+      "Stormborn": 499,
+      "Style Quotient": 599,
+      "StyleCast": 1379.3,
+      "StyleCast x Revolte": 1300.6,
+      "Sztori": 848,
+      "TALES & STORIES": 1099,
+      "TARAMA": 1899,
+      "THE BEAR HOUSE": 1324.66666666667,
+      "TURMS": 1519,
+      "Technosport": 739,
+      "The Indian Garage Co": 678.166666666667,
+      "Thomas Scott": 879,
+      "Tokyo Talkies": 763.5,
+      "Tommy Hilfiger": 4599,
+      "U.S. Polo Assn.": 1012.875,
+      "U.S. Polo Assn. Kids": 747,
+      "United Colors of Benetton": 759.666666666667,
+      "Urbano Fashion": 763.666666666667,
+      "Urbano Juniors": 732.333333333333,
+      "Urbano Plus": 1774,
+      "V-Mart": 1084.71428571429,
+      "VASTRADO": 742,
+      "VEIRDO": 599,
+      "Van Heusen": 586,
+      "Vero Moda": 2499,
+      "WELL QUALITY": 639,
+      "WROGN": 1546,
+      "XYXX": 384.2,
+      "YK Marvel": 474.5,
+      "YU by Pantaloons": 1399,
+      "ZHEIA": 944,
+      "ZIP ZAP ZOOP": 597,
+      "bigbanana": 1319,
+      "glitchez": 801.5,
+      "max": 582.333333333333,
+      "mothercare": 764,
+      "t-base": 974
+    },
+    "brand_counts": {
+      "AD By Arvind": 4,
+      "AND": 1,
+      "AR-FIT": 1,
+      "ATHLISIS": 9,
+      "Allen Solly": 22,
+      "Allen Solly Sport": 2,
+      "Andamen": 1,
+      "Arrow": 10,
+      "Arrow Sport": 1,
+      "BAESD": 4,
+      "BEAT LONDON by PEPE JEANS": 1,
+      "BLUE TYGA": 3,
+      "BONKIDS": 2,
+      "BROADSTAR": 1,
+      "Banana Club": 10,
+      "Bene Kleed": 2,
+      "Bewakoof": 4,
+      "Blackberrys": 1,
+      "Blissclub": 1,
+      "CHIC BY TOKYO TALKIES": 3,
+      "CODE by Lifestyle": 2,
+      "CORSICA": 1,
+      "Campus Sutra": 1,
+      "Cantabil": 1,
+      "Cherry Crumble": 1,
+      "Cot'N Soft": 1,
+      "Cottinfab": 1,
+      "CrayonFlakes": 1,
+      "Crazymonk": 2,
+      "Creatures of Habit": 21,
+      "Cutiekins": 3,
+      "DENIMLOOK": 3,
+      "DILLINGER": 7,
+      "DL Woman": 1,
+      "DOLCE CRUDO": 1,
+      "Difference of Opinion": 4,
+      "DressBerry": 5,
+      "Enamor": 6,
+      "FABFARM": 1,
+      "FASHIONFIBRE": 1,
+      "FCK-3": 1,
+      "FORCLAZ By Decathlon": 1,
+      "Fabflee": 4,
+      "Fame Forever by Lifestyle": 1,
+      "Flying Machine": 5,
+      "Funday Fashion": 1,
+      "Genzy": 1,
+      "Googo Gaaga": 1,
+      "Greenfibre": 1,
+      "H&M": 35,
+      "HELLCAT": 7,
+      "HERE&NOW": 12,
+      "HIGH BUY": 1,
+      "HIGHLANDER": 13,
+      "HRX by Hrithik Roshan": 2,
+      "Hancock": 1,
+      "Harvard": 2,
+      "High Star": 1,
+      "Hikabae": 4,
+      "House of Koala": 1,
+      "INVICTUS": 1,
+      "JADE BLUE": 1,
+      "JUSTICE": 1,
+      "Jack & Jones": 18,
+      "Jack & Jones Junior": 1,
+      "Jockey": 2,
+      "KETCH": 1,
+      "KOTTY BIZwear": 1,
+      "Kazo": 1,
+      "KiddoPanti": 2,
+      "Kids Cave": 1,
+      "Kook N Keech": 7,
+      "Kook N Keech Disney": 3,
+      "Kook N Keech Marvel": 1,
+      "Kotty": 3,
+      "Leotude": 3,
+      "Levis": 6,
+      "Louis Philippe Jeans": 1,
+      "MANGO": 9,
+      "MASCLN SASSAFRAS": 1,
+      "MINI KLUB": 1,
+      "Madame": 2,
+      "Maniac": 10,
+      "Mark & Mia": 1,
+      "Marks & Spencer": 2,
+      "Mast & Harbour": 10,
+      "Minicult": 1,
+      "Minions by Kook N Keech": 1,
+      "Miss Chase": 1,
+      "Mr Bowerbird": 2,
+      "Mufti": 1,
+      "NOBERO": 12,
+      "NUSYL": 1,
+      "Nautica": 1,
+      "Next One": 2,
+      "NoBarr": 1,
+      "Noh.Voh - SASSAFRAS Kids": 2,
+      "ONLY": 2,
+      "PERFKT-U": 1,
+      "PINACOLADA": 1,
+      "PRONK": 2,
+      "Pantaloons Junior": 4,
+      "Park Avenue": 8,
+      "Pepe Jeans": 12,
+      "Peter England": 2,
+      "Powerlook": 1,
+      "Purple United Kids": 1,
+      "Quechua By Decathlon": 3,
+      "R&B": 3,
+      "RARE ONES": 1,
+      "RARE RABBIT": 25,
+      "Raymond": 7,
+      "Red Tape": 2,
+      "Reslag": 1,
+      "Roadster": 35,
+      "SASSAFRAS": 10,
+      "SASSAFRAS BASICS": 1,
+      "SASSAFRAS Curve": 1,
+      "SASSAFRAS worklyf": 1,
+      "SPORT SUN": 1,
+      "STI": 1,
+      "STREET 9": 1,
+      "Silvertraq": 1,
+      "Somersault": 1,
+      "Stormborn": 3,
+      "Style Quotient": 1,
+      "StyleCast": 10,
+      "StyleCast x Revolte": 15,
+      "Sztori": 6,
+      "TALES & STORIES": 1,
+      "TARAMA": 1,
+      "THE BEAR HOUSE": 3,
+      "TURMS": 4,
+      "Technosport": 1,
+      "The Indian Garage Co": 6,
+      "Thomas Scott": 1,
+      "Tokyo Talkies": 2,
+      "Tommy Hilfiger": 1,
+      "U.S. Polo Assn.": 8,
+      "U.S. Polo Assn. Kids": 1,
+      "United Colors of Benetton": 6,
+      "Urbano Fashion": 3,
+      "Urbano Juniors": 3,
+      "Urbano Plus": 2,
+      "V-Mart": 7,
+      "VASTRADO": 1,
+      "VEIRDO": 1,
+      "Van Heusen": 2,
+      "Vero Moda": 1,
+      "WELL QUALITY": 1,
+      "WROGN": 3,
+      "XYXX": 5,
+      "YK Marvel": 2,
+      "YU by Pantaloons": 1,
+      "ZHEIA": 1,
+      "ZIP ZAP ZOOP": 1,
+      "bigbanana": 2,
+      "glitchez": 2,
+      "max": 3,
+      "mothercare": 1,
+      "t-base": 1
+    },
+    "top_categories_by_brand": {
+      "AD By Arvind": {
+        "Jeans": 1,
+        "Shirts": 2,
+        "Trousers": 1
+      },
+      "AND": {
+        "Jackets": 1
+      },
+      "AR-FIT": {
+        "Jackets": 1
+      },
+      "ATHLISIS": {
+        "Jackets": 9
+      },
+      "Allen Solly": {
+        "Jackets": 10,
+        "Shirts": 1,
+        "Tshirts": 11
+      },
+      "Allen Solly Sport": {
+        "Jackets": 2
+      },
+      "Andamen": {
+        "Tshirts": 1
+      },
+      "Arrow": {
+        "Shirts": 4,
+        "Trousers": 4,
+        "Tshirts": 2
+      },
+      "Arrow Sport": {
+        "Shirts": 1
+      },
+      "BAESD": {
+        "Shirts": 2,
+        "Trousers": 2
+      },
+      "BEAT LONDON by PEPE JEANS": {
+        "Jeans": 1
+      },
+      "BLUE TYGA": {
+        "Jackets": 3
+      },
+      "BONKIDS": {
+        "Shirts": 2
+      },
+      "BROADSTAR": {
+        "Trousers": 1
+      },
+      "Banana Club": {
+        "Sweatshirts": 2,
+        "Trousers": 8
+      },
+      "Bene Kleed": {
+        "Jeans": 2
+      },
+      "Bewakoof": {
+        "Tshirts": 4
+      },
+      "Blackberrys": {
+        "Tshirts": 1
+      },
+      "Blissclub": {
+        "Trousers": 1
+      },
+      "CHIC BY TOKYO TALKIES": {
+        "Trousers": 3
+      },
+      "CODE by Lifestyle": {
+        "Shirts": 1,
+        "Tshirts": 1
+      },
+      "CORSICA": {
+        "Trousers": 1
+      },
+      "Campus Sutra": {
+        "Shirts": 1
+      },
+      "Cantabil": {
+        "Jackets": 1
+      },
+      "Cherry Crumble": {
+        "Jeans": 1
+      },
+      "Cot'N Soft": {
+        "Jeans": 1
+      },
+      "Cottinfab": {
+        "Jackets": 1
+      },
+      "CrayonFlakes": {
+        "Shirts": 1
+      },
+      "Crazymonk": {
+        "Sweatshirts": 1,
+        "Tshirts": 1
+      },
+      "Creatures of Habit": {
+        "Tshirts": 21
+      },
+      "Cutiekins": {
+        "Trousers": 3
+      },
+      "DENIMLOOK": {
+        "Jeans": 3
+      },
+      "DILLINGER": {
+        "Tshirts": 7
+      },
+      "DL Woman": {
+        "Shirts": 1
+      },
+      "DOLCE CRUDO": {
+        "Jeans": 1
+      },
+      "Difference of Opinion": {
+        "Tshirts": 4
+      },
+      "DressBerry": {
+        "Sweatshirts": 2,
+        "Tshirts": 3
+      },
+      "Enamor": {
+        "Lounge Tshirts": 2,
+        "Tshirts": 4
+      },
+      "FABFARM": {
+        "Shirts": 1
+      },
+      "FASHIONFIBRE": {
+        "Jeans": 1
+      },
+      "FCK-3": {
+        "Jeans": 1
+      },
+      "FORCLAZ By Decathlon": {
+        "Jackets": 1
+      },
+      "Fabflee": {
+        "Tshirts": 4
+      },
+      "Fame Forever by Lifestyle": {
+        "Tshirts": 1
+      },
+      "Flying Machine": {
+        "Jackets": 2,
+        "Jeans": 1,
+        "Tshirts": 2
+      },
+      "Funday Fashion": {
+        "Jackets": 1
+      },
+      "Genzy": {
+        "Tshirts": 1
+      },
+      "Googo Gaaga": {
+        "Trousers": 1
+      },
+      "Greenfibre": {
+        "Trousers": 1
+      },
+      "H&M": {
+        "Jeans": 8,
+        "Trousers": 13,
+        "Tshirts": 10
+      },
+      "HELLCAT": {
+        "Sweatshirts": 2,
+        "Tshirts": 5
+      },
+      "HERE&NOW": {
+        "Jeans": 3,
+        "Shirts": 8,
+        "Trousers": 1
+      },
+      "HIGH BUY": {
+        "Trousers": 1
+      },
+      "HIGHLANDER": {
+        "Jeans": 2,
+        "Shirts": 7,
+        "Trousers": 3
+      },
+      "HRX by Hrithik Roshan": {
+        "Jackets": 2
+      },
+      "Hancock": {
+        "Shirts": 1
+      },
+      "Harvard": {
+        "Jeans": 2
+      },
+      "High Star": {
+        "Shirts": 1
+      },
+      "Hikabae": {
+        "Tshirts": 4
+      },
+      "House of Koala": {
+        "Tshirts": 1
+      },
+      "INVICTUS": {
+        "Shirts": 1
+      },
+      "JADE BLUE": {
+        "Trousers": 1
+      },
+      "JUSTICE": {
+        "Jeans": 1
+      },
+      "Jack & Jones": {
+        "Jeans": 8,
+        "Shirts": 5,
+        "Tshirts": 5
+      },
+      "Jack & Jones Junior": {
+        "Tshirts": 1
+      },
+      "Jockey": {
+        "Jackets": 1,
+        "Trousers": 1
+      },
+      "KETCH": {
+        "Tshirts": 1
+      },
+      "KOTTY BIZwear": {
+        "Trousers": 1
+      },
+      "Kazo": {
+        "Jackets": 1
+      },
+      "KiddoPanti": {
+        "Tshirts": 2
+      },
+      "Kids Cave": {
+        "Jackets": 1
+      },
+      "Kook N Keech": {
+        "Shirts": 1,
+        "Trousers": 1,
+        "Tshirts": 5
+      },
+      "Kook N Keech Disney": {
+        "Tshirts": 3
+      },
+      "Kook N Keech Marvel": {
+        "Tshirts": 1
+      },
+      "Kotty": {
+        "Jeans": 3
+      },
+      "Leotude": {
+        "Tshirts": 3
+      },
+      "Levis": {
+        "Jeans": 4,
+        "Shirts": 1,
+        "Trousers": 1
+      },
+      "Louis Philippe Jeans": {
+        "Shirts": 1
+      },
+      "MANGO": {
+        "Jackets": 6,
+        "Jeans": 1,
+        "Tshirts": 2
+      },
+      "MASCLN SASSAFRAS": {
+        "Jackets": 1
+      },
+      "MINI KLUB": {
+        "Jeans": 1
+      },
+      "Madame": {
+        "Sweatshirts": 2
+      },
+      "Maniac": {
+        "Tshirts": 10
+      },
+      "Mark & Mia": {
+        "Shirts": 1
+      },
+      "Marks & Spencer": {
+        "Jackets": 1,
+        "Shirts": 1
+      },
+      "Mast & Harbour": {
+        "Jeans": 3,
+        "Shirts": 6,
+        "Tshirts": 1
+      },
+      "Minicult": {
+        "Tshirts": 1
+      },
+      "Minions by Kook N Keech": {
+        "Tshirts": 1
+      },
+      "Miss Chase": {
+        "Jeans": 1
+      },
+      "Mr Bowerbird": {
+        "Jeans": 1,
+        "Shirts": 1
+      },
+      "Mufti": {
+        "Jackets": 1
+      },
+      "NOBERO": {
+        "Jackets": 1,
+        "Tshirts": 11
+      },
+      "NUSYL": {
+        "Tshirts": 1
+      },
+      "Nautica": {
+        "Trousers": 1
+      },
+      "Next One": {
+        "Trousers": 2
+      },
+      "NoBarr": {
+        "Jeans": 1
+      },
+      "Noh.Voh - SASSAFRAS Kids": {
+        "Jackets": 1,
+        "Jeans": 1
+      },
+      "ONLY": {
+        "Jackets": 1,
+        "Jeans": 1
+      },
+      "PERFKT-U": {
+        "Jackets": 1
+      },
+      "PINACOLADA": {
+        "Shirts": 1
+      },
+      "PRONK": {
+        "Tshirts": 2
+      },
+      "Pantaloons Junior": {
+        "Jackets": 1,
+        "Jeans": 1,
+        "Shirts": 2
+      },
+      "Park Avenue": {
+        "Shirts": 3,
+        "Trousers": 5
+      },
+      "Pepe Jeans": {
+        "Jeans": 10,
+        "Tshirts": 2
+      },
+      "Peter England": {
+        "Trousers": 2
+      },
+      "Powerlook": {
+        "Shirts": 1
+      },
+      "Purple United Kids": {
+        "Trousers": 1
+      },
+      "Quechua By Decathlon": {
+        "Jackets": 3
+      },
+      "R&B": {
+        "Jeans": 1,
+        "Lounge Tshirts": 1,
+        "Trousers": 1
+      },
+      "RARE ONES": {
+        "Tshirts": 1
+      },
+      "RARE RABBIT": {
+        "Jackets": 2,
+        "Shirts": 13,
+        "Trousers": 7
+      },
+      "Raymond": {
+        "Shirts": 2,
+        "Trousers": 5
+      },
+      "Red Tape": {
+        "Jackets": 2
+      },
+      "Reslag": {
+        "Trousers": 1
+      },
+      "Roadster": {
+        "Jackets": 7,
+        "Shirts": 7,
+        "Trousers": 10
+      },
+      "SASSAFRAS": {
+        "Jackets": 3,
+        "Jeans": 1,
+        "Trousers": 6
+      },
+      "SASSAFRAS BASICS": {
+        "Jeans": 1
+      },
+      "SASSAFRAS Curve": {
+        "Trousers": 1
+      },
+      "SASSAFRAS worklyf": {
+        "Trousers": 1
+      },
+      "SPORT SUN": {
+        "Jackets": 1
+      },
+      "STI": {
+        "Trousers": 1
+      },
+      "STREET 9": {
+        "Jeans": 1
+      },
+      "Silvertraq": {
+        "Jackets": 1
+      },
+      "Somersault": {
+        "Tshirts": 1
+      },
+      "Stormborn": {
+        "Tshirts": 3
+      },
+      "Style Quotient": {
+        "Shirts": 1
+      },
+      "StyleCast": {
+        "Jackets": 5,
+        "Jeans": 1,
+        "Tshirts": 4
+      },
+      "StyleCast x Revolte": {
+        "Jackets": 11,
+        "Trousers": 2,
+        "Tshirts": 1
+      },
+      "Sztori": {
+        "Jeans": 1,
+        "Shirts": 4,
+        "Tshirts": 1
+      },
+      "TALES & STORIES": {
+        "Jeans": 1
+      },
+      "TARAMA": {
+        "Jeans": 1
+      },
+      "THE BEAR HOUSE": {
+        "Jackets": 1,
+        "Shirts": 2
+      },
+      "TURMS": {
+        "Tshirts": 4
+      },
+      "Technosport": {
+        "Jackets": 1
+      },
+      "The Indian Garage Co": {
+        "Jeans": 1,
+        "Shirts": 4,
+        "Trousers": 1
+      },
+      "Thomas Scott": {
+        "Trousers": 1
+      },
+      "Tokyo Talkies": {
+        "Jackets": 1,
+        "Jeans": 1
+      },
+      "Tommy Hilfiger": {
+        "Tshirts": 1
+      },
+      "U.S. Polo Assn.": {
+        "Lounge Tshirts": 7,
+        "Shirts": 1
+      },
+      "U.S. Polo Assn. Kids": {
+        "Trousers": 1
+      },
+      "United Colors of Benetton": {
+        "Sweatshirts": 1,
+        "Tshirts": 5
+      },
+      "Urbano Fashion": {
+        "Jeans": 1,
+        "Trousers": 1,
+        "Tshirts": 1
+      },
+      "Urbano Juniors": {
+        "Jeans": 3
+      },
+      "Urbano Plus": {
+        "Jackets": 2
+      },
+      "V-Mart": {
+        "Jackets": 6,
+        "Jeans": 1
+      },
+      "VASTRADO": {
+        "Shirts": 1
+      },
+      "VEIRDO": {
+        "Tshirts": 1
+      },
+      "Van Heusen": {
+        "Lounge Tshirts": 2
+      },
+      "Vero Moda": {
+        "Jeans": 1
+      },
+      "WELL QUALITY": {
+        "Jackets": 1
+      },
+      "WROGN": {
+        "Jackets": 1,
+        "Jeans": 2
+      },
+      "XYXX": {
+        "Lounge Tshirts": 2,
+        "Tshirts": 3
+      },
+      "YK Marvel": {
+        "Tshirts": 2
+      },
+      "YU by Pantaloons": {
+        "Jeans": 1
+      },
+      "ZHEIA": {
+        "Jeans": 1
+      },
+      "ZIP ZAP ZOOP": {
+        "Shirts": 1
+      },
+      "bigbanana": {
+        "Jeans": 2
+      },
+      "glitchez": {
+        "Jeans": 2
+      },
+      "max": {
+        "Jeans": 2,
+        "Shirts": 1
+      },
+      "mothercare": {
+        "Jeans": 1
+      },
+      "t-base": {
+        "Tshirts": 1
+      }
+    }
+  },
+  "categories": {
+    "Jackets": 1825.59595959596,
+    "Jeans": 1827.12121212121,
+    "Lounge Tshirts": 716.357142857143,
+    "Shirts": 1245.66666666667,
+    "Sweatshirts": 1047.84615384615,
+    "Trousers": 1156.23232323232,
+    "Tshirts": 924.943181818182
+  },
+  "colors": {
+    "beige": {
+      "count": 45,
+      "products": [
+        {
+          "price": "₹1349",
+          "title": "Mr Bowerbird Jeans",
+          "url": "https://www.myntra.com/jeans/mr+bowerbird/mr-bowerbird-men-slim-fit-stretchable-casual-jeans/21185858/buy"
+        },
+        {
+          "price": "₹699",
+          "title": "Roadster Shirts",
+          "url": "https://www.myntra.com/shirts/roadster/the-roadster-lifestyle-co-women-cuban-collar-vertical-striped-cotton-boxy-casual-shirt/31012271/buy"
+        },
+        {
+          "price": "₹ 599",
+          "title": "max Shirts",
+          "url": "https://www.myntra.com/shirts/max/max-boys-opaque-casual-shirt/32517139/buy"
+        },
+        {
+          "price": "₹3311",
+          "title": "RARE RABBIT Sweatshirts",
+          "url": "https://www.myntra.com/sweatshirts/rare+rabbit/rare-rabbit-men-printed-cotton-round-neck-sweatshirt/31220574/buy"
+        },
+        {
+          "price": "₹559",
+          "title": "The Indian Garage Co Shirts",
+          "url": "https://www.myntra.com/shirts/the+indian+garage+co/the-indian-garage-co-men-cream-coloured--navy-blue-tartan-checked-shirt/17406394/buy"
+        }
+      ]
+    },
+    "black": {
+      "count": 115,
+      "products": [
+        {
+          "price": "₹1299",
+          "title": "Flying Machine Jeans",
+          "url": "https://www.myntra.com/jeans/flying+machine/flying-machine-women-black-veronica-skinny-fit-high-rise-slash-knee-stretchable-jeans/14030738/buy"
+        },
+        {
+          "price": "₹809",
+          "title": "SASSAFRAS Jackets",
+          "url": "https://www.myntra.com/jackets/sassafras/sassafras-women-black-solid-fringed-hem-denim-jacket/12221916/buy"
+        },
+        {
+          "price": "₹759",
+          "title": "HERE&NOW Jeans",
+          "url": "https://www.myntra.com/jeans/here%26now/herenow-boys-black-clean-look-stretchable-jeans/29401334/buy"
+        },
+        {
+          "price": "₹2239",
+          "title": "JADE BLUE Trousers",
+          "url": "https://www.myntra.com/trousers/jade+blue/jade-blue-men-slim-fit-mid-rise-cotton-formal-trousers/29262008/buy"
+        },
+        {
+          "price": "₹1039",
+          "title": "H&M Trousers",
+          "url": "https://www.myntra.com/trousers/h%26m/-hm-canvas-cargo-trousers/30245640/buy"
+        }
+      ]
+    },
+    "gray": {
+      "count": 78,
+      "products": [
+        {
+          "price": "₹ 5999",
+          "title": "Jack & Jones Jeans",
+          "url": "https://www.myntra.com/jeans/jack+%26+jones/jack--jones-men-wide-leg-low-rise-light-fade-stretchable-jeans/32680028/buy"
+        },
+        {
+          "price": "₹899",
+          "title": "StyleCast Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast/stylecast-women-lightweight-yoga-sporty-jacket/31014392/buy"
+        },
+        {
+          "price": "₹653",
+          "title": "Mark & Mia Shirts",
+          "url": "https://www.myntra.com/shirts/mark+%26+mia/mark--mia-boys-opaque-striped-casual-shirt/32521812/buy"
+        },
+        {
+          "price": "₹1484",
+          "title": "Raymond Trousers",
+          "url": "https://www.myntra.com/trousers/raymond/raymond-men-flat-front-slim-fit-formal-trousers/22898954/buy"
+        },
+        {
+          "price": "₹2309",
+          "title": "Red Tape Jackets",
+          "url": "https://www.myntra.com/jackets/red+tape/red-tape-men-solid-hood-padded-jacket/30839069/buy"
+        }
+      ]
+    },
+    "silver": {
+      "count": 87,
+      "products": [
+        {
+          "price": "₹1249",
+          "title": "StyleCast x Revolte Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast+x+revolte/stylecast-x-revolte-women-longline-open-front-jacket/31055114/buy"
+        },
+        {
+          "price": "₹1679",
+          "title": "RARE RABBIT Shirts",
+          "url": "https://www.myntra.com/shirts/rare+rabbit/rare-rabbit-men-velem-regular-fit-floral-printed-shirt/27583384/buy"
+        },
+        {
+          "price": "₹ 699",
+          "title": "H&M Trousers",
+          "url": "https://www.myntra.com/trousers/h%26m/hm-boys-pure-cotton-twill-joggers/26313184/buy"
+        },
+        {
+          "price": "₹ 499",
+          "title": "R&B Lounge Tshirts",
+          "url": "https://www.myntra.com/lounge-tshirts/r%26b/rb-women-printed-cotton-lounge-t-shirt/32325354/buy"
+        },
+        {
+          "price": "₹639",
+          "title": "WELL QUALITY Jackets",
+          "url": "https://www.myntra.com/jackets/well+quality/well-quality-girls-hooded-abstract-printed-casual-padded-lightweight-jacket/32183984/buy"
+        }
+      ]
+    },
+    "white": {
+      "count": 67,
+      "products": [
+        {
+          "price": "₹1477",
+          "title": "StyleCast x Revolte Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast+x+revolte/stylecast-x-revolte-men-spread-collar-self-design-casual-bomber-jacket/31426384/buy"
+        },
+        {
+          "price": "₹ 599",
+          "title": "NOBERO Tshirts",
+          "url": "https://www.myntra.com/tshirts/nobero/nobero-round-neck-short-sleeves-oversized-cotton-t-shirt/26710886/buy"
+        },
+        {
+          "price": "₹944",
+          "title": "ZHEIA Jeans",
+          "url": "https://www.myntra.com/jeans/zheia/zheia-women-white-skinny-fit-jeans/20619902/buy"
+        },
+        {
+          "price": "₹599",
+          "title": "NOBERO Tshirts",
+          "url": "https://www.myntra.com/tshirts/nobero/nobero-universe-balance-typography-printed-drop-shoulder-sleeves-cotton-oversized-t-shirt/28699000/buy"
+        },
+        {
+          "price": "₹318",
+          "title": "HIGHLANDER Shirts",
+          "url": "https://www.myntra.com/shirts/highlander/highlander-men-white-slim-fit-casual-shirt/2050688/buy"
+        }
+      ]
+    }
+  },
+  "designs": {
+    "casual": {
+      "count": 434,
+      "products": [
+        {
+          "price": "₹1249",
+          "title": "StyleCast x Revolte Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast+x+revolte/stylecast-x-revolte-women-longline-open-front-jacket/31055114/buy"
+        },
+        {
+          "price": "₹ 5999",
+          "title": "Jack & Jones Jeans",
+          "url": "https://www.myntra.com/jeans/jack+%26+jones/jack--jones-men-wide-leg-low-rise-light-fade-stretchable-jeans/32680028/buy"
+        },
+        {
+          "price": "₹809",
+          "title": "SASSAFRAS Jackets",
+          "url": "https://www.myntra.com/jackets/sassafras/sassafras-women-black-solid-fringed-hem-denim-jacket/12221916/buy"
+        },
+        {
+          "price": "₹699",
+          "title": "Urbano Juniors Jeans",
+          "url": "https://www.myntra.com/jeans/urbano+juniors/urbano-juniors-boys-blue-solid-slim-fit-stretchable-jeans/20634630/buy"
+        },
+        {
+          "price": "₹ 1999",
+          "title": "Creatures of Habit Tshirts",
+          "url": "https://www.myntra.com/tshirts/creatures+of+habit/creatures-of-habit-pima-long-sleeves-crew-neck-tshirt/30564799/buy"
+        }
+      ]
+    },
+    "comfortable": {
+      "count": 279,
+      "products": [
+        {
+          "price": "₹623",
+          "title": "MANGO Tshirts",
+          "url": "https://www.myntra.com/tshirts/mango/mango-drop-shoulder-sleeves-pure-cotton-t-shirt/31842183/buy"
+        },
+        {
+          "price": "₹1299",
+          "title": "Flying Machine Jeans",
+          "url": "https://www.myntra.com/jeans/flying+machine/flying-machine-women-black-veronica-skinny-fit-high-rise-slash-knee-stretchable-jeans/14030738/buy"
+        },
+        {
+          "price": "₹ 5999",
+          "title": "Jack & Jones Jeans",
+          "url": "https://www.myntra.com/jeans/jack+%26+jones/jack--jones-men-wide-leg-low-rise-light-fade-stretchable-jeans/32680028/buy"
+        },
+        {
+          "price": "₹ 1999",
+          "title": "Creatures of Habit Tshirts",
+          "url": "https://www.myntra.com/tshirts/creatures+of+habit/creatures-of-habit-pima-long-sleeves-crew-neck-tshirt/30564799/buy"
+        },
+        {
+          "price": "₹639",
+          "title": "Mast & Harbour Shirts",
+          "url": "https://www.myntra.com/shirts/mast+%26+harbour/mast--harbour-men-striped-casual-shirt/26769820/buy"
+        }
+      ]
+    },
+    "modern": {
+      "count": 176,
+      "products": [
+        {
+          "price": "₹1299",
+          "title": "Flying Machine Jeans",
+          "url": "https://www.myntra.com/jeans/flying+machine/flying-machine-women-black-veronica-skinny-fit-high-rise-slash-knee-stretchable-jeans/14030738/buy"
+        },
+        {
+          "price": "₹1249",
+          "title": "StyleCast x Revolte Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast+x+revolte/stylecast-x-revolte-women-longline-open-front-jacket/31055114/buy"
+        },
+        {
+          "price": "₹ 1999",
+          "title": "Creatures of Habit Tshirts",
+          "url": "https://www.myntra.com/tshirts/creatures+of+habit/creatures-of-habit-pima-long-sleeves-crew-neck-tshirt/30564799/buy"
+        },
+        {
+          "price": "₹699",
+          "title": "Roadster Shirts",
+          "url": "https://www.myntra.com/shirts/roadster/the-roadster-lifestyle-co-women-cuban-collar-vertical-striped-cotton-boxy-casual-shirt/31012271/buy"
+        },
+        {
+          "price": "₹417",
+          "title": "Kook N Keech Disney Tshirts",
+          "url": "https://www.myntra.com/tshirts/kook+n+keech+disney/kook-n-keech-disney-mickey-mouse-print-oversize-pure-cotton-t-shirt/31391125/buy"
+        }
+      ]
+    },
+    "relaxed fit": {
+      "count": 173,
+      "products": [
+        {
+          "price": "₹639",
+          "title": "Mast & Harbour Shirts",
+          "url": "https://www.myntra.com/shirts/mast+%26+harbour/mast--harbour-men-striped-casual-shirt/26769820/buy"
+        },
+        {
+          "price": "₹417",
+          "title": "Kook N Keech Disney Tshirts",
+          "url": "https://www.myntra.com/tshirts/kook+n+keech+disney/kook-n-keech-disney-mickey-mouse-print-oversize-pure-cotton-t-shirt/31391125/buy"
+        },
+        {
+          "price": "₹1039",
+          "title": "H&M Trousers",
+          "url": "https://www.myntra.com/trousers/h%26m/-hm-canvas-cargo-trousers/30245640/buy"
+        },
+        {
+          "price": "₹ 1799",
+          "title": "Creatures of Habit Tshirts",
+          "url": "https://www.myntra.com/tshirts/creatures+of+habit/creatures-of-habit-men-pima-crew-neck-tshirt/30564810/buy"
+        },
+        {
+          "price": "₹4394",
+          "title": "MANGO Jackets",
+          "url": "https://www.myntra.com/jackets/mango/mango-water-repellent-longline-hooded-padded-jacket/31842792/buy"
+        }
+      ]
+    },
+    "spring": {
+      "count": 167,
+      "products": [
+        {
+          "price": "₹623",
+          "title": "MANGO Tshirts",
+          "url": "https://www.myntra.com/tshirts/mango/mango-drop-shoulder-sleeves-pure-cotton-t-shirt/31842183/buy"
+        },
+        {
+          "price": "₹ 5999",
+          "title": "Jack & Jones Jeans",
+          "url": "https://www.myntra.com/jeans/jack+%26+jones/jack--jones-men-wide-leg-low-rise-light-fade-stretchable-jeans/32680028/buy"
+        },
+        {
+          "price": "₹809",
+          "title": "SASSAFRAS Jackets",
+          "url": "https://www.myntra.com/jackets/sassafras/sassafras-women-black-solid-fringed-hem-denim-jacket/12221916/buy"
+        },
+        {
+          "price": "₹899",
+          "title": "StyleCast Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast/stylecast-women-lightweight-yoga-sporty-jacket/31014392/buy"
+        },
+        {
+          "price": "₹653",
+          "title": "Mark & Mia Shirts",
+          "url": "https://www.myntra.com/shirts/mark+%26+mia/mark--mia-boys-opaque-striped-casual-shirt/32521812/buy"
+        }
+      ]
+    }
+  },
+  "price_ranges": {
+    "price_range_counts": {
+      "Budget (₹0-500)": 81,
+      "Luxury (₹2001+)": 84,
+      "Mid-Range (₹501-1000)": 244,
+      "Premium (₹1001-2000)": 190
+    },
+    "top_brands_by_price_range": {
+      "Budget (₹0-500)": {
+        "HELLCAT": 5,
+        "HIGHLANDER": 11,
+        "XYXX": 5
+      },
+      "Luxury (₹2001+)": {
+        "Allen Solly": 10,
+        "Jack & Jones": 16,
+        "RARE RABBIT": 13
+      },
+      "Mid-Range (₹501-1000)": {
+        "H&M": 14,
+        "HERE&NOW": 11,
+        "Roadster": 23
+      },
+      "Premium (₹1001-2000)": {
+        "Creatures of Habit": 19,
+        "H&M": 15,
+        "RARE RABBIT": 12
+      }
+    },
+    "top_categories_by_price_range": {
+      "Budget (₹0-500)": {
+        "Shirts": 11,
+        "Trousers": 9,
+        "Tshirts": 56
+      },
+      "Luxury (₹2001+)": {
+        "Jackets": 30,
+        "Jeans": 20,
+        "Trousers": 12
+      },
+      "Mid-Range (₹501-1000)": {
+        "Jeans": 45,
+        "Shirts": 46,
+        "Tshirts": 62
+      },
+      "Premium (₹1001-2000)": {
+        "Jackets": 37,
+        "Trousers": 36,
+        "Tshirts": 48
+      }
+    }
+  },
+  "seasons": {
+    "categories_by_season": {
+      "Fall": {
+        "Jackets": 62,
+        "Jeans": 12,
+        "Lounge Tshirts": 1,
+        "Shirts": 19,
+        "Sweatshirts": 8,
+        "Trousers": 25,
+        "Tshirts": 13
+      },
+      "Spring": {
+        "Jackets": 29,
+        "Jeans": 21,
+        "Lounge Tshirts": 1,
+        "Shirts": 37,
+        "Sweatshirts": 2,
+        "Trousers": 30,
+        "Tshirts": 50
+      },
+      "Summer": {
+        "Jackets": 27,
+        "Jeans": 21,
+        "Lounge Tshirts": 5,
+        "Shirts": 32,
+        "Sweatshirts": 2,
+        "Trousers": 28,
+        "Tshirts": 89
+      },
+      "Winter": {
+        "Jackets": 43,
+        "Jeans": 7,
+        "Lounge Tshirts": 3,
+        "Shirts": 3,
+        "Sweatshirts": 8,
+        "Trousers": 17,
+        "Tshirts": 12
+      }
+    },
+    "season_counts": {
+      "Fall": 140,
+      "Spring": 170,
+      "Summer": 204,
+      "Winter": 93
+    }
+  }
+}

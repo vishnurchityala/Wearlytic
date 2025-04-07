@@ -9,9 +9,56 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="./css/analytics.css">
     <link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
+    <style>
+        /* Loader styles */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #1560BD;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        .loader-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <body class="bg-light">
+
+    <!-- Loader -->
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <div class="loader-text">Loading analytics data...</div>
+    </div>
 
     <!-- Navbar -->
     <div class="container text-center mt-3 navbar-container">
@@ -83,87 +130,16 @@
         <div id="pricing-container" class="mt-4"></div>
     </div>
       
+    <!-- Trending Colors Section -->
     <div id="trendingColor" class="d-flex flex-column justify-content-center align-items-center mb-3 mt-4 text-center">
         <p class="fw-bold text-center mt-2 mb-3 fs-4">Trending Colors</p>
-        <div class="d-flex flex-row justify-content-center align-items-center gap-3 flex-wrap">
-            <div class="text-center">
-            <div class="color-box rounded-pill mx-auto" style="background-color: #000000; width: 30px; height: 30px;"></div>
-            <div class="small text-muted mt-1 fw-bold">Black</div>
-            </div>
-            <div class="text-center">
-            <div class="color-box rounded-pill mx-auto" style="background-color: #B2BEB5; width: 30px; height: 30px;"></div>
-            <div class="small text-muted mt-1 fw-bold">Soft Sage</div>
-            </div>
-            <div class="text-center">
-            <div class="color-box rounded-pill mx-auto" style="background-color: #1560BD; width: 30px; height: 30px;"></div>
-            <div class="small text-muted mt-1 fw-bold">Denim Blue</div>
-            </div>
-            <div class="text-center">
-            <div class="color-box rounded-pill mx-auto" style="background-color: #E2725B; width: 30px; height: 30px;"></div>
-            <div class="small text-muted mt-1 fw-bold">Terracotta</div>
-            </div>
-            <div class="text-center">
-            <div class="color-box rounded-pill mx-auto" style="background-color: #F5F5DC; width: 30px; height: 30px;"></div>
-            <div class="small text-muted mt-1 fw-bold">Creamy Beige</div>
-            </div>
+        <!-- Color Circles -->
+        <div class="d-flex flex-row justify-content-center align-items-center gap-3 flex-wrap mb-4">
+            <!-- Color circles will be dynamically inserted here -->
         </div>
-        <div class="d-flex flex-wrap justify-content-evenly gap-4 mt-4">
-            <div class="card shadow-sm border-0 rounded-3 p-2" style="width: 160px;">
-            <img src="https://assets.myntassets.com/f_webp,fl_progressive/h_960,q_80,w_720/v1/assets/images/27410424/2024/2/7/0f3bf359-e29c-4074-8c83-8f6e328895ba1707301393551CrazymonkUnisexRawEdgeT-shirt1.jpg" 
-                 class="card-img-top rounded-3" alt="AD By Arvind Jeans" style="height: 150px; object-fit: cover;">
-            <div class="card-body p-2 text-center">
-                <div class="d-grid mt-2">
-                    <a href="https://www.myntra.com/tshirts/crazymonk/crazymonk-cotton-three-quarter-sleeves-oversized-raw-edge-t-shirt/27410424/buy" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
-                </div>
-                <p class="fw-bold text-dark mb-1 mt-2">₹704</p>
-                <h6 class="fw-semibold mb-1 small">Crazymonk</h6>
-            </div>
-            </div>
-            <div class="card shadow-sm border-0 rounded-3 p-2" style="width: 160px;">
-            <img src="https://assets.myntassets.com/f_webp,fl_progressive/h_960,q_80,w_720/v1/assets/images/2024/NOVEMBER/23/EYZTn51J_87dc1803f66a462282969945d0d6a801.jpg" 
-                 class="card-img-top rounded-3" alt="AD By Arvind Jeans" style="height: 150px; object-fit: cover;">
-            <div class="card-body p-2 text-center">
-                <div class="d-grid mt-2">
-                    <a href="https://www.myntra.com/tshirts/fitkin/fitkin-women-side-knot-tshirt/31725390/buy" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
-                </div>
-                <p class="fw-bold text-dark mb-1 mt-2">₹1499</p>
-                <h6 class="fw-semibold mb-1 small">Fitkin</h6>
-            </div>
-            </div>
-            <div class="card shadow-sm border-0 rounded-3 p-2" style="width: 160px;">
-            <img src="https://assets.myntassets.com/f_webp,fl_progressive/h_960,q_80,w_720/v1/assets/images/30301598/2024/7/22/030d6f68-b811-4d60-9c3d-738680c8eb971721632552997BeyoungMenRelaxedLooseFitCargosTrousers1.jpg" 
-                 class="card-img-top rounded-3" alt="AD By Arvind Jeans" style="height: 150px; object-fit: cover;">
-            <div class="card-body p-2 text-center">
-                <div class="d-grid mt-2">
-                    <a href="https://www.myntra.com/trousers/beyoung/beyoung-men-relaxed-mid-rise-loose-fit-cargos-trousers/30301598/buy" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
-                    </div>
-                <p class="fw-bold text-dark mt-1 mb-1">₹1409</p>
-                <h6 class="fw-semibold mb-1 small">Beyoung</h6>
-            </div>
-            </div>
-            <div class="card shadow-sm border-0 rounded-3 p-2" style="width: 160px;">
-            <img src="https://assets.myntassets.com/f_webp,fl_progressive/h_960,q_80,w_720/v1/assets/images/30406834/2024/9/2/6fce1735-3a5e-4590-badc-23bfd79467111725279803084-Kook-N-Keech-Vibe-In-Trendy-Terracotta-Shirt-with-Paneling-D-1.jpg" 
-                 class="card-img-top rounded-3" alt="AD By Arvind Jeans" style="height: 150px; object-fit: cover;">
-            <div class="card-body p-2 text-center">
-                <div class="d-grid mt-2">
-                    <a href="https://www.myntra.com/shirts/kook+n+keech/kook-n-keech-vibe-in-trendy-terracotta-oversized-shirt-with-paneling-detail/30406834/buy" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
-                    </div>
-                <p class="fw-bold text-dark mt-1 mb-1">₹675</p>
-                <h6 class="fw-semibold mb-1 small">Kook N Keech
-                </h6>
-            </div>
-            </div>
-            <div class="card shadow-sm border-0 rounded-3 p-2" style="width: 160px;">
-            <img src="https://assets.myntassets.com/f_webp,fl_progressive/h_1440,q_70,w_1080/v1/assets/images/31066425/2024/12/17/22fc6fd2-9d14-4942-a538-3550b6aba2f11734417570022-glitchez-Men-Trousers-7091734417569111-1.jpg" 
-                 class="card-img-top rounded-3" alt="AD By Arvind Jeans" style="height: 150px; object-fit: cover;">
-            <div class="card-body p-2 text-center">
-                <div class="d-grid mt-2">
-                    <a href="https://www.myntra.com/trousers/glitchez/glitchez-men-urban-explorer-relaxed-fit-cargo-style-trousers/31066425/buy" class="btn btn-dark fw-semibold rounded-pill btn-sm btn-tiny">View Product</a>
-                    </div>
-                <p class="fw-bold text-dark mt-1 mb-1">₹838</p>
-                <h6 class="fw-semibold mb-1 small">glitchez</h6>
-            </div>
-            </div>
+        <!-- Product Cards -->
+        <div class="d-flex flex-wrap justify-content-evenly gap-4">
+            <!-- Product cards will be dynamically inserted here -->
         </div>
     </div>
 
@@ -228,6 +204,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Trending Clothes Section -->
+    <div id="trendingClothes" class="d-flex flex-column justify-content-center align-items-center mb-5 mt-5 text-center">
+        <p class="fw-bold text-center mb-2 fs-4">Trending Clothes</p>
+        <div class="d-flex flex-wrap justify-content-evenly gap-4 mt-3">
+            <!-- Trending clothes will be dynamically inserted here -->
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="text-center py-4 mt-5 border-top">
         <div class="d-flex flex-column align-items-center justify-content-end mt-5">
