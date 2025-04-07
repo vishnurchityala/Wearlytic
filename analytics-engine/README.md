@@ -49,6 +49,49 @@ The following environment variables need to be set:
 
 - `MONGODB_URI`: MongoDB connection string
 
-## Deployment
+## Deployment to Render
 
-This API is configured for deployment on Vercel using the `vercel.json` configuration file. 
+### Prerequisites
+- A Render account (sign up at [render.com](https://render.com))
+- Your MongoDB connection string
+
+### Deployment Steps
+
+1. **Create a new Web Service on Render**
+   - Log in to your Render dashboard
+   - Click "New" and select "Web Service"
+   - Connect your GitHub repository
+
+2. **Configure the Web Service**
+   - Name: `wearlytic-analytics` (or your preferred name)
+   - Environment: `Python`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn api:app`
+   - Select the branch to deploy (usually `main`)
+
+3. **Set Environment Variables**
+   - Add the following environment variable:
+     - Key: `MONGODB_URI`
+     - Value: Your MongoDB connection string
+
+4. **Deploy**
+   - Click "Create Web Service"
+   - Render will automatically deploy your application
+
+5. **Access Your API**
+   - Once deployed, Render will provide a URL for your API
+   - Example: `https://wearlytic-analytics.onrender.com`
+
+## Local Development
+
+To run the API locally:
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the Flask application
+python api.py
+```
+
+The API will be available at `http://localhost:5000`. 

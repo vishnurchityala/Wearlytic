@@ -1,0 +1,152 @@
+{
+    "beige": {
+      "count": 45,
+      "products": [
+        {
+          "price": "₹1349",
+          "title": "Mr Bowerbird Jeans",
+          "url": "https://www.myntra.com/jeans/mr+bowerbird/mr-bowerbird-men-slim-fit-stretchable-casual-jeans/21185858/buy"
+        },
+        {
+          "price": "₹699",
+          "title": "Roadster Shirts",
+          "url": "https://www.myntra.com/shirts/roadster/the-roadster-lifestyle-co-women-cuban-collar-vertical-striped-cotton-boxy-casual-shirt/31012271/buy"
+        },
+        {
+          "price": "₹ 599",
+          "title": "max Shirts",
+          "url": "https://www.myntra.com/shirts/max/max-boys-opaque-casual-shirt/32517139/buy"
+        },
+        {
+          "price": "₹3311",
+          "title": "RARE RABBIT Sweatshirts",
+          "url": "https://www.myntra.com/sweatshirts/rare+rabbit/rare-rabbit-men-printed-cotton-round-neck-sweatshirt/31220574/buy"
+        },
+        {
+          "price": "₹559",
+          "title": "The Indian Garage Co Shirts",
+          "url": "https://www.myntra.com/shirts/the+indian+garage+co/the-indian-garage-co-men-cream-coloured--navy-blue-tartan-checked-shirt/17406394/buy"
+        }
+      ]
+    },
+    "black": {
+      "count": 115,
+      "products": [
+        {
+          "price": "₹1299",
+          "title": "Flying Machine Jeans",
+          "url": "https://www.myntra.com/jeans/flying+machine/flying-machine-women-black-veronica-skinny-fit-high-rise-slash-knee-stretchable-jeans/14030738/buy"
+        },
+        {
+          "price": "₹809",
+          "title": "SASSAFRAS Jackets",
+          "url": "https://www.myntra.com/jackets/sassafras/sassafras-women-black-solid-fringed-hem-denim-jacket/12221916/buy"
+        },
+        {
+          "price": "₹759",
+          "title": "HERE&NOW Jeans",
+          "url": "https://www.myntra.com/jeans/here%26now/herenow-boys-black-clean-look-stretchable-jeans/29401334/buy"
+        },
+        {
+          "price": "₹2239",
+          "title": "JADE BLUE Trousers",
+          "url": "https://www.myntra.com/trousers/jade+blue/jade-blue-men-slim-fit-mid-rise-cotton-formal-trousers/29262008/buy"
+        },
+        {
+          "price": "₹1039",
+          "title": "H&M Trousers",
+          "url": "https://www.myntra.com/trousers/h%26m/-hm-canvas-cargo-trousers/30245640/buy"
+        }
+      ]
+    },
+    "gray": {
+      "count": 78,
+      "products": [
+        {
+          "price": "₹ 5999",
+          "title": "Jack & Jones Jeans",
+          "url": "https://www.myntra.com/jeans/jack+%26+jones/jack--jones-men-wide-leg-low-rise-light-fade-stretchable-jeans/32680028/buy"
+        },
+        {
+          "price": "₹899",
+          "title": "StyleCast Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast/stylecast-women-lightweight-yoga-sporty-jacket/31014392/buy"
+        },
+        {
+          "price": "₹653",
+          "title": "Mark & Mia Shirts",
+          "url": "https://www.myntra.com/shirts/mark+%26+mia/mark--mia-boys-opaque-striped-casual-shirt/32521812/buy"
+        },
+        {
+          "price": "₹1484",
+          "title": "Raymond Trousers",
+          "url": "https://www.myntra.com/trousers/raymond/raymond-men-flat-front-slim-fit-formal-trousers/22898954/buy"
+        },
+        {
+          "price": "₹2309",
+          "title": "Red Tape Jackets",
+          "url": "https://www.myntra.com/jackets/red+tape/red-tape-men-solid-hood-padded-jacket/30839069/buy"
+        }
+      ]
+    },
+    "silver": {
+      "count": 87,
+      "products": [
+        {
+          "price": "₹1249",
+          "title": "StyleCast x Revolte Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast+x+revolte/stylecast-x-revolte-women-longline-open-front-jacket/31055114/buy"
+        },
+        {
+          "price": "₹1679",
+          "title": "RARE RABBIT Shirts",
+          "url": "https://www.myntra.com/shirts/rare+rabbit/rare-rabbit-men-velem-regular-fit-floral-printed-shirt/27583384/buy"
+        },
+        {
+          "price": "₹ 699",
+          "title": "H&M Trousers",
+          "url": "https://www.myntra.com/trousers/h%26m/hm-boys-pure-cotton-twill-joggers/26313184/buy"
+        },
+        {
+          "price": "₹ 499",
+          "title": "R&B Lounge Tshirts",
+          "url": "https://www.myntra.com/lounge-tshirts/r%26b/rb-women-printed-cotton-lounge-t-shirt/32325354/buy"
+        },
+        {
+          "price": "₹639",
+          "title": "WELL QUALITY Jackets",
+          "url": "https://www.myntra.com/jackets/well+quality/well-quality-girls-hooded-abstract-printed-casual-padded-lightweight-jacket/32183984/buy"
+        }
+      ]
+    },
+    "white": {
+      "count": 67,
+      "products": [
+        {
+          "price": "₹1477",
+          "title": "StyleCast x Revolte Jackets",
+          "url": "https://www.myntra.com/jackets/stylecast+x+revolte/stylecast-x-revolte-men-spread-collar-self-design-casual-bomber-jacket/31426384/buy"
+        },
+        {
+          "price": "₹ 599",
+          "title": "NOBERO Tshirts",
+          "url": "https://www.myntra.com/tshirts/nobero/nobero-round-neck-short-sleeves-oversized-cotton-t-shirt/26710886/buy"
+        },
+        {
+          "price": "₹944",
+          "title": "ZHEIA Jeans",
+          "url": "https://www.myntra.com/jeans/zheia/zheia-women-white-skinny-fit-jeans/20619902/buy"
+        },
+        {
+          "price": "₹599",
+          "title": "NOBERO Tshirts",
+          "url": "https://www.myntra.com/tshirts/nobero/nobero-universe-balance-typography-printed-drop-shoulder-sleeves-cotton-oversized-t-shirt/28699000/buy"
+        },
+        {
+          "price": "₹318",
+          "title": "HIGHLANDER Shirts",
+          "url": "https://www.myntra.com/shirts/highlander/highlander-men-white-slim-fit-casual-shirt/2050688/buy"
+        }
+      ]
+    }
+  }
