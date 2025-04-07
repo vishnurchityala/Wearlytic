@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         populateContainer();
     }
 
-    async function fetchProducts(page = 1, perPage = itemsPerPage, searchTerm = '', minPrice = null, maxPrice = null, category = 'all', color = 'all') {
+    async function fetchProducts(page = 1, perPage = itemsPerPage, searchTerm = '', minPrice = 0, maxPrice = null, category = 'all', color = 'all') {
         try {
             showLoader();
             const url = new URL(apiUrlBase);
@@ -123,11 +123,42 @@ document.addEventListener("DOMContentLoaded", async function () {
                 url.searchParams.append('color', color);
             }
             
+            console.log('API Request URL:', url.toString());
+            
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error("Failed to fetch products");
             }
             const data = await response.json();
+            
+            console.log('API Response:', {
+                totalProducts: data.products ? data.products.length : 0,
+                pagination: data.pagination,
+                firstProduct: data.products && data.products.length > 0 ? data.products[0] : null
+            });
+            
+            // Check if we have products in the response
+            if (!data.products || data.products.length === 0) {
+                console.warn('No products returned from API for search term:', searchTerm);
+                // Try a direct fetch to see if it's a caching issue
+                const directUrl = new URL(apiUrlBase);
+                directUrl.searchParams.append('search', searchTerm);
+                console.log('Trying direct fetch with URL:', directUrl.toString());
+                
+                const directResponse = await fetch(directUrl);
+                const directData = await directResponse.json();
+                console.log('Direct API Response:', {
+                    totalProducts: directData.products ? directData.products.length : 0,
+                    pagination: directData.pagination
+                });
+                
+                // Use the direct response data if it has products
+                if (directData.products && directData.products.length > 0) {
+                    console.log('Using direct response data instead');
+                    data.products = directData.products;
+                    data.pagination = directData.pagination;
+                }
+            }
             
             // Filter products based on price range
             let filteredProducts = data.products || [];
@@ -142,13 +173,24 @@ document.addEventListener("DOMContentLoaded", async function () {
                 );
             }
             
+            console.log('After price filtering:', filteredProducts.length, 'products');
+            
             originalProductList = filteredProducts;
             productList = [...originalProductList];
+            
+            console.log('Product list before filters:', productList.length, 'products');
+            
             populateMaterialFilter();
             populateCategoryFilter();
             populateColorFilters();
             renderPagination(data.pagination);
+            
+            console.log('Before applying filters:', productList.length, 'products');
             applyFilters();
+            console.log('After applying filters:', productList.length, 'products');
+            
+            // Make sure to call populateContainer after all filters are applied
+            populateContainer();
         } catch (error) {
             console.error("Error fetching products:", error);
         } finally {
@@ -158,8 +200,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function populateContainer() {
         showLoader();
+        console.log('Populating container with', productList.length, 'products');
         listingsContainer.innerHTML = "";
         const currentDate = new Date().toLocaleDateString();
+        
+        if (productList.length === 0) {
+            console.log('No products to display');
+            listingsContainer.innerHTML = '<div class="col-12 text-center"><p>No products found matching your criteria.</p></div>';
+            hideLoader();
+            return;
+        }
         
         productList.forEach(product => {
             const colorCircles = (product.colors || []).map(color => 
@@ -194,6 +244,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             listingsContainer.innerHTML += productCard;
         });
+        console.log('Container populated with', productList.length, 'products');
         hideLoader();
     }
 
@@ -293,11 +344,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             const selectedColor = document.querySelector('input[name="color"]:checked').value;
+            console.log('Search parameters:', {
+                searchTerm,
+                minPrice: parseInt(minPriceInput.value) || 0,
+                maxPrice: parseInt(maxPriceInput.value) || null,
+                category: categorySelect.value,
+                color: selectedColor
+            });
             fetchProducts(
                 1, 
                 itemsPerPage, 
                 searchTerm, 
-                parseInt(minPriceInput.value), 
+                parseInt(minPriceInput.value) || 0, 
                 parseInt(maxPriceInput.value) || null,
                 categorySelect.value,
                 selectedColor
@@ -306,11 +364,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     function handlePriceChange() {
-        const minPrice = minPriceInput.value ? parseInt(minPriceInput.value) : null;
+        const minPrice = minPriceInput.value ? parseInt(minPriceInput.value) : 0;
         const maxPrice = maxPriceInput.value ? parseInt(maxPriceInput.value) : null;
         
         // Validate prices
-        if (minPrice !== null && minPrice < 0) {
+        if (minPrice < 0) {
             minPriceInput.value = 0;
         }
         if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {

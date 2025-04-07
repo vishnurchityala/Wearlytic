@@ -100,6 +100,16 @@ app.get('/api/products', async (req, res) => {
             per_page = 5 
         } = req.query;
 
+        console.log('API Request Parameters:', {
+            search,
+            category,
+            brand,
+            min_price,
+            max_price,
+            page,
+            per_page
+        });
+
         const currentPage = parseInt(page);
         const itemsPerPage = parseInt(per_page);
 
@@ -108,8 +118,14 @@ app.get('/api/products', async (req, res) => {
         
         // Use MongoDB text search if search parameter is provided
         if (search) {
+            // Log the search term for debugging
+            console.log('Search term:', search);
+            
+            // Use $text search with $search operator
             query.$text = { $search: search };
-            console.log('Using text search with query:', JSON.stringify(query));
+            
+            // Log the query for debugging
+            console.log('Text search query:', JSON.stringify(query));
         }
 
         // Add category filter
@@ -126,6 +142,8 @@ app.get('/api/products', async (req, res) => {
         let products = await Product.find(query)
             .select('-_id description product_url source product_name image_url category price colors brand material timestamp')
             .sort(search ? { score: { $meta: "textScore" } } : { timestamp: -1 });
+
+        console.log(`Found ${products.length} products with query:`, JSON.stringify(query));
 
         // Apply price filtering
         if (min_price || max_price) {
