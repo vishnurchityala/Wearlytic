@@ -78,7 +78,7 @@ The project is organized into several key components:
    - Scraping Agent: `cd scraping_agent && python main.py`
 
 ## Development Status
-> [!Note]
+> [!Warning]
 > This project is actively under development. New features and improvements are being added regularly.
 > The scraping agent is currently being enhanced for better concurrent request handling and data extraction capabilities.
 
