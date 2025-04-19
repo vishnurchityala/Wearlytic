@@ -75,7 +75,6 @@ The project is organized into several key components:
 4. Start the services:
    - Backend: `cd backend && python app.py`
    - Frontend: `cd frontend && npm start`
-   - Scraping Agent: `cd scraping_agent && python main.py`
 
 ## Development Status
 > [!Warning]
