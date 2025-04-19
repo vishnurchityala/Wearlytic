@@ -28,7 +28,6 @@ The project is organized into several key components:
   - Concurrent request handling
 
 ### 3. Frontend Application (`/frontend`)
-- React-based web application
 - Interactive dashboards and visualizations
 - User-friendly interface for data exploration
 - Features:
