@@ -76,7 +76,7 @@ The project is organized into several key components:
    - Frontend: `cd frontend && npm start`
 
 ## Development Status
-> [!DANGER]
+> [!ERROR]
 > This project was in prototype phase until now. We are currently building a scalable scraping agent with API exposure capabilities.
 
 > [!WARNING]
