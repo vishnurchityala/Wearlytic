@@ -78,7 +78,7 @@ The project is organized into several key components:
 ## Development Status
 > [!DANGER]
 > This project was in prototype phase until now. We are currently building a scalable scraping agent with API exposure capabilities.
->
+
 > [!WARNING]
 > The scraping agent is currently being enhanced for better concurrent request handling and data extraction capabilities.
 
