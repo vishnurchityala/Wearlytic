@@ -59,6 +59,13 @@ class BaseScraper(ABC):
 The `AmazonScraper` a sample implementation of `BaseScraper` class.
 
 ```
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from bs4 import BeautifulSoup
+import BaseScraper
 class AmazonScraper(BaseScraper):
     def __init__(self):
         super().__init__("https://www.amazon.in/")
