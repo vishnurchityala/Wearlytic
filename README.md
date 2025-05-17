@@ -76,10 +76,10 @@ The project is organized into several key components:
    - Frontend: `cd frontend && npm start`
 
 ## Development Status
-> ![warning](https://img.shields.io/badge/⚠️-WARNING-%23cf222e)
+> ![warning](https://img.shields.io/badge/⚠️%20WARNING-red)
 > This project was in prototype phase until now. We are currently building a scalable scraping agent with API exposure capabilities.
 
-> [!WARNING]
+> ![progress](https://img.shields.io/badge/⏳%20IN%20PROGRESS-blue)
 > The scraping agent is currently being enhanced for better concurrent request handling and data extraction capabilities.
 
 ## Contributing
