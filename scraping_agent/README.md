@@ -1,9 +1,14 @@
-### `BaseScraper` Class
+## `ScrapingAgent`
+
+The `ScrapingAgent` provides a unified API for extracting product data at scale from multiple sources across different websites. It serves as an abstraction layer to standardize and streamline the scraping process, regardless of the underlying site-specific implementations.
+
+
+## `BaseScraper` Class
 
 The `BaseScraper` is an abstract base class designed to provide a common interface for implementing web scrapers across different websites. Subclasses can implement their own scraping logic using the most suitable libraries and techniques for the target site, ensuring optimal performance and flexibility.
 
 
-```
+``` [python]
 class BaseScraper(ABC):
 
     def __init__(self, base_url, headers):
