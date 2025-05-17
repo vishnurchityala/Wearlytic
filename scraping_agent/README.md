@@ -11,9 +11,10 @@ The `BaseScraper` is an abstract base class designed to provide a common interfa
 ``` [python]
 class BaseScraper(ABC):
 
-    def __init__(self, base_url, headers):
+    def __init__(self, base_url, headers, listing_pages):
         self.base_url = base_url
         self.headers = headers
+        self.listing_pages = listing_pages
 
     
     @abstractmethod
