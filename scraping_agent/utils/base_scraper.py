@@ -1,47 +1,7 @@
-## `ScrapingAgent`
-
-The `ScrapingAgent` provides a unified API for extracting product data at scale from multiple sources across different websites. It serves as an abstraction layer to standardize and streamline the scraping process, regardless of the underlying site-specific implementations.
-
-## `BaseContentLoader` Class
-The `BaseContentLoader` is an abstract base class that defines a common interface for implementing various strategies to load different types of web pages. It also provides the flexibility to create custom page loaders using any available library or technology.
-
-```[python]
-from abc import ABC, abstractmethod
-
-class BaseContentLoader(ABC):
-    def __init__(self, headers):
-        """
-        Initializes the content loader with HTTP headers.
-
-        Args:
-            headers (dict): HTTP headers to use for the request.
-        """
-        self.headers = headers
-
-    @abstractmethod
-    def load_content(self, page_url):
-        """
-        Loads content from the specified page URL.
-
-        Args:
-            page_url (str): The URL of the page to scrape data from.
-
-        Returns:
-            str: The raw content of the page.
-        """
-        pass
-```
-
-## `BaseScraper` Class
-
-The `BaseScraper` is an abstract base class designed to provide a common interface for implementing web scrapers across different websites. Subclasses can implement their own scraping logic using the most suitable libraries and techniques for the target site, ensuring optimal performance and flexibility.
-
-
-``` [python]
 from abc import ABC, abstractmethod
 
 class BaseScraper(ABC):
-    def __init__(self, base_url, headers, listing_pages, content_loader):
+    def __init__(self, base_url, headers,content_loader=None):
         """
         Initializes the scraper with required parameters.
 
@@ -53,7 +13,6 @@ class BaseScraper(ABC):
         """
         self.base_url = base_url
         self.headers = headers
-        self.listing_pages = listing_pages
         self.content_loader = content_loader
 
         # Will store content of the current page when loaded
@@ -102,5 +61,3 @@ class BaseScraper(ABC):
         """
         self.current_product_page_content = self.content_loader.load_content(product_page_url)
         return self._extract_product_details(self.current_product_page_content)
-
-```

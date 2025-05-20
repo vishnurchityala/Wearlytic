@@ -1,64 +1,24 @@
 import time
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from base_scraper import BaseScraper
+from selenium_content_loader import SeleniumContentLoader
 
-"""
-MyntraScraper class inherits from BaseScraper and provides methods to scrape Myntra's website.
-"""
 class MyntraScraper(BaseScraper):
-    def __init__(self):
-        """
-        Initializes the scraper with Myntra's base URL.
-        """
-        super().__init__("https://www.myntra.com/")
-        
+    """
+    MyntraScraper implementation of BaseScraper, scraping Amazon.in product info.
+    """
+    def __init__(self, headers=None):
+        super().__init__("https://www.myntra.com/", headers=headers, content_loader=None)
+        self.content_loader = SeleniumContentLoader(headers=headers)
+
     def get_page_content(self, page_url):
-        """
-        Fetches the HTML content of a given page URL using Selenium.
-
-        Args:
-            page_url (str): The URL of the page to fetch.
-
-        Returns:
-            str: The HTML content of the page, or None if an error occurs.
-        """
         try:
-            chrome_options = Options()
-            chrome_options.add_argument(f"user-agent={self.headers['User-Agent']}")
-            chrome_options.add_argument(f"accept-language={self.headers['Accept-Language']}")
-            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            chrome_options.add_experimental_option("useAutomationExtension", False)
-            chrome_options.add_argument("--headless=new")
-            chrome_options.add_argument("--disable-gpu")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=chrome_options)
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            driver.get(page_url)
-            time.sleep(5)
-            html_content = driver.page_source
-            driver.quit()
-            return html_content
+            return self.content_loader.load_content(page_url)
         except Exception as e:
             print(f"Error fetching page content from Myntra: {e}")
             return None
-    
+
     def get_pagination_details(self, page_content):
-        """
-        Extracts pagination details such as current page, total pages, and next page URL from the page content.
-
-        Args:
-            page_content (str): The HTML content of the page.
-
-        Returns:
-            dict: A dictionary containing pagination details.
-        """
         soup = BeautifulSoup(page_content, 'html.parser')
         pagination_info = {
             'current_page': None,
@@ -100,16 +60,6 @@ class MyntraScraper(BaseScraper):
             return pagination_info
 
     def get_product_listings(self, listings_page_url, page=1):
-        """
-        Retrieves product listing URLs from a given page.
-
-        Args:
-            listings_page_url (str): The URL of the listings page.
-            page (int): The page number to fetch.
-
-        Returns:
-            list: A list of product URLs.
-        """
         if page > 1:
             if '?' in listings_page_url:
                 url = f"{listings_page_url}&p={page}"
@@ -121,6 +71,9 @@ class MyntraScraper(BaseScraper):
         if not page_content:
             print(f"Failed to retrieve content for page {page}")
             return []
+        return self._extract_product_listings(page_content, page)
+
+    def _extract_product_listings(self, page_content, page):
         soup = BeautifulSoup(page_content, 'html.parser')
         product_links = []
         product_items = soup.find_all('li', class_='product-base')
@@ -138,38 +91,17 @@ class MyntraScraper(BaseScraper):
         print(f"Found {len(product_links)} unique product links on page {page}")
         return product_links
 
-    def extract_colors(self, soup):
-        """
-        Extracts available color options from the product page.
-
-        Args:
-            soup (BeautifulSoup): The parsed HTML content of the product page.
-
-        Returns:
-            list: A list of color names.
-        """
-        color_names = []
-        color_names= [a["title"] for a in soup.select(".colors-container a") if a.has_attr("title")]
-        return color_names
-
     def get_product_details(self, product_page_url):
-        """
-        Extracts detailed information about a product from its page.
+        page_content = self.get_page_content(product_page_url)
+        if not page_content:
+            print(f"Failed to retrieve content for product page: {product_page_url}")
+            return {}
+        return self._extract_product_details(page_content)
 
-        Args:
-            product_page_url (str): The URL of the product page.
-
-        Returns:
-            dict: A dictionary containing product details such as title, brand, price, rating, sizes, colors, and images.
-        """
+    def _extract_product_details(self, page_content):
         try:
-            page_content = self.get_page_content(product_page_url)
-            if not page_content:
-                print(f"Failed to retrieve content for product page: {product_page_url}")
-                return {}
             soup = BeautifulSoup(page_content, 'html.parser')
             product_details = {
-                'url': product_page_url,
                 'source': 'Myntra'
             }
             product_name = soup.find('h1', {'class': 'pdp-name'})
@@ -199,9 +131,9 @@ class MyntraScraper(BaseScraper):
             colors = [a["title"] for a in soup.select(".colors-container a") if a.has_attr("title")]
             if colors:
                 product_details['colors'] = colors
-            specifications = description = soup.select_one(".pdp-product-description-content").get_text(separator=" ", strip=True)
+            specifications = soup.select_one(".pdp-product-description-content")
             if specifications:
-                product_details['description'] = specifications
+                product_details['description'] = specifications.get_text(separator=" ", strip=True)
             images = []
             image_containers = soup.find_all('div', {'class': 'image-grid-image'})
             for img_container in image_containers:
@@ -215,11 +147,15 @@ class MyntraScraper(BaseScraper):
             print(f"Error extracting product details: {e}")
             return {}
 
+    def close(self):
+        if self.content_loader:
+            self.content_loader.close()
+
 if __name__ == "__main__":
-    """
-    Main execution block to test the scraper functionality.
-    """
-    scraper = MyntraScraper()
+    scraper = MyntraScraper(headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9"
+    })
     search_url = "https://www.myntra.com/tshirts"
     html_content = scraper.get_page_content(search_url)
     if html_content:
@@ -232,12 +168,14 @@ if __name__ == "__main__":
             print(f"{key}: {value}")
         product_links = scraper.get_product_listings(search_url)
         print("\nSample Product Links:")
-        for i, link in enumerate(product_links):
+        for i, link in enumerate(product_links[:5]):
             print(f"{i+1}. {link}")
-        product_url = product_links[-1]
-        product_details = scraper.get_product_details(product_url)
-        print("\nProduct Details:")
-        for key, value in product_details.items():
-            print(f"{key}: {value}")
+        if product_links:
+            product_url = product_links[0]
+            product_details = scraper.get_product_details(product_url)
+            print("\nProduct Details:")
+            for key, value in product_details.items():
+                print(f"{key}: {value}")
     else:
         print("Failed to retrieve content")
+    scraper.close()
