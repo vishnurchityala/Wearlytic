@@ -75,7 +75,7 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
                         EC.presence_of_element_located((By.CLASS_NAME, self.target_class_name))
                     )
                     
-                    self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", target_element)
+                    self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'start'});", target_element)
                     
                 except (NoSuchElementException, TimeoutException):
                     current_position = self.driver.execute_script("return window.pageYOffset;")
@@ -106,15 +106,17 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
 if __name__ == "__main__":
     loader = SeleniumInfinityScrollContentLoader(
-        target_class_name="footerlinks",
+        target_class_name="bg-footerBg",
         scroll_delay=5,
         headless=False, 
         max_scrolls=30
     )
     try:
-        content = loader.load_content("https://www.thesouledstore.com/men/t-shirts")
+        content = loader.load_content("https://www.snitch.com/men-bestsellers/314502480034/buy")
         print(f"Loaded content length: {len(content)} characters")
     except Exception as e:
         print(f"Error: {e}")
     finally:
+        with open("trial_snitch.html","w+") as f:
+            f.write(content)
         loader.close()
