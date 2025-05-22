@@ -74,11 +74,6 @@ class AmazonScraper(BaseScraper):
         print(f"Found {len(product_links)} unique product links on page {page}")
         return product_links
 
-    def trim_product_url(self, url):
-        if '?' in url:
-            return url.split('?')[0]
-        return url
-
     def extract_product_description(self, html_content):
         soup = BeautifulSoup(html_content, 'html.parser')
         description_data = {
@@ -113,8 +108,10 @@ class AmazonScraper(BaseScraper):
         return color_options
 
     def get_product_details(self, product_page_url):
+
         try:
-            product_page_url = self.trim_product_url(product_page_url)
+            if '?' in product_page_url:
+                product_page_url = product_page_url.split('?')[0]
             page_content = self.get_page_content(product_page_url)
             if not page_content:
                 print(f"Failed to retrieve content for product page: {product_page_url}")
@@ -175,7 +172,7 @@ if __name__ == "__main__":
             print(f"{i+1}. {link}")
 
         if product_links:
-            product_url = scraper.trim_product_url(product_links[-1])
+            product_url = product_links[-1].split('?')[0]
             product_details = scraper.get_product_details(product_url)
 
             print("\nProduct Details:")

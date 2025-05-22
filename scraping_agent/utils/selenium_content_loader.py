@@ -3,17 +3,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from abc import ABC
 from base_content_loader import BaseContentLoader
 
 class SeleniumContentLoader(BaseContentLoader):
     def __init__(self, headers=None, timeout=10):
-        """
-        Initializes the content loader with HTTP headers.
-
-        Args:
-            headers (dict): HTTP headers to use for the request.
-        """
         super().__init__()
         self.timeout = timeout
         self.service = None
@@ -44,23 +37,11 @@ class SeleniumContentLoader(BaseContentLoader):
         )
 
     def load_content(self, page_url):
-        """
-        Loads the page and returns its rendered HTML content.
-
-        Args:
-            page_url (str): The URL to load.
-
-        Returns:
-            str: Fully rendered HTML content.
-        """
         self.driver.get(page_url)
         time.sleep(self.timeout)
         return self.driver.page_source
 
     def close(self):
-        """
-        Properly closes the Selenium WebDriver and service.
-        """
         if self.driver:
             self.driver.quit()
         if self.service:
