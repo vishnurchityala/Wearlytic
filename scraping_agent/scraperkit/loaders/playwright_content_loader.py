@@ -1,4 +1,4 @@
-from base_content_loader import BaseContentLoader
+from scraperkit.base.base_content_loader  import BaseContentLoader
 from playwright.sync_api import sync_playwright
 import time
 import random

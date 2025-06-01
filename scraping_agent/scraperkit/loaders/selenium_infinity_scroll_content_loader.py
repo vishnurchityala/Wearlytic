@@ -8,7 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from base_content_loader import BaseContentLoader
+from scraperkit.base.base_content_loader  import BaseContentLoader
 
 class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
@@ -75,7 +75,7 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
                         EC.presence_of_element_located((By.CLASS_NAME, self.target_class_name))
                     )
                     
-                    self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'start'});", target_element)
+                    self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", target_element)
                     
                 except (NoSuchElementException, TimeoutException):
                     current_position = self.driver.execute_script("return window.pageYOffset;")
@@ -106,17 +106,15 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
 if __name__ == "__main__":
     loader = SeleniumInfinityScrollContentLoader(
-        target_class_name="bg-footerBg",
+        target_class_name="footerlinks",
         scroll_delay=5,
         headless=False, 
         max_scrolls=30
     )
     try:
-        content = loader.load_content("https://www.snitch.com/men-bestsellers/314502480034/buy")
+        content = loader.load_content("https://www.thesouledstore.com/men/t-shirts")
         print(f"Loaded content length: {len(content)} characters")
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        with open("trial_snitch.html","w+") as f:
-            f.write(content)
         loader.close()

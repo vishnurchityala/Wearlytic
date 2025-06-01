@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from base_content_loader import BaseContentLoader
+from scraperkit.base.base_content_loader  import BaseContentLoader
 import requests
 
 class RequestContentLoader(BaseContentLoader):

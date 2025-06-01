@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from base_content_loader import BaseContentLoader
+from scraperkit.base.base_content_loader  import BaseContentLoader
 
 class SeleniumContentLoader(BaseContentLoader):
     def __init__(self, headers=None, timeout=10):
