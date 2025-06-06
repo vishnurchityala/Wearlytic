@@ -35,7 +35,7 @@ class Product(BaseModel):
     sizes: List[str] = Field(...)
     material: str = Field(...)
     description: str = Field(...)
-    rating: float = Field(default=0, gt=0, le=5)
+    rating: float = Field(default=0, ge=0, le=5)
     review_count: int = Field(default=0, ge=0)
     processed: StrictBool = Field(default=False)
     scraped_datetime: Optional[datetime]

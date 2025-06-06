@@ -144,11 +144,11 @@ class MyntraScraper(BaseScraper):
                 if rating_div:
                     rating_text = rating_div.text.strip()
                     rating_value = float(rating_text)
-                    return rating_value if 0 <= rating_value <= 5 else None
-            return None
+                    return rating_value if 0 <= rating_value <= 5 else 0
+            return 0
         except (ValueError, AttributeError) as e:
             print(f"Error extracting rating: {e}")
-            return None
+            return 0
 
     def _extract_review_count(self, soup: BeautifulSoup) -> int | None:
         try:
@@ -158,11 +158,11 @@ class MyntraScraper(BaseScraper):
                 if ratings_count:
                     review_text = ratings_count.text.strip().split()[0]
                     review_count = int(review_text)
-                    return review_count if review_count >= 0 else None
-            return None
+                    return review_count if review_count >= 0 else 0
+            return 0
         except (ValueError, AttributeError) as e:
             print(f"Error extracting review count: {e}")
-            return None
+            return 0
 
     def _extract_description(self, soup: BeautifulSoup) -> str | None:
         try:
@@ -188,16 +188,16 @@ class MyntraScraper(BaseScraper):
 
     def _extract_material(self, soup: BeautifulSoup) -> str | None:
         try:
-            # Find all index rows
-            index_rows = soup.find_all('div', {'class': 'index-row'})
-            for row in index_rows:
-                key_div = row.find('div', {'class': 'index-rowKey'})
-                if key_div and 'Fabrics' in key_div.text:
-                    value_div = row.find('div', {'class': 'index-rowValue'})
-                    if value_div:
-                        material = value_div.text.strip()
-                        return material if material else None
-            return None
+            desc_sections = soup.find_all("div", class_="pdp-sizeFitDesc")
+
+            for section in desc_sections:
+                title = section.find("h4")
+                if title and "material & care" in title.get_text().lower():
+                    content = section.find("p")
+                    if content:
+                        for br in content.find_all("br"):
+                            br.replace_with("\n")
+                        return content.get_text(strip=True)
         except Exception as e:
             print(f"Error extracting material: {e}")
             return None
@@ -220,7 +220,6 @@ class MyntraScraper(BaseScraper):
         try:
             breadcrumb_container = soup.find('div', class_='breadcrumbs-container')
             if not breadcrumb_container:
-                print("Breadcrumb container not found.")
                 return None
 
             links = breadcrumb_container.find_all('a', class_='breadcrumbs-link')
@@ -228,11 +227,25 @@ class MyntraScraper(BaseScraper):
             if len(links) >= 4:
                 return links[3].get_text(strip=True)
             else:
-                print("Not enough breadcrumb links to extract category.")
                 return None
 
         except Exception as e:
-            print(f"Error extracting category: {e}")
+            return None
+
+    def _extract_gender(self, soup: BeautifulSoup) -> str | None:
+        try:
+            breadcrumb_container = soup.find('div', class_='breadcrumbs-container')
+            if not breadcrumb_container:
+                return None
+
+            links = breadcrumb_container.find_all('a', class_='breadcrumbs-link')
+
+            if len(links) >= 3:
+                return links[2].get_text(strip=True).split()[0]
+            else:
+                return None
+
+        except Exception as e:
             return None
 
     def _extract_colors(self, soup: BeautifulSoup) -> list[str]:
@@ -283,6 +296,7 @@ class MyntraScraper(BaseScraper):
                 'rating': self._extract_rating(soup),
                 'review_count': self._extract_review_count(soup),
                 'description': self._extract_description(soup),
+                'gender':self._extract_gender(soup),
                 'category': self._extract_category(soup),
                 'material': self._extract_material(soup),
                 'sizes': self._extract_sizes(soup),

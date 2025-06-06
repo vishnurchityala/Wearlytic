@@ -1,4 +1,5 @@
-from scraperkit import AmazonScraper
+from scraperkit.scrapers import AmazonScraper
+
 if __name__ == "__main__":
     # Initialize scraper with headers
     headers = {
