@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
-from scraperkit.base.base_scraper import BaseScraper
-from scraperkit.loaders.selenium_content_loader import SeleniumContentLoader
-from scraperkit.models.product import Product
+from scraperkit.base import BaseScraper
+from scraperkit.loaders import SeleniumContentLoader
+from scraperkit.models import Product
 from datetime import datetime,timezone
+# Sample use of import of Exception class
+from scraperkit.exceptions import BadURLException
 
 class AmazonScraper(BaseScraper):
     def __init__(self, headers=None,content_loader=None):
