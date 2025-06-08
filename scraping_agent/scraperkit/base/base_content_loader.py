@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 class BaseContentLoader(ABC):
-    def __init__(self, headers=None):
+    def __init__(self, headers=None,timeout=10):
         """
         Initializes the content loader with HTTP headers.
 
@@ -16,6 +16,7 @@ class BaseContentLoader(ABC):
             ),
             "Accept-Language": "en-US,en;q=0.9",
         }
+        self.timeout = timeout
 
 
     @abstractmethod

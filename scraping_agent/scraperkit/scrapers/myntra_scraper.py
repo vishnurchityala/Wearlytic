@@ -1,8 +1,9 @@
 import time
 from bs4 import BeautifulSoup
 from scraperkit.base.base_scraper import BaseScraper
-from scraperkit.loaders.selenium_content_loader import SeleniumContentLoader
+from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.models.product import Product
+from scraperkit.exceptions import DataComponentNotFoundException, DataParsingException
 from datetime import datetime, timezone
 
 class MyntraScraper(BaseScraper):
@@ -12,7 +13,19 @@ class MyntraScraper(BaseScraper):
     def __init__(self, headers=None):
         super().__init__("https://www.myntra.com/", headers=headers)
         self.id_prefix = "mynt_"
-        self.content_loader = SeleniumContentLoader(headers=headers)
+        self.headers = headers or {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1"
+        }
+        self.content_loader = SeleniumContentLoader(headers=self.headers, timeout=30)
 
     def get_page_content(self, page_url: str) -> str | None:
         try:
@@ -102,183 +115,255 @@ class MyntraScraper(BaseScraper):
             print(f"Error extracting product listings: {e}")
             return []
 
-    def _extract_id(self, soup: BeautifulSoup) -> str | None:
+    def _extract_id(self, soup: BeautifulSoup) -> str:
         try:
-            id_element = soup.find('span', {'class': 'supplier-styleId'})
-            if id_element:
-                id_text = id_element.text.strip()
-                return f"{self.id_prefix}{id_text}" if id_text else None
-            return None
+            id_element = soup.find('span',class_="supplier-styleId")
+            if not id_element:
+                raise DataComponentNotFoundException("ID element not found")
+            
+            id_text = id_element.text.strip()
+            if not id_text:
+                raise DataParsingException("ID text is empty")
+            
+            return f"{self.id_prefix}{id_text}"
+        
         except Exception as e:
-            print(f"Error extracting ID: {e}")
-            return None
+            raise e
 
-    def _extract_title(self, soup: BeautifulSoup) -> str | None:
+    def _extract_title(self, soup: BeautifulSoup) -> str:
         try:
             product_name = soup.find('h1', {'class': 'pdp-name'})
-            if product_name:
-                title = product_name.text.strip()
-                return title if title else None
-            return None
+            if not product_name:
+                raise DataComponentNotFoundException("Title element not found")
+            
+            title = product_name.text.strip()
+            if not title:
+                raise DataParsingException("Title text is empty")
+            
+            return title
         except Exception as e:
-            print(f"Error extracting title: {e}")
-            return None
+            raise e
 
-    def _extract_price(self, soup: BeautifulSoup) -> int | None:
+    def _extract_price(self, soup: BeautifulSoup) -> int:
         try:
             price = soup.find('span', {'class': 'pdp-price'})
-            if price:
-                price_text = price.text.strip().replace('₹', '').replace(',', '')
-                price_value = int(float(price_text))
-                return price_value if price_value > 0 else None
-            return None
+            if not price:
+                raise DataComponentNotFoundException("Price element not found")
+            
+            price_text = price.text.strip().replace('₹', '').replace(',', '')
+            if not price_text:
+                raise DataParsingException("Price text is empty")
+            
+            price_value = int(float(price_text))
+            if price_value <= 0:
+                raise DataParsingException(f"Invalid price value: {price_value}")
+            
+            return price_value
         except (ValueError, AttributeError) as e:
-            print(f"Error extracting price: {e}")
-            return None
+            raise DataParsingException(f"Error parsing price: {str(e)}")
+        except Exception as e:
+            raise e
 
     def _extract_rating(self, soup: BeautifulSoup) -> float | None:
         try:
             rating_container = soup.find('div', {'class': 'index-overallRating'})
-            if rating_container:
-                rating_div = rating_container.find('div')
-                if rating_div:
-                    rating_text = rating_div.text.strip()
-                    rating_value = float(rating_text)
-                    return rating_value if 0 <= rating_value <= 5 else 0
-            return 0
+            if not rating_container:
+                return 0
+            
+            rating_div = rating_container.find('div')
+            if not rating_div:
+                raise DataParsingException("Rating div not found inside rating container")
+            
+            rating_text = rating_div.text.strip()
+            if not rating_text:
+                raise DataParsingException("Rating text is empty")
+            
+            rating_value = float(rating_text)
+            if 0 <= rating_value <= 5:
+                return rating_value
+            else:
+                raise DataParsingException(f"Invalid rating value: {rating_value}")
+        
         except (ValueError, AttributeError) as e:
-            print(f"Error extracting rating: {e}")
-            return 0
+            raise DataParsingException(f"Error parsing rating: {str(e)}")
+        except Exception as e:
+            raise e
 
     def _extract_review_count(self, soup: BeautifulSoup) -> int | None:
         try:
             rating_container = soup.find('div', {'class': 'index-overallRating'})
-            if rating_container:
-                ratings_count = rating_container.find('div', {'class': 'index-ratingsCount'})
-                if ratings_count:
-                    review_text = ratings_count.text.strip().split()[0]
-                    review_count = int(review_text)
-                    return review_count if review_count >= 0 else 0
-            return 0
+            if not rating_container:
+                return 0
+            
+            ratings_count = rating_container.find('div', {'class': 'index-ratingsCount'})
+            if not ratings_count:
+                return 0
+            
+            review_text = ratings_count.text.strip().split()[0].replace(',', '')
+            if not review_text:
+                raise DataParsingException("Review count text is empty")
+            
+            review_count = int(review_text)
+            if review_count >= 0:
+                return review_count
+            else:
+                raise DataParsingException(f"Invalid review count value: {review_count}")
+        
         except (ValueError, AttributeError) as e:
-            print(f"Error extracting review count: {e}")
-            return 0
+            raise DataParsingException(f"Error parsing review count: {str(e)}")
+        except Exception as e:
+            raise e
 
     def _extract_description(self, soup: BeautifulSoup) -> str | None:
         try:
             descriptions_container = soup.find('div', class_='pdp-productDescriptorsContainer')
             if not descriptions_container:
-                print("Description container not found.")
-                return None
+                raise DataComponentNotFoundException("Description container not found.")
+            
             description_p = descriptions_container.find('p', class_='pdp-product-description-content')
             if not description_p:
-                print("Description paragraph not found.")
-                return None
+                raise DataComponentNotFoundException("Description paragraph not found.")
+            
             list_items = description_p.find_all('li')
             if list_items:
                 description = '\n'.join(item.get_text(strip=True) for item in list_items)
             else:
                 description = description_p.get_text(strip=True)
+            
+            if not description:
+                raise DataParsingException("Description text is empty.")
 
             return description
-
+        
         except Exception as e:
-            print(f"Error extracting description: {e}")
-            return None
+            raise e
 
     def _extract_material(self, soup: BeautifulSoup) -> str | None:
         try:
             desc_sections = soup.find_all("div", class_="pdp-sizeFitDesc")
-
+            if not desc_sections:
+                raise DataComponentNotFoundException("No material section containers found.")
+            
             for section in desc_sections:
                 title = section.find("h4")
-                if title and "material & care" in title.get_text().lower():
+                if title and "material & care" in title.get_text(strip=True).lower():
                     content = section.find("p")
-                    if content:
-                        for br in content.find_all("br"):
-                            br.replace_with("\n")
-                        return content.get_text(strip=True)
+                    if not content:
+                        raise DataComponentNotFoundException("Material & Care section found but no content <p> tag.")
+                    
+                    for br in content.find_all("br"):
+                        br.replace_with("\n")
+                    
+                    material_text = content.get_text(strip=True)
+                    if not material_text:
+                        raise DataParsingException("Material & Care section is empty after parsing.")
+                    
+                    return material_text
+            
+            raise DataComponentNotFoundException("Material & Care section not found in the product description.")
+
         except Exception as e:
-            print(f"Error extracting material: {e}")
-            return None
+            raise e
 
     def _extract_sizes(self, soup: BeautifulSoup) -> list[str]:
         try:
-            sizes = []
             size_buttons = soup.find_all('button', class_='size-buttons-size-button')
+            if not size_buttons:
+                raise DataComponentNotFoundException("No size buttons found on the product page.")
+            
+            sizes = []
             for button in size_buttons:
                 size_tag = button.find('p', class_='size-buttons-unified-size')
-                if size_tag:
-                    size = size_tag.contents[1].strip()
-                    sizes.append(size)
+                if not size_tag or len(size_tag.contents) < 2:
+                    continue
+                
+                size = size_tag.contents[1].strip()
+                if not size:
+                    raise DataParsingException("Empty size value found in a size button.")
+                
+                sizes.append(size)
+            
+            if not sizes:
+                raise DataParsingException("Size buttons found but no valid sizes extracted.")
+            
             return sizes
+
         except Exception as e:
-            print(f"Error extracting sizes: {e}")
-            return []
+            raise e
         
     def _extract_category(self, soup: BeautifulSoup) -> str | None:
         try:
             breadcrumb_container = soup.find('div', class_='breadcrumbs-container')
             if not breadcrumb_container:
-                return None
+                raise DataComponentNotFoundException("Breadcrumbs container not found.")
 
             links = breadcrumb_container.find_all('a', class_='breadcrumbs-link')
+            if len(links) < 4:
+                raise DataParsingException("Not enough breadcrumb links to extract category.")
 
-            if len(links) >= 4:
-                return links[3].get_text(strip=True)
-            else:
-                return None
+            category = links[3].get_text(strip=True)
+            if not category:
+                raise DataParsingException("Extracted category is empty.")
+
+            return category
 
         except Exception as e:
-            return None
+            raise e
 
     def _extract_gender(self, soup: BeautifulSoup) -> str | None:
         try:
             breadcrumb_container = soup.find('div', class_='breadcrumbs-container')
             if not breadcrumb_container:
-                return None
+                raise DataComponentNotFoundException("Breadcrumbs container not found.")
 
             links = breadcrumb_container.find_all('a', class_='breadcrumbs-link')
 
             if len(links) >= 3:
-                return links[2].get_text(strip=True).split()[0]
+                gender_text = links[2].get_text(strip=True).split()[0]
+                return gender_text if gender_text else None
             else:
                 return None
 
         except Exception as e:
-            return None
+            raise e
 
     def _extract_colors(self, soup: BeautifulSoup) -> list[str]:
         try:
-            colors = []
-            colors_container = soup.find('div',class_= 'colors-container')
-            if colors_container:
-                color_links = colors_container.find_all('a')
-                for link in color_links:
-                    color = link.get('title')
-                    if color:
-                        colors.append(color)
+            colors_container = soup.find('div', class_='colors-container')
+            if not colors_container:
+                return []
+
+            color_links = colors_container.find_all('a')
+            colors = [link.get('title') for link in color_links if link.get('title')]
             return colors
+
         except Exception as e:
-            print(f"Error extracting colors: {e}")
             return []
 
     def _extract_image_url(self, soup: BeautifulSoup) -> str | None:
         try:
-            image_container = soup.find('div', {'class': 'image-grid-imageContainer'})
-            if image_container:
-                image_div = image_container.find('div', {'class': 'image-grid-image'})
-                if image_div and 'style' in image_div.attrs:
-                    style = image_div['style']
-                    url_start = style.find('url("') + 5
-                    url_end = style.find('")', url_start)
-                    if url_start > 4 and url_end > url_start:
-                        image_url = style[url_start:url_end]
-                        return image_url if image_url else None
-            return None
+            image_container = soup.find('div', class_='image-grid-imageContainer')
+            if not image_container:
+                raise DataComponentNotFoundException("Image container not found")
+
+            image_div = image_container.find('div', class_='image-grid-image')
+            if not image_div or 'style' not in image_div.attrs:
+                raise DataComponentNotFoundException("Image div or style attribute not found")
+
+            style = image_div['style']
+            url_start = style.find('url("') + 5
+            url_end = style.find('")', url_start)
+            if url_start <= 4 or url_end <= url_start:
+                raise DataParsingException("Failed to parse image URL from style attribute")
+
+            image_url = style[url_start:url_end]
+            if not image_url:
+                raise DataParsingException("Extracted image URL is empty")
+
+            return image_url
+        
         except Exception as e:
-            print(f"Error extracting image URL: {e}")
-            return None
+            raise e
 
     def get_product_details(self, product_page_url: str) -> Product | dict:
         try:
@@ -319,7 +404,6 @@ class MyntraScraper(BaseScraper):
             self.content_loader.close()
 
 if __name__ == "__main__":
-    # Initialize scraper with headers
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9"

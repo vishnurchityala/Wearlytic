@@ -2,9 +2,8 @@ from bs4 import BeautifulSoup
 from scraperkit.base import BaseScraper
 from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.models import Product
+from scraperkit.exceptions import DataComponentNotFoundException, DataParsingException
 from datetime import datetime,timezone
-# Sample use of import of Exception class
-from scraperkit.exceptions import BadURLException
 
 class AmazonScraper(BaseScraper):
     def __init__(self, headers=None,content_loader=None):
@@ -91,65 +90,91 @@ class AmazonScraper(BaseScraper):
         try:
             details_div = soup.find("div", id="detailBullets_feature_div")
             if not details_div:
-                return None
+                raise DataComponentNotFoundException("detailBullets_feature_div not found")
+
+            try:
+                items = details_div.find_all('li')
+                for item in items:
+                    text = item.get_text(strip=True)
+                    if 'ASIN' in text:
+                        asin = text.split(':')[-1].strip()
+                        if asin:
+                            return f"{self.id_prefix}{asin}"
+                        else:
+                            raise DataParsingException("ASIN value empty")
                 
-            items = details_div.find_all('li')
-            for item in items:
-                text = item.get_text(strip=True)
-                if 'ASIN' in text:
-                    asin = text.split(':')[-1].strip()
-                    return f"{self.id_prefix}{asin}" if asin else None
-            return None
+                raise DataComponentNotFoundException("ASIN not found in detailBullets_feature_div")
+
+            except Exception as inner_exception:
+                raise DataParsingException(f"Error parsing ASIN from detailBullets_feature_div: {inner_exception}") from inner_exception
+
         except Exception as e:
-            print(f"Error extracting ID: {e}")
-            return None
+            raise e
 
     def _extract_title(self, soup: BeautifulSoup) -> str | None:
         try:
             details_div = soup.find("span", id="productTitle")
             if not details_div:
-                return None
+                raise DataComponentNotFoundException("productTitle span not found")
+
             title = details_div.get_text(strip=True)
+            if not title:
+                raise DataParsingException("productTitle text is empty")
+
             return title
+
         except Exception as e:
-            print(f"Error extracting title: {e}")
-            return None
+            raise e
 
     def _extract_price(self, soup: BeautifulSoup) -> int | None:
         try:
             price_element = soup.find("span", class_="a-price-whole")
             if not price_element:
-                return None
-                
+                raise DataComponentNotFoundException("Price element with class 'a-price-whole' not found")
+
             price_text = price_element.text.strip()
             if not price_text:
-                return None
-                
-            price = int(price_text.replace(",", ""))
-            return price if price > 0 else None
-        except (ValueError, AttributeError) as e:
-            print(f"Error extracting price: {e}")
-            return None
+                raise DataParsingException("Price text is empty")
+
+            try:
+                price = int(price_text.replace(",", ""))
+            except ValueError:
+                raise DataParsingException(f"Price text '{price_text}' is not a valid integer")
+
+            if price <= 0:
+                raise DataParsingException(f"Price value {price} is not positive")
+
+            return price
+
+        except Exception as e:
+            raise e
 
     def _extract_category(self, soup: BeautifulSoup) -> str | None:
         try:
             breadcrumb_div = soup.find("div", id="wayfinding-breadcrumbs_feature_div")
             if not breadcrumb_div:
-                return None
-                
+                raise DataComponentNotFoundException("Breadcrumb div with id 'wayfinding-breadcrumbs_feature_div' not found")
+
             breadcrumb_links = breadcrumb_div.find_all("a", class_="a-link-normal a-color-tertiary")
             if not breadcrumb_links:
-                return None
-                
+                raise DataComponentNotFoundException("No breadcrumb links with class 'a-link-normal a-color-tertiary' found")
+
             category = breadcrumb_links[-1].get_text(strip=True)
-            return category if category else None
+            if not category:
+                raise DataParsingException("Category text is empty")
+
+            return category
+
         except Exception as e:
-            print(f"Error extracting category: {e}")
-            return None
+            raise e
 
     def _extract_gender(self, soup: BeautifulSoup) -> str | None:
         try:
-            for li in soup.select("#detailBullets_feature_div li"):
+            detail_div = soup.find("div", id="detailBullets_feature_div")
+            if not detail_div:
+                raise DataComponentNotFoundException("detailBullets_feature_div not found")
+            
+            for li in detail_div.find_all("li"):
                 key_span = li.select_one("span.a-text-bold")
                 if not key_span:
                     continue
@@ -161,24 +186,26 @@ class AmazonScraper(BaseScraper):
                         return gender if gender else None
             return None
         except Exception as e:
-            print(f"Error extracting gender: {e}")
-            return None
+            raise DataParsingException(f"Error extracting gender: {e}")
 
-    def _extract_image_url(self, soup: BeautifulSoup) -> str | None:
+    def _extract_image_url(self, soup: BeautifulSoup) -> str:
         try:
             img_wrapper = soup.find("div", id="imgTagWrapperId")
             if not img_wrapper:
-                return None
-                
+                raise DataComponentNotFoundException("Image wrapper div with id 'imgTagWrapperId' not found")
+            
             img_tag = img_wrapper.find("img")
             if not img_tag:
-                return None
-                
+                raise DataComponentNotFoundException("Image tag inside 'imgTagWrapperId' div not found")
+            
             image_url = img_tag.get("src")
-            return image_url if image_url else None
+            if not image_url:
+                raise DataParsingException("Image URL (src attribute) is missing or empty")
+            
+            return image_url
+
         except Exception as e:
-            print(f"Error extracting image URL: {e}")
-            return None
+            raise e
 
     def _extract_colors(self, soup: BeautifulSoup) -> list[str]:
         try:
@@ -202,74 +229,118 @@ class AmazonScraper(BaseScraper):
             parent_container = soup.find(id="inline-twister-expander-content-size_name")
             if not parent_container:
                 return []
-                
+            
             size_spans = parent_container.find_all('span', class_='swatch-title-text-display')
+            if not size_spans:
+                raise DataParsingException("Size spans not found within size container")
+            
             for span in size_spans:
                 size_text = span.get_text(strip=True)
                 if size_text:
                     sizes.append(size_text)
+                else:
+                    raise DataParsingException("Empty size text found in size span")
+            
             return sizes
+        
         except Exception as e:
-            print(f"Error extracting sizes: {e}")
-            return []
+            raise e
 
     def _extract_material(self, soup: BeautifulSoup) -> str | None:
         try:
             product_facts = soup.find_all('div', class_='a-fixed-left-grid product-facts-detail')
+            path = "a-fixed-left-grid product-facts-detail"
+            if not product_facts:
+                raise DataComponentNotFoundException(f"Material infor container was not found {path}")
+            
             for fact in product_facts:
                 label_div = fact.find('div', class_='a-col-left')
                 if not label_div:
                     continue
                     
                 label = label_div.get_text(strip=True).lower()
-                if label == 'material' or label == 'material type' or label == 'material composition':
+                if label in ('material', 'material type', 'material composition'):
                     value_div = fact.find('div', class_='a-col-right')
-                    if value_div:
-                        material = value_div.get_text(strip=True)
-                        return material if material else None
-            return None
-        except Exception as e:
-            print(f"Error extracting material: {e}")
-            return None
+                    if not value_div:
+                        raise DataParsingException("Material value div not found")
+                    
+                    material = value_div.get_text(strip=True)
+                    if material:
+                        return material
+                    else:
+                        raise DataParsingException("Material text is empty")
+            
+            raise DataParsingException("Material value was not parsed.")
 
-    def _extract_description(self, soup: BeautifulSoup) -> str | None:
+        except Exception as e:
+            raise e
+
+    def _extract_description(self, soup: BeautifulSoup) -> str:
         try:
             description_div = soup.find("div", id="productFactsDesktopExpander")
-            additional_info_div = description_div.find("ul",class_="a-unordered-list a-vertical a-spacing-small")
+            if not description_div:
+                raise DataComponentNotFoundException("Description container not found")
+
+            additional_info_div = description_div.find("ul", class_="a-unordered-list a-vertical a-spacing-small")
             if not additional_info_div:
-                return None
-                
+                raise DataComponentNotFoundException("Description list not found inside description container")
+
             description = additional_info_div.get_text(strip=True)
-            return description if description else None
+            if not description:
+                raise DataParsingException("Description text is empty")
+
+            return description
+
         except Exception as e:
-            print(f"Error extracting description: {e}")
-            return None
+            raise e
 
     def _extract_rating(self, soup: BeautifulSoup) -> float | None:
         try:
             rating_element = soup.find("span", id="acrPopover")
-            if not rating_element or 'title' not in rating_element.attrs:
+            if not rating_element:
                 return None
-                
+            
+            if 'title' not in rating_element.attrs:
+                raise DataParsingException("Rating attribute 'title' not found")
+            
             rating_text = rating_element.get('title').split()[0]
-            rating = float(rating_text)
-            return rating if 0 <= rating <= 5 else None
-        except (ValueError, AttributeError) as e:
-            print(f"Error extracting rating: {e}")
-            return None
+            
+            try:
+                rating = float(rating_text)
+            except ValueError:
+                raise DataParsingException(f"Rating value is not a float: {rating_text}")
+            
+            if not (0 <= rating <= 5):
+                raise DataParsingException(f"Rating value {rating} out of valid range (0-5)")
+            
+            return rating
+        
+        except Exception as e:
+            raise e
 
     def _extract_review_count(self, soup: BeautifulSoup) -> int | None:
         try:
             review_element = soup.find("span", id="acrCustomerReviewText")
-            if not review_element or 'aria-label' not in review_element.attrs:
+            if not review_element:
                 return None
-                
+            
+            if 'aria-label' not in review_element.attrs:
+                raise DataParsingException("Review count attribute 'aria-label' not found")
+            
             review_text = review_element.get('aria-label').split()[0].replace(",", "")
-            review_count = int(float(review_text))
-            return review_count if review_count >= 0 else None
-        except (ValueError, AttributeError) as e:
-            print(f"Error extracting review count: {e}")
-            return None
+            
+            try:
+                review_count = int(float(review_text))
+            except ValueError:
+                raise DataParsingException(f"Review count is not a valid number: {review_text}")
+            
+            if review_count < 0:
+                raise DataParsingException(f"Review count {review_count} cannot be negative")
+            
+            return review_count
+        
+        except Exception as e:
+            raise e
 
     def get_product_details(self, product_page_url: str) -> Product | dict:
         try:
@@ -277,9 +348,6 @@ class AmazonScraper(BaseScraper):
                 product_page_url = product_page_url.split('?')[0]
                 
             page_content = self.get_page_content(product_page_url)
-            if not page_content:
-                print(f"Failed to retrieve content for product page: {product_page_url}")
-                return {}
 
             soup = BeautifulSoup(page_content, 'html.parser')
             
