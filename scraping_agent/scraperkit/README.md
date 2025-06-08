@@ -40,7 +40,7 @@ loader = SeleniumContentLoader(headless=True)
 scraper = AmazonScraper(loader)
 
 # Scrape product data
-product_data = scraper.scrape_product("https://amazon.com/product/123")
+product_data = scraper.get_product_details("https://amazon.com/product/123")
 print(product_data)
 ```
 ### Sample Usage of Loaders
