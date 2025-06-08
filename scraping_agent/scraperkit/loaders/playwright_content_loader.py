@@ -1,7 +1,8 @@
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
 from scraperkit.exceptions import BadURLException, ContentNotLoadedException, TimeoutException as ScraperTimeoutException
+from scraperkit.base import BaseContentLoader
 
-class PlaywrightContentLoader:
+class PlaywrightContentLoader(BaseContentLoader):
     def __init__(self, headers=None, timeout=10000,headless=True):
         self.headers = headers or {}
         self.timeout = timeout
