@@ -2,6 +2,42 @@
 
 ScraperKit is a sophisticated web scraping framework built with a focus on reliability, maintainability, and anti-detection capabilities. It provides a structured approach to web scraping through a modular architecture that separates concerns and promotes code reuse.
 
+## Package Structure
+
+### 1. Base Package (`base/`)
+The foundation of the framework containing abstract base classes and interfaces:
+- `base_content_loader.py`: Abstract base class defining the interface for content loading
+- `base_scraper.py`: Abstract base class for implementing specific scrapers
+- Provides the contract that all concrete implementations must follow
+
+### 2. Loaders Package (`loaders/`)
+Implements different strategies for loading web content:
+- `selenium_content_loader.py`: Selenium-based implementation for JavaScript-heavy websites
+- Handles browser automation, anti-detection measures, and content extraction
+- Manages browser instances and resources
+
+### 3. Exceptions Package (`exceptions/`)
+Custom exception hierarchy for robust error handling:
+- `bad_url_exception.py`: Invalid URL or 404 errors
+- `content_not_loaded_exception.py`: Content loading failures
+- `data_component_not_found_exception.py`: Missing expected data elements
+- `data_parsing_exception.py`: Data parsing errors
+- `rate_limit_exception.py`: Rate limiting detection
+- `timeout_exception.py`: Request timeout handling
+
+### 4. Models Package (`models/`)
+Data structures and schemas for scraped content:
+- `product.py`: Product data model with validation
+- Defines the structure of scraped data
+- Ensures data consistency and type safety
+
+### 5. Scrapers Package (`scrapers/`)
+Domain-specific scraping implementations:
+- `amazon_scraper.py`: Amazon-specific scraping logic
+- `myntra_scraper.py`: Myntra-specific scraping logic
+- Each scraper implements the base scraper interface
+- Contains site-specific parsing and extraction logic
+
 ## Core Concepts
 
 ### 1. Content Loading Strategy
