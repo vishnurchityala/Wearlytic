@@ -63,3 +63,36 @@ try:
 finally:
     loader.close()  # Cleanup resources
 ```
+
+## Package Structure
+
+```
+scraperkit/
+├── __init__.py
+├── README.md
+├── base/
+│   ├── __init__.py
+│   ├── base_content_loader.py
+│   └── base_scraper.py
+├── exceptions/
+│   ├── __init__.py
+│   ├── bad_url_exception.py
+│   ├── content_not_loaded_exception.py
+│   ├── data_component_not_found_exception.py
+│   ├── data_parsing_exception.py
+│   ├── rate_limit_exception.py
+│   └── timeout_exception.py
+├── loaders/
+│   ├── __init__.py
+│   ├── playwright_content_loader.py
+│   ├── request_content_loader.py
+│   ├── selenium_content_loader.py
+│   └── selenium_infinity_scroll_content_loader.py
+├── models/
+│   ├── __init__.py
+│   └── product.py
+└── scrapers/
+    ├── __init__.py
+    ├── amazon_scraper.py
+    └── myntra_scraper.py
+```
