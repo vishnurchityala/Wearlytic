@@ -12,11 +12,7 @@ class AmazonScraper(BaseScraper):
         self.content_loader = content_loader or SeleniumContentLoader(headers=headers)
 
     def get_page_content(self, page_url: str) -> str | None:
-        try:
-            return self.content_loader.load_content(page_url)
-        except Exception as e:
-            print(f"Error fetching page content: {e}")
-            return None
+        return self.content_loader.load_content(page_url)
 
     def get_pagination_details(self, page_url: str) -> dict:
         page_content = self.get_page_content(page_url)
@@ -55,10 +51,10 @@ class AmazonScraper(BaseScraper):
                 pagination_info['next_page_url'] = 'https://www.amazon.in' + next_page_tag['href']
 
             return pagination_info
+        
         except Exception as e:
-            print(f"Error extracting pagination details: {e}")
-            return pagination_info
-
+            raise e
+        
     def get_product_listings(self, listings_page_url: str, page: int = 1) -> list[str]:
         if page > 1:
             url = f"{listings_page_url}&page={page}" if '?' in listings_page_url else f"{listings_page_url}?page={page}"
@@ -67,7 +63,6 @@ class AmazonScraper(BaseScraper):
 
         page_content = self.get_page_content(url)
         if not page_content:
-            print(f"Failed to retrieve content for page {page}")
             return []
 
         soup = BeautifulSoup(page_content, 'html.parser')

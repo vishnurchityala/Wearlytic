@@ -18,7 +18,7 @@ from scraperkit.exceptions import BadURLException, ContentNotLoadedException, Ti
 
 class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
-    def __init__(self, headers=None, max_scrolls=None, headless=True, target_class_name=None, scroll_delay=3):
+    def __init__(self, headers=None, max_scrolls=None, headless=True, target_class_name=None, scroll_delay=5):
         super().__init__()
         self.headers = headers or {
             "User-Agent": (
@@ -52,8 +52,8 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
         if self.headless:
             chrome_options.add_argument("--headless=new")
-            chrome_options.add_argument("--disable-gpu")
-
+        
+        chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
 

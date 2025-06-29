@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from bs4 import BeautifulSoup
 
 class BaseScraper(ABC):
     def __init__(self, base_url: str, headers: dict = None, content_loader = None):
@@ -18,6 +19,150 @@ class BaseScraper(ABC):
         # Buffer storage for data extraction
         self.current_page_content = None
         self.current_product_page_content = None
+
+    def _extract_id(self, soup: BeautifulSoup) -> str:
+        """
+        Extracts the unique product ID from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            str: Product ID.
+        """
+        pass
+
+    def _extract_title(self, soup: BeautifulSoup) -> str:
+        """
+        Extracts the product title from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            str: Product title.
+        """
+        pass
+
+    def _extract_category(self, soup: BeautifulSoup) -> str:
+        """
+        Extracts the product category from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            str: Product category.
+        """
+        pass
+
+    def _extract_price(self, soup: BeautifulSoup) -> float:
+        """
+        Extracts the product price from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            float: Product price.
+        """
+        pass
+
+    def _extract_sizes(self, soup: BeautifulSoup) -> list:
+        """
+        Extracts available sizes for the product from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            list: List of available sizes.
+        """
+        pass
+
+    def _extract_description(self, soup: BeautifulSoup) -> str:
+        """
+        Extracts the product description from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            str: Product description.
+        """
+        pass
+
+    def _extract_material(self, soup: BeautifulSoup) -> str:
+        """
+        Extracts the material information of the product from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            str: Product material.
+        """
+        pass
+
+    def _extract_image_url(self, soup: BeautifulSoup) -> list:
+        """
+        Extracts image URLs for the product from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            list: List of image URLs.
+        """
+        pass
+
+    def _extract_gender(self, soup: BeautifulSoup) -> str:
+        """
+        Extracts the gender category of the product from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            str: Gender category.
+        """
+        pass
+
+    def _extract_colors(self, soup: BeautifulSoup) -> list:
+        """
+        Extracts available colors for the product from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            list: List of available colors.
+        """
+        pass
+
+    def _extract_rating(self, soup: BeautifulSoup) -> float:
+        """
+        Extracts the product rating from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            float: Product rating.
+        """
+        pass
+
+    def _extract_review_count(self, soup: BeautifulSoup) -> int:    
+        """
+        Extracts the number of reviews for the product from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): Parsed HTML of the product page.
+
+        Returns:
+            int: Number of reviews.
+        """
+        pass
 
     @abstractmethod
     def get_page_content(self, page_url: str) -> str | None:

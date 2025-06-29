@@ -31,12 +31,12 @@ class Product(BaseModel):
     gender: Optional[str]
     url: AnyHttpUrl = Field(...)
     image_url: AnyHttpUrl = Field(...)
-    colors: List[str] = Field(...)
+    colors: Optional[List[str]] = Field(default=None)
     sizes: List[str] = Field(...)
-    material: str = Field(...)
+    material: Optional[str] = Field(default=None)
     description: str = Field(...)
-    rating: float = Field(default=0, ge=0, le=5)
-    review_count: int = Field(default=0, ge=0)
+    rating: Optional[float] = Field(default=None, ge=0, le=5)
+    review_count: Optional[int] = Field(default=None, ge=0)
     processed: StrictBool = Field(default=False)
     scraped_datetime: Optional[datetime]
     processed_datetime: Optional[datetime]
