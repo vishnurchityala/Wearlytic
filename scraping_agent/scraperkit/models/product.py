@@ -23,6 +23,7 @@ class Product(BaseModel):
     - Scraped Datetime: Datetime when the product was originally scraped -- 2025-06-01 15:20:50.410901+00:00
     - Processed Datetime: Datetime when the product was annotated/processed -- 2025-06-01 15:20:50.410901+00:00
     - Page Index -- 40 This indicates the position in page it was scraped.
+    - Page Content: HTML content of the product page -- <html>...</html>
     """
     id: str = Field(...)
     title: str = Field(...)
@@ -41,3 +42,4 @@ class Product(BaseModel):
     scraped_datetime: Optional[datetime]
     processed_datetime: Optional[datetime]
     page_index: Optional[int] = 0
+    page_content: str = Field(...)

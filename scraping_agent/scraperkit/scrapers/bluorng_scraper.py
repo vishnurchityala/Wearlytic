@@ -6,6 +6,10 @@ from scraperkit.exceptions import ContentNotLoadedException, DataComponentNotFou
 from scraperkit.models import Product
 
 class BluOrngScraper(BaseScraper):
+    """
+    BluOrngScraper extracts structured product data from bluorng.com by parsing listing and product pages.
+    It extends BaseScraper and returns results as Product objects.
+    """
     
     def __init__(self,headers=None,content_loader=None):
         super().__init__("https://bluorng.com/", headers=headers or {})
@@ -155,10 +159,15 @@ class BluOrngScraper(BaseScraper):
                 processed=False,
                 scraped_datetime=datetime.now(timezone.utc),
                 processed_datetime=datetime.now(timezone.utc),
-                page_index=0
+                page_index=0,
+                page_content=page_content
             )
             return product
         except Exception as e:
             if isinstance(e, (DataComponentNotFoundException, DataParsingException, ContentNotLoadedException)):
                 raise
             raise DataParsingException(f"Error extracting product details from {product_page_url}: {str(e)}")
+
+    def close(self):
+        if self.content_loader:
+            self.content_loader.close()

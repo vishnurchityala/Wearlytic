@@ -6,7 +6,7 @@ from scraperkit.scrapers import JayWalkingScraper
 # Initialize scraper
 scraper = JayWalkingScraper()
 
-listings_url = "https://www.jaywalking.in/collections/all"
+listings_url = "https://www.jaywalking.in/collections/tiedye"
 
 # Fetch pagination details
 pagination = scraper.get_pagination_details(listings_url)

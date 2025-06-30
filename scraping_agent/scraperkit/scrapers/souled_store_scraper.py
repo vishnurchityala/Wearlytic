@@ -11,6 +11,10 @@ from scraperkit.exceptions import (
 from datetime import datetime, timezone
 
 class SouledStoreScraper(BaseScraper):
+    """
+    SouledStoreScraper extracts structured product data from The Souled Store by parsing listing and product pages.
+    It extends BaseScraper and returns results as Product objects.
+    """    
     def __init__(self,headers=None,content_loader=None):
         super().__init__("https://www.thesouledstore.com/", headers=headers or {})
         self.id_prefix = "sstore_"
@@ -19,6 +23,7 @@ class SouledStoreScraper(BaseScraper):
             target_class_name= "tss-footer",
             scroll_delay=6,            
         )
+        
     def get_page_content(self, page_url):
         try:
             content = self.content_loader.load_content(page_url=page_url)
@@ -193,10 +198,15 @@ class SouledStoreScraper(BaseScraper):
                 processed=False,
                 scraped_datetime=datetime.now(timezone.utc),
                 processed_datetime=datetime.now(timezone.utc),
-                page_index=0
+                page_index=0,
+                page_content=page_content
             )
             return product
         except Exception as e:
             if isinstance(e, (DataComponentNotFoundException, DataParsingException, ContentNotLoadedException)):
                 raise
             raise DataParsingException(f"Error extracting product details from {product_page_url}: {str(e)}")
+
+    def close(self):
+        if self.content_loader:
+            self.content_loader.close()

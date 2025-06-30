@@ -216,7 +216,7 @@ class BaseScraper(ABC):
             product_page_url (str): URL of the product page.
 
         Returns:
-            dict: Product details dictionary.
+            dict: Product details dictionary including page_content.
         """
         pass
 

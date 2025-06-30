@@ -6,6 +6,10 @@ from scraperkit.exceptions import ContentNotLoadedException, DataComponentNotFou
 from scraperkit.models import Product
 
 class JayWalkingScraper(BaseScraper):
+    """
+    JayWalkingScraper extracts structured product data from Jaywalking.in by parsing listing and product pages.
+    It extends BaseScraper and returns results as Product objects.
+    """
 
     def __init__(self, base_url=None, headers = None, content_loader=None):
         super().__init__("https://www.jaywalking.in/", headers=headers or {})
@@ -155,7 +159,7 @@ class JayWalkingScraper(BaseScraper):
                 if split_idx != -1:
                     next_stop = min(next_stop, split_idx)
 
-            material = after_comp[:next_stop].strip()
+            material = " ".join(after_comp[:next_stop].strip().split()[:-1])
 
             if not material:
                 raise DataComponentNotFoundException(
@@ -225,10 +229,15 @@ class JayWalkingScraper(BaseScraper):
                 processed=False,
                 scraped_datetime=datetime.now(timezone.utc),
                 processed_datetime=datetime.now(timezone.utc),
-                page_index=0
+                page_index=0,
+                page_content=page_content
             )
             return product
         except Exception as e:
             if isinstance(e, (DataComponentNotFoundException, DataParsingException, ContentNotLoadedException)):
                 raise
             raise DataParsingException(f"Error extracting product details from {product_page_url}: {str(e)}")
+
+    def close(self):
+        if self.content_loader:
+            self.content_loader.close()

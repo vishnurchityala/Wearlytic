@@ -6,6 +6,10 @@ from scraperkit.exceptions import DataComponentNotFoundException, DataParsingExc
 from datetime import datetime,timezone
 
 class AmazonScraper(BaseScraper):
+    """
+    AmazonScraper extracts structured product data from Amazon India by parsing listing and product pages.
+    It extends BaseScraper and returns results as Product objects.
+    """
     def __init__(self, headers=None,content_loader=None):
         super().__init__("https://www.amazon.in/", headers=headers)
         self.id_prefix = "amzn_"
@@ -362,7 +366,8 @@ class AmazonScraper(BaseScraper):
                 review_count=self._extract_review_count(soup),
                 processed=False,
                 scraped_datetime=datetime.now(timezone.utc).timestamp(),
-                processed_datetime=datetime.now(timezone.utc).timestamp()
+                processed_datetime=datetime.now(timezone.utc).timestamp(),
+                page_content=page_content
             )
 
         except Exception as e:
@@ -372,65 +377,3 @@ class AmazonScraper(BaseScraper):
     def close(self):
         if self.content_loader:
             self.content_loader.close()
-
-if __name__ == "__main__":
-    # Initialize scraper with headers
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9"
-    }
-    
-    print("Initializing Amazon Scraper...")
-    scraper = AmazonScraper(headers=headers)
-
-    try:
-        # Test search URL
-        search_url = "https://www.amazon.in/s?k=cargos"
-        print(f"\nTesting search URL: {search_url}")
-
-        # Test page content retrieval
-        print("\n1. Testing page content retrieval...")
-        html_content = scraper.get_page_content(search_url)
-        if html_content:
-            print(f"✓ Successfully retrieved {len(html_content)} characters of HTML")
-        else:
-            print("✗ Failed to retrieve content")
-            exit(1)
-
-        # Test pagination details
-        print("\n2. Testing pagination details...")
-        pagination_details = scraper.get_pagination_details(search_url)
-        print("Pagination Details:")
-        for key, value in pagination_details.items():
-            print(f"  {key}: {value}")
-
-        # Test product listings
-        print("\n3. Testing product listings...")
-        product_links = scraper.get_product_listings(search_url)
-        print(f"Found {len(product_links)} products on first page")
-        
-        if product_links:
-            print("\nSample Product Links:")
-            for i, link in enumerate(product_links[:10], 1):
-                print(f"  {i}. {link}")
-
-            # Test product details
-            print("\n4. Testing product details extraction...")
-            for test_product_url in product_links[:10]:
-                print(f"Testing with product: {test_product_url}")
-                
-                product_details = scraper.get_product_details(test_product_url)
-                if product_details:
-                    print("\nProduct Details:")
-                    for key, value in product_details.__dict__.items():
-                        if not key.startswith('_'):
-                            print(f"  {key}: {value}")
-                else:
-                    print("✗ Failed to extract product details")
-
-    except Exception as e:
-        print(f"\nError during testing: {e}")
-    finally:
-        print("\nCleaning up resources...")
-        scraper.close()
-        print("Done!")
