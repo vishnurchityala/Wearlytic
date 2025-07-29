@@ -21,7 +21,8 @@ class SouledStoreScraper(BaseScraper):
         self.content_loader = content_loader or SeleniumInfinityScrollContentLoader(
             max_scrolls= 30,
             target_class_name= "tss-footer",
-            scroll_delay=6,            
+            scroll_delay=6,
+            headless=False            
         )
         
     def get_page_content(self, page_url):
