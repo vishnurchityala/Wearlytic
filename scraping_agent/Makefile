@@ -17,7 +17,7 @@ run:
 
 setup:
 	@echo "Creating virtual environment for the ScrapingAgent"
-	python -m venv venv
+	python3 -m venv venv
 	@echo "Installing all dependencies for the ScrapingAgent"
 	./venv/bin/pip install -r requirements.txt
 
