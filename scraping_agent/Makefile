@@ -9,7 +9,7 @@ all: run
 run:
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 127.0.0.1:$(PORT) $(RELOAD)"
 	@{ \
-		uvicorn $(APP_MODULE) --port $(PORT) $(RELOAD) & \
+		PYTHONDONTWRITEBYTECODE=1 uvicorn $(APP_MODULE) --port $(PORT) $(RELOAD) & \
 		echo $$! > .uvicorn_pid; \
 		echo "Uvicorn app started. PID: $$(cat .uvicorn_pid)"; \
 	}
