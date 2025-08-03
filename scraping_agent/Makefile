@@ -7,9 +7,9 @@ RELOAD =
 all: run
 
 run:
-	@echo "Starting Uvicorn app: $(APP_MODULE) on 127.0.0.1:$(PORT) $(RELOAD)"
+	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
-		PYTHONDONTWRITEBYTECODE=1 uvicorn $(APP_MODULE) --port $(PORT) $(RELOAD) & \
+		PYTHONDONTWRITEBYTECODE=1 uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD) & \
 		echo $$! > .uvicorn_pid; \
 		echo "Uvicorn app started. PID: $$(cat .uvicorn_pid)"; \
 	}
