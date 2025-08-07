@@ -4,7 +4,7 @@ APP_MODULE = main:app
 PORT = 8080
 RELOAD = --reload
 
-UVICORN_CMD = python -m uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD)
+UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD)
 
 all: run
 
