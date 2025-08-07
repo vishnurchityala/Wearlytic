@@ -1,15 +1,28 @@
+# Base Python image
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y make && apt-get clean
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    make \
+    libpq-dev \
+    redis-server \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Set work directory
 WORKDIR /scraping_agent
 
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
+# Copy project files
 COPY . .
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command is to run the API
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
