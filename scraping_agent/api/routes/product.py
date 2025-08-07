@@ -6,5 +6,5 @@ router = APIRouter(prefix="/api/scrape/product")
 
 @router.post("/")
 def start_product_scrape(request : JobRequest):
-    task = scrape_product_task.apply_async(args=[str(request.webpage_url)], queue='scrape_medium')
+    task = scrape_product_task.apply_async(args=[str(request.webpage_url)], queue='scrape_'+request.priority)
     return {"task_id" : task.id}

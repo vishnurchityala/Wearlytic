@@ -5,5 +5,5 @@ router = APIRouter(prefix="/api/scrape/listing")
 
 @router.post("/")
 async def start_listing_scrape(request : JobRequest):
-    task = scrape_listing_task.apply_async(args=[str(request.webpage_url)], queue='scrape_medium')
+    task = scrape_listing_task.apply_async(args=[str(request.webpage_url)], queue='scrape_'+request.priority)
     return {"task_id" : task.id}
