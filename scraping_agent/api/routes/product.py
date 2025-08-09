@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from api.models import JobRequest
-from celery_worker.tasks import scrape_product_task
+from api.celery_worker import scrape_product_task
 
 router = APIRouter(prefix="/api/scrape/product")
 
