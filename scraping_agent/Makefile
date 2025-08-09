@@ -8,13 +8,17 @@ UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0
 
 all: run
 
-run: start-redis start-celery-workers
+run: start-redis start-mongo start-celery-workers 
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
 		$(UVICORN_CMD) & \
 		echo $$! > .uvicorn_pid; \
 		echo "Uvicorn app started. PID: $$(cat .uvicorn_pid)"; \
 	}
+
+start-mongo:
+	@echo "Starting MongoDB Server"
+	@command -v brew >/dev/null && brew services start mongodb-community@8.0 || echo "Brew not available; please start MongoDB manually."
 
 start-redis:
 	@echo "Starting Redis Server"
@@ -26,7 +30,7 @@ start-celery-workers:
 	celery -A api.celery_worker.celery_app worker -Q scrape_medium --loglevel=info --concurrency=5 & \
 	celery -A api.celery_worker.celery_app worker -Q scrape_high --loglevel=info --concurrency=10 &
 	
-stop: kill-celery-workers stop-redis 
+stop: kill-celery-workers stop-redis stop-mongo
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \
 		echo "Stopping Uvicorn app with PID: $$PID"; \
@@ -39,6 +43,10 @@ stop: kill-celery-workers stop-redis
 stop-redis:
 	@echo "Stopping Redis Server"
 	@command -v brew >/dev/null && brew services stop redis || echo "Brew not available; please stop Redis manually."
+
+stop-mongo:
+	@echo "Stopping MongoDB Server"
+	@command -v brew >/dev/null && brew services stop mongodb-community@8.0 || echo "Brew not available; please stop MongoDB manually."
 
 kill-celery-workers:
 	@echo "Finding all Celery processes..."

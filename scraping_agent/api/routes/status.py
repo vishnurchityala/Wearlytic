@@ -1,35 +1,42 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from api.models import JobResult, Product, Listing
+from api.db import JobsManager, JobResultsManager
 from datetime import datetime
 
 router = APIRouter(prefix="/api/scrape")
+job_manager = JobsManager()
+job_result_manager = JobResultsManager()
 
 @router.get("/listing/{task_id}/status/")
 def get_listing_status(task_id: str):
-    return {"message": "Dummy status response for listing"}
+    try:
+        job = job_manager.get_job(task_id)
+        return job
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
+
 
 @router.get("/listing/{task_id}/result/")
 def get_listing_result(task_id: str) -> JobResult:
-    dummy_result = JobResult(
-        job_id=task_id,
-        result=Listing(),
-        status="completed",
-        completed_at=datetime.utcnow(),
-        error_message=None
-    )
-    return dummy_result
+    try:
+        result = job_result_manager.get_result(task_id)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
 
 @router.get("/product/{task_id}/status/")
 def get_product_status(task_id: str):
-    return {"message": "Dummy status response for product"}
+    try:
+        job = job_manager.get_job(task_id)
+        return job
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
 
 @router.get("/product/{task_id}/result/")
 def get_product_result(task_id: str)-> JobResult:
-    dummy_result = JobResult(
-        job_id=task_id,
-        result=Product(),
-        status="completed",
-        completed_at=datetime.utcnow(),
-        error_message=None
-    )
-    return dummy_result
+    try:
+        result = job_result_manager.get_result(task_id)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
+

@@ -22,7 +22,7 @@ class SouledStoreScraper(BaseScraper):
             max_scrolls= 30,
             target_class_name= "tss-footer",
             scroll_delay=6,
-            headless=False            
+            headless=True            
         )
         
     def get_page_content(self, page_url):

@@ -49,7 +49,7 @@ class JobResult(BaseModel):
     - error_message: Error message if the job failed (optional).
     """
     job_id: str = Field(...)
-    result: Union[Product, Listing] = Field(...)
+    result: Union[Product, Listing, list[Product], list[Listing]] = Field(...)
     status: Literal['completed', 'failed'] = Field(...)
     completed_at: datetime = Field(...)
     error_message: Optional[str] = None

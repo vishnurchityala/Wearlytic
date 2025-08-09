@@ -10,7 +10,7 @@ class ListingItem(BaseModel):
         page_rank (float): Page rank score for the listing. Must be greater than or equal to 0.0.
     """
     url: AnyHttpUrl
-    page_rank: float = Field(..., ge=0.0, description="Page rank score (must be >= 0.0)")
+    page_rank: float = Field(..., ge=0.0, description="Page rank score (must be >= 0)")
 
 class Listing(BaseModel):
     """
@@ -21,4 +21,3 @@ class Listing(BaseModel):
         page_index (int): Index of the current page (must be >= 0).
     """
     items: List[ListingItem] = Field(..., description="List of URLs with page rank")
-    page_index: int = Field(0, ge=0, description="Index of the page (must be >= 0)")

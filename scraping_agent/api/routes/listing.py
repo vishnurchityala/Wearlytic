@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, status
 from api.models import JobRequest, Job
 from api.celery_worker import scrape_listing_task
+from api.db import JobsManager, JobResultsManager
 from datetime import datetime
 
 router = APIRouter(prefix="/api/scrape/listing")
-
-@router.post("/")
+job_manager = JobsManager()
+@router.post("/",status_code=status.HTTP_200_OK)
 async def start_listing_scrape(request : JobRequest):
     task = scrape_listing_task.apply_async(args=[str(request.webpage_url)], queue='scrape_'+request.priority)
     job = Job(
@@ -18,5 +19,5 @@ async def start_listing_scrape(request : JobRequest):
         completed_at=None,
         error_message=None 
               )
-    # Save the Job Object.
-    return {"task_id" : task.id}
+    job_manager.create_job(job=job)
+    return {"job_id" : task.id}
