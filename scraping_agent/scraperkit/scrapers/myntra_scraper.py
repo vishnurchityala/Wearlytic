@@ -374,6 +374,7 @@ class MyntraScraper(BaseScraper):
                 return {}
 
             soup = BeautifulSoup(page_content, 'html.parser')
+            body_content = soup.body.prettify()
 
             product_data = {
                 'id': self._extract_id(soup),
@@ -392,7 +393,7 @@ class MyntraScraper(BaseScraper):
                 'processed': False,
                 'scraped_datetime': datetime.now(timezone.utc).timestamp(),
                 'processed_datetime': datetime.now(timezone.utc).timestamp(),
-                'page_content': page_content
+                'page_content': body_content
             }
 
             return Product(**product_data)

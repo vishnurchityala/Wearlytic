@@ -349,6 +349,7 @@ class AmazonScraper(BaseScraper):
             page_content = self.get_page_content(product_page_url)
 
             soup = BeautifulSoup(page_content, 'html.parser')
+            body_content = soup.body.prettify()
             
             return Product(
                 id=self._extract_id(soup),
@@ -367,7 +368,7 @@ class AmazonScraper(BaseScraper):
                 processed=False,
                 scraped_datetime=datetime.now(timezone.utc).timestamp(),
                 processed_datetime=datetime.now(timezone.utc).timestamp(),
-                page_content=page_content
+                page_content=body_content
             )
 
         except Exception as e:

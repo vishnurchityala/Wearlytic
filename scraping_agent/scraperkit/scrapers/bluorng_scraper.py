@@ -141,6 +141,7 @@ class BluOrngScraper(BaseScraper):
         try:
             page_content = self.get_page_content(product_page_url)
             soup = BeautifulSoup(page_content, "html.parser")
+            body_content = soup.body.prettify()
             
             product = Product(
                 id=self._extract_id(soup),
@@ -160,7 +161,7 @@ class BluOrngScraper(BaseScraper):
                 scraped_datetime=datetime.now(timezone.utc),
                 processed_datetime=datetime.now(timezone.utc),
                 page_index=0,
-                page_content=page_content
+                page_content=body_content
             )
             return product
         except Exception as e:
