@@ -33,8 +33,9 @@ def scrape_listing_task(self, url: str):
     scraper = get_scraper_from_url(url)
     try:
         count = 1
+        page_count = 1
         listing_result = []
-        while url != None:
+        while url != None and page_count < 30:
             listing_details = scraper.get_pagination_details(url)
             listings = scraper.get_product_listings(url,listing_details['current_page'])
             logger.info(f"Scraping : {url}")
@@ -45,6 +46,7 @@ def scrape_listing_task(self, url: str):
                 ))
                 count+=1
             url = listing_details['next_page_url']
+            page_count += 1
         listing_result = Listing(items=listing_result)
         result = JobResult(
             job_id=self.request.id,
