@@ -80,7 +80,6 @@ def scrape_product_task(self, url: str):
     try:
         product_details = scraper.get_product_details(product_page_url=url)
         product_details = product_details.model_dump(mode="json")
-        print(type(product_details))
         result = JobResult(
             job_id=self.request.id,
             result=product_details,

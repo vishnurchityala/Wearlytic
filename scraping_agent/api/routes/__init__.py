@@ -1,5 +1,4 @@
-from .listing import router as ListingRouter
-from .product import router as ProductRouter
+from .scrape import router as ScrapeRouter
 from .status import router as StatusRouter
 
-__all__ = ["ListingRouter","ProductRouter","StatusRouter"]
+__all__ = ["ScrapeRouter","StatusRouter"]

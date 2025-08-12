@@ -1,4 +1,4 @@
-.PHONY: all run stop clean setup start-redis stop-redis
+.PHONY: all run stop clean setup start-redis stop-redis start-mongo stop-mongo start-celery-workers kill-celery-workers delete-cache
 
 APP_MODULE = main:app
 PORT = 8080
@@ -8,7 +8,7 @@ UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0
 
 all: run
 
-run: start-redis start-mongo start-celery-workers 
+run: start-redis start-mongo start-celery-workers
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
 		$(UVICORN_CMD) & \
@@ -29,7 +29,7 @@ start-celery-workers:
 	@celery -A api.celery_worker.celery_app worker -Q scrape_low --loglevel=info --concurrency=2 & \
 	celery -A api.celery_worker.celery_app worker -Q scrape_medium --loglevel=info --concurrency=5 & \
 	celery -A api.celery_worker.celery_app worker -Q scrape_high --loglevel=info --concurrency=10 &
-	
+
 stop: kill-celery-workers stop-redis stop-mongo
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \
@@ -39,6 +39,8 @@ stop: kill-celery-workers stop-redis stop-mongo
 	else \
 		echo "No Uvicorn PID file found. Is the app running?"; \
 	fi
+	@echo "Deleting PyCache Files......"
+	find . -type d -name '__pycache__' -exec rm -r {} +
 
 stop-redis:
 	@echo "Stopping Redis Server"
@@ -75,5 +77,6 @@ clean:
 	rm -rf __pycache__ .uvicorn_pid
 	@echo "Cleanup complete."
 
-delete-chache:
+delete-cache:
+	@echo "Deleting PyCache Files......"
 	find . -type d -name '__pycache__' -exec rm -r {} +
