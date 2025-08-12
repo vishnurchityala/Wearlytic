@@ -66,7 +66,8 @@ def scrape_listing_task(self, url: str):
             error_message= str(e)
         )
         job_result_manager.create_result(result)
-        job_manager.update_job(job_id=self.request.id,updates={"status":"failed"})
+        job_manager.update_job(job_id=self.request.id,updates={"status":"failed","completed_at":datetime.now()})
+        return f"Scrape Product Task : {url}"
 
     return f"Scrape Listing Task : {url}"
 
@@ -88,7 +89,7 @@ def scrape_product_task(self, url: str):
             error_message= None
         )
         job_result_manager.create_result(result)
-        job_manager.update_job(job_id=self.request.id,updates={"status":"completed"})
+        job_manager.update_job(job_id=self.request.id,updates={"status":"completed","completed_at":datetime.now()})
     except Exception as e:
         result = JobResult(
             job_id=self.request.id,
@@ -98,8 +99,9 @@ def scrape_product_task(self, url: str):
             error_message= str(e)
         )
         job_result_manager.create_result(result)
-        job_manager.update_job(job_id=self.request.id,updates={"status":"failed"})
+        job_manager.update_job(job_id=self.request.id,updates={"status":"failed","completed_at":datetime.now()})
+        return f"Scrape Product Task : {url}"
 
     time.sleep(20)
-    job_manager.update_job(job_id=self.request.id,updates={"status":"completed"})
+    job_manager.update_job(job_id=self.request.id,updates={"status":"completed","completed_at":datetime.now()})
     return f"Scrape Product Task : {url}"

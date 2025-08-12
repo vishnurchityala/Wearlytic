@@ -9,7 +9,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from scraperkit.base.base_content_loader import BaseContentLoader
-from scraperkit.exceptions import BadURLException, TimeoutException
+from scraperkit.exceptions import BadURLException, TimeoutException, DriverNotInitializedException
+from scraperkit.utils import get_driver_path
 
 class SeleniumContentLoader(BaseContentLoader):
     def __init__(self, headers=None, timeout=30,headless=True):
@@ -30,7 +31,10 @@ class SeleniumContentLoader(BaseContentLoader):
         }
         self.service = None
         self.driver = None
-        self._init_driver()
+        try:
+            self._init_driver()
+        except Exception as e:
+            raise DriverNotInitializedException()
 
     def _init_driver(self):
         chrome_options = Options()
@@ -58,7 +62,7 @@ class SeleniumContentLoader(BaseContentLoader):
         
         chrome_options.page_load_strategy = 'eager'
 
-        self.service = Service(ChromeDriverManager().install())
+        self.service = Service(get_driver_path())
         self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
 
         self.driver.execute_script(

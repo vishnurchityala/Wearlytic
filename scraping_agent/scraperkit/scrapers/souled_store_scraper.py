@@ -162,6 +162,10 @@ class SouledStoreScraper(BaseScraper):
                     return 'Men'
                 elif 'women' in text:
                     return 'Women'
+                elif 'sneakers' in text:
+                    return 'Sneakers'
+                else:
+                    return a_tag.get_text(strip=True).title()
         raise DataComponentNotFoundException("No gender component found on the page")
 
     def _extract_colors(self, soup: BeautifulSoup) -> list:

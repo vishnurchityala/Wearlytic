@@ -20,6 +20,8 @@ def get_listing_status(task_id: str):
 def get_listing_result(task_id: str) -> JobResult:
     try:
         result = job_result_manager.get_result(task_id)
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
         return result
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
@@ -36,6 +38,8 @@ def get_product_status(task_id: str):
 def get_product_result(task_id: str)-> JobResult:
     try:
         result = job_result_manager.get_result(task_id)
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
         return result
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Job {task_id} not found")

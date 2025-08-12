@@ -74,3 +74,6 @@ clean:
 	@echo "Cleaning up..."
 	rm -rf __pycache__ .uvicorn_pid
 	@echo "Cleanup complete."
+
+delete-chache:
+	find . -type d -name '__pycache__' -exec rm -r {} +

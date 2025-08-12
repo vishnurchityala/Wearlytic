@@ -13,8 +13,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from scraperkit.base.base_content_loader import BaseContentLoader
-from scraperkit.exceptions import BadURLException, ContentNotLoadedException, TimeoutException
-
+from scraperkit.exceptions import BadURLException, ContentNotLoadedException, TimeoutException, DriverNotInitializedException
+from scraperkit.utils import get_driver_path
 
 class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
@@ -36,7 +36,10 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
         self.target_class_name = target_class_name
         self.service = None
         self.driver = None
-        self._init_driver()
+        try:
+            self._init_driver()
+        except Exception as e:
+            raise DriverNotInitializedException()
 
     def _init_driver(self):
         chrome_options = Options()
@@ -57,7 +60,7 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
 
-        self.service = Service(ChromeDriverManager().install())
+        self.service = Service(get_driver_path())
         self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
 
         self.driver.execute_script(
