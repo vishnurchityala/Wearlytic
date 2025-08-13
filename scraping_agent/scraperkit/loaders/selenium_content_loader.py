@@ -83,7 +83,7 @@ class SeleniumContentLoader(BaseContentLoader):
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
             
-            time.sleep(5)
+            time.sleep(10)
             
             page_source = self.driver.page_source
 

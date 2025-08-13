@@ -1,7 +1,7 @@
 import bs4
 from bs4 import BeautifulSoup
 from scraperkit.base import BaseScraper
-from scraperkit.loaders import SeleniumInfinityScrollContentLoader
+from scraperkit.loaders import SeleniumInfinityScrollContentLoader, SeleniumContentLoader
 from scraperkit.models.product import Product
 from scraperkit.exceptions import (
     DataComponentNotFoundException,
@@ -21,7 +21,7 @@ class SouledStoreScraper(BaseScraper):
         self.content_loader = content_loader or SeleniumInfinityScrollContentLoader(
             max_scrolls= 30,
             target_class_name= "tss-footer",
-            scroll_delay=6,
+            scroll_delay=10,
             headless=True            
         )
         
@@ -179,13 +179,21 @@ class SouledStoreScraper(BaseScraper):
 
     def get_product_details(self, product_page_url):
         try:
-            page_content = self.get_page_content(product_page_url)
+            loader = SeleniumContentLoader()
+            page_content = loader.load_content(page_url=product_page_url)
             soup = BeautifulSoup(page_content, "html.parser")
             body_content = soup.body.prettify()
             
             title = self._extract_title(soup)
             price = self._extract_price(soup)
             category = self._extract_category(soup)
+            gender = product_page_url
+            if "men" in product_page_url:
+                gender = "men"
+            elif "women" in product_page_url:
+                gender = "women"
+            else:
+                gender = "N/A"
             
             product = Product(
                 id=self._extract_id(soup, title),
