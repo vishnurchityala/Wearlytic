@@ -1,13 +1,14 @@
 from datetime import datetime
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from api.models import JobRequest, Job
 from api.celery_worker import scrape_product_task, scrape_listing_task
-from api.db import JobsManager, JobResultsManager
+from api.db import JobsManager
+from api.security import verify_token
 
 router = APIRouter(prefix="/api/scrape")
 job_manager = JobsManager()
 
-@router.post("/",status_code=status.HTTP_200_OK)
+@router.post("/",status_code=status.HTTP_200_OK, dependencies=[Depends(verify_token)])
 def start_scrape(request : JobRequest):
     print(request.webpage_url)
     if request.type_page == 'product':
