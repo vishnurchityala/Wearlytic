@@ -37,18 +37,19 @@ class JayWalkingScraper(BaseScraper):
                 'next_page_url': None
             }
         
-        try:
-            next_page_url = self.base_url[:-1]+ pagination_div.find("a",attrs={"class":"next"})['href'].split('&')[0]
-            total_pages = int(pagination_div.find_all("a",attrs={"class":"page"})[-1].text)
+        next_tag = pagination_div.find("a", attrs={"class": "next"})
+        if next_tag and next_tag.get("href"):
+            next_page_url = self.base_url.rstrip("/") + next_tag["href"].split("&")[0]
+        else:
+            next_page_url = None
+        total_pages = int(pagination_div.find_all("a",attrs={"class":"page"})[-1].text)
 
-            return {
-                    'current_page': page_url,
-                    'total_pages': total_pages,
-                    'next_page_url' : next_page_url
-                }
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Pagination Details in JayWalking.")
-    
+        return {
+                'current_page': page_url,
+                'total_pages': total_pages,
+                'next_page_url' : next_page_url
+            }
+        
     def get_product_listings(self, listings_page_url, page = 1):
         page_content = self.get_page_content(listings_page_url)
         soup = BeautifulSoup(page_content,"html.parser")

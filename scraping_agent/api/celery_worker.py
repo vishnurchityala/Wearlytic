@@ -69,7 +69,7 @@ def scrape_listing_task(self, url: str):
         )
         job_result_manager.create_result(result)
         job_manager.update_job(job_id=self.request.id,updates={"status":"failed","completed_at":datetime.now()})
-        return f"Scrape Product Task : {url}"
+        return f"Scrape Listing Task : {url}"
 
     return f"Scrape Listing Task : {url}"
 
