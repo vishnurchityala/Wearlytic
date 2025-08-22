@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
-from api.models import JobResult, Product, Listing
+from api.models import JobResult
 from api.db import JobsManager, JobResultsManager
-from datetime import datetime
 from api.security import verify_token
 
 
@@ -13,6 +12,8 @@ job_result_manager = JobResultsManager()
 def get_listing_status(task_id: str):
     try:
         job = job_manager.get_job(task_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
         return job
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Job {task_id} not found")
