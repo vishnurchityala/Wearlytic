@@ -10,8 +10,7 @@ from api.db import JobsManager, JobResultsManager
 from api.models import Listing, ListingItem, JobResult
 
 logger = get_task_logger(__name__)
-job_manager = JobsManager()
-job_result_manager = JobResultsManager()
+
 celery_app = Celery(
     "scrapingagent",
     broker="redis://localhost:6379/0",
@@ -19,14 +18,16 @@ celery_app = Celery(
 )
 
 celery_app.conf.task_queues = [
-    Queue("scrape_high"),
-    Queue("scrape_medium"),
-    Queue("scrape_low"),
+    Queue("scraping_agent_scrape_high"),
+    Queue("scraping_agent_scrape_medium"),
+    Queue("scraping_agent_scrape_low"),
 ]
-celery_app.conf.task_default_queue = "scrape_medium"
+celery_app.conf.task_default_queue = "scraping_agent_scrape_medium"
 
 @celery_app.task(name="scrape.listing", bind=True)
 def scrape_listing_task(self, url: str):
+    job_manager = JobsManager()
+    job_result_manager = JobResultsManager()
     logger.info(f"Task ID: {self.request.id}")
     time.sleep(1)
     job_manager.update_job(job_id=self.request.id,updates={"status":"processing"})
@@ -75,6 +76,8 @@ def scrape_listing_task(self, url: str):
 
 @celery_app.task(name="scrape.product", bind=True)
 def scrape_product_task(self, url: str):
+    job_manager = JobsManager()
+    job_result_manager = JobResultsManager()
     logger.info(f"Task ID: {self.request.id}")
     time.sleep(1)
     job_manager.update_job(job_id=self.request.id,updates={"status":"processing"})

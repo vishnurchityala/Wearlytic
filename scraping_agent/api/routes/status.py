@@ -4,7 +4,7 @@ from api.db import JobsManager, JobResultsManager
 from api.security import verify_token
 
 
-router = APIRouter(prefix="/api/scrape")
+router = APIRouter(prefix="/api/scrapingagent/scrape")
 job_manager = JobsManager()
 job_result_manager = JobResultsManager()
 

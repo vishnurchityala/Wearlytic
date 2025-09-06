@@ -26,9 +26,9 @@ start-redis:
 
 start-celery-workers:
 	@echo "Starting Celery Workers"
-	@celery -A api.celery_worker.celery_app worker -Q scrape_low --loglevel=info --concurrency=2 & \
-	celery -A api.celery_worker.celery_app worker -Q scrape_medium --loglevel=info --concurrency=5 & \
-	celery -A api.celery_worker.celery_app worker -Q scrape_high --loglevel=info --concurrency=10 &
+	@celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_low --loglevel=info --concurrency=2 & \
+	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_medium --loglevel=info --concurrency=5 & \
+	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_high --loglevel=info --concurrency=10 &
 
 stop: kill-celery-workers stop-redis stop-mongo
 	@if [ -f .uvicorn_pid ]; then \

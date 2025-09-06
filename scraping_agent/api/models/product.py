@@ -37,7 +37,7 @@ class Product(BaseModel):
     material: Optional[str] = Field(default=None)
     description: str = Field(...)
     rating: Optional[float] = Field(default=None, ge=0, le=5)
-    review_count: Optional[int] = Field(default=None, ge=0)
+    review_count: Optional[int] = Field(default=None, ge=0) 
     processed: StrictBool = Field(default=False)
     scraped_datetime: Optional[datetime]
     processed_datetime: Optional[datetime]

@@ -21,15 +21,11 @@ db = client[DB_NAME]
 JOBS_COLLECTION_NAME = "scraping_agent_jobs"
 JOB_RESULTS_COLLECTION_NAME = "scraping_agent_job_results"
 
-jobs_collection = db[JOBS_COLLECTION_NAME]
-job_results_collection = db[JOB_RESULTS_COLLECTION_NAME]
-
-
 class JobsManager:
     """Manager for CRUD operations on scraping jobs."""
 
     def __init__(self):
-        self.collection = jobs_collection
+        self.collection = db[JOBS_COLLECTION_NAME]
 
     def create_job(self, job: Job):
         try:
@@ -70,7 +66,7 @@ class JobResultsManager:
     """Manager for CRUD operations on scraping job results."""
 
     def __init__(self):
-        self.collection = job_results_collection
+        self.collection = db[JOB_RESULTS_COLLECTION_NAME]
 
     def create_result(self, result: JobResult):
         try:

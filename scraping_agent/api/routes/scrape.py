@@ -5,7 +5,7 @@ from api.celery_worker import scrape_product_task, scrape_listing_task
 from api.db import JobsManager
 from api.security import verify_token
 
-router = APIRouter(prefix="/api/scrape")
+router = APIRouter(prefix="/api/scrapingagent/scrape")
 job_manager = JobsManager()
 
 @router.post("/",status_code=status.HTTP_200_OK, dependencies=[Depends(verify_token)])
@@ -17,9 +17,9 @@ def start_scrape(request : JobRequest):
         raise HTTPException(status_code=404, detail=f"Got Bad Page Type")
     
     if request.type_page == 'product':
-        task = scrape_product_task.apply_async(args=[str(request.webpage_url)], queue='scrape_'+request.priority)
+        task = scrape_product_task.apply_async(args=[str(request.webpage_url)], queue='scraping_agent_scrape_'+request.priority)
     elif request.type_page == 'listing':
-        task = scrape_listing_task.apply_async(args=[str(request.webpage_url)], queue='scrape_'+request.priority)
+        task = scrape_listing_task.apply_async(args=[str(request.webpage_url)], queue='scraping_agent_scrape_'+request.priority)
 
     job = Job(
         job_id=task.id,
