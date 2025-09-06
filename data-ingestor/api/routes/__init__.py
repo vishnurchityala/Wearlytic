@@ -1,2 +1,2 @@
-from .base import router as base_router
+from .base import router as BaseRouter
 
