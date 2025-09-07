@@ -11,7 +11,7 @@ ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 router = APIRouter()
-templates = Jinja2Templates(directory="./api/templates")
+templates = Jinja2Templates(directory="./app/templates")
 
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request):

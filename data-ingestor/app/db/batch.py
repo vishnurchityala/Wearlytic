@@ -2,7 +2,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from api.models import Batch
+from app.models import Batch
 
 load_dotenv()
 

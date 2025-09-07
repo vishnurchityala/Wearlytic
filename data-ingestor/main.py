@@ -1,6 +1,6 @@
 # app/main.py
 from fastapi import FastAPI
-from api.routes import BaseRouter, SecurityRouter
+from app.routes import BaseRouter, SecurityRouter
 from starlette.middleware.sessions import SessionMiddleware
 
 

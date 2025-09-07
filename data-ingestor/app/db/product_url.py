@@ -2,7 +2,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from api.models import ProductUrl
+from app.models import ProductUrl
 
 load_dotenv()
 

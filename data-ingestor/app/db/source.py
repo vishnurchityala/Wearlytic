@@ -2,8 +2,8 @@ import os
 import logging
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from api.models import Source
-from api.models import Listing
+from app.models import Source
+from app.models import Listing
 
 load_dotenv()
 
