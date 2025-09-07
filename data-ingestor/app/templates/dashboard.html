@@ -1,53 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .welcome-text {
-            margin-top: 2rem;
-            text-align: center;
-            font-size: 1.5rem;
-            color: #343a40;
-        }
-        .footer-bar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #f1f3f5;
-            padding: 0.25rem 0;
-            font-size: 0.75rem;
-            border-top: 1px solid #dee2e6;
-            z-index: 1030;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}" />
+    <link rel="icon" href="{{ url_for('static', path='images/logo.png') }}" />
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/" style="font-size: medium;">Data Ingestor</a>
+        <div class="container-fluid px-5">
+            <img src="{{ url_for('static', path='images/logo.png') }}" width="30px" alt="Logo" />
+            <a class="navbar-brand fw-bold ms-1" href="/" style="font-size: medium;">Data Ingestor</a>
             <form method="post" action="/logout" class="ms-auto">
                 <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center gap-1 px-3">
-                    <span style="font-size: 0.85rem;">Admin</span>
+                    <span style="font-size: 0.8rem; font-weight: bold;">Admin</span>
                     <i class="bi bi-box-arrow-right"></i>
                 </button>
             </form>
         </div>
     </nav>
-    <div class="welcome-text">
-        Welcome to the Data Ingestor Dashboard!
+
+    <div class="row g-3 py-3 px-2 px-md-3">
+        <div class="col-12 col-md-3">
+            <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <span class="fw-bold fs-6">Sources</span>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-primary fw-bold fs-xsmall rounded-pill px-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addSourceModal"
+                    >
+                        + Add
+                    </button>
+                </div>
+                <div class="px-2 d-flex flex-column g-2 overflow-y-scroll max-height-650" style="max-height: 650px;">
+                    {% for source in sources %}
+                    <div class="card border shadow-sm rounded-2 p-3 mb-2" style="max-width: 360px; font-size: 0.85rem;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <div
+                                    class="rounded-circle bg-dark text-white d-flex fs-xsmall align-items-center justify-content-center fw-bold"
+                                    style="width: 23px; height: 23px;"
+                                >
+                                    ID
+                                </div>
+                                <span class="text-muted fw-medium fs-small">{{ source.id }}</span>
+                            </div>
+                            {% if source.active %}
+                                <span class="badge rounded-pill border border-success text-success px-2 py-1 fw-semibold small">Active</span>
+                            {% else %}
+                                <span class="badge rounded-pill border border-secondary text-secondary px-2 py-1 fw-semibold small">Inactive</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="fw-semibold fs-6 text-dark">{{ source.name }}</span>
+                                <span class="badge bg-success bg-opacity-10 text-success fw-semibold rounded-pill px-2 py-1 ms-2">{{ source.listings_count }} Listings</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Created At: {{ source.created_at }}</small>
+                            <button
+                                class="btn btn-sm badge rounded-pill text-bg-warning fs-xsmall fw-bold"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editSourceModal"
+                                data-source-id="{{ source.id }}"
+                                data-source-name="{{ source.name }}"
+                                data-base-url="{{ source.base_url }}"
+                                data-is-active="{{ 'true' if source.active else 'false' }}"
+                            >
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted p-3">No sources found</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Other columns like Listings, Product URLs, Batches -->
+        <div class="col-12 col-md-3">
+            <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <span class="fw-bold fs-6">Listings</span>
+                    <button class="btn btn-sm btn-primary fw-bold fs-xsmall rounded-pill px-2">+ Add</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <span class="fw-bold fs-6">Product URLs</span>
+                    <button class="btn btn-sm btn-primary fw-bold fs-xsmall rounded-pill px-2">+ Add</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <span class="fw-bold fs-6">Batches</span>
+                    <button class="btn btn-sm btn-primary fw-bold fs-xsmall rounded-pill px-2">+ Add</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Add Source Modal -->
+    <div class="modal fade" id="addSourceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 300px;">
+            <div class="modal-content border-0 rounded-4 p-3" style="background-color: #f8f9fa;">
+                <div class="text-center mb-2">
+                    <h6 class="fw-bold">Source</h6>
+                </div>
+                <form method="post" action="/sources" class="m-0">
+                    <div class="mb-1">
+                        <label for="sourceName" class="form-label fw-semibold small fs-small">Source Name</label>
+                        <input
+                            type="text"
+                            class="form-control rounded-6 px-2 py-1 fs-small"
+                            id="sourceName"
+                            name="source_name"
+                            required
+                            placeholder="e.g. Amazon"
+                        />
+                    </div>
+                    <div class="mb-1">
+                        <label for="baseUrl" class="form-label fw-semibold small fs-small">Base URL</label>
+                        <input
+                            type="url"
+                            class="form-control rounded-6 px-2 py-1 fs-small"
+                            id="baseUrl"
+                            name="base_url"
+                            required
+                            placeholder="e.g. https://www.amazon.com"
+                        />
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button type="button" class="btn btn-danger rounded-pill px-3 py-1 fw-bold small fs-small" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="btn btn-success rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 small fs-small"
+                        >
+                            Add
+                            <i class="bi bi-arrow-right-circle small"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Source Modal -->
+    <div class="modal fade" id="editSourceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 300px;">
+            <div class="modal-content border-0 rounded-4 p-3" style="background-color: #f8f9fa;">
+                <div class="text-center mb-2">
+                    <h6 class="fw-bold">Edit Source</h6>
+                </div>
+                <form method="post" action="/sources/edit" class="m-0">
+                    <input type="hidden" name="source_id" id="sourceId" />
+                    <div class="mb-1">
+                        <label for="sourceNameEdit" class="form-label fw-semibold small fs-small">Source Name</label>
+                        <input
+                            type="text"
+                            class="form-control rounded-6 px-2 py-1 fs-small"
+                            id="sourceNameEdit"
+                            name="source_name"
+                            required
+                        />
+                    </div>
+
+                    <div class="mb-1">
+                        <label for="baseUrlEdit" class="form-label fw-semibold small fs-small">Base URL</label>
+                        <input
+                            type="url"
+                            class="form-control rounded-6 px-2 py-1 fs-small"
+                            id="baseUrlEdit"
+                            name="base_url"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-check form-switch d-flex align-items-center gap-2 mb-1 ps-0">
+                        <label class="form-check-label fw-semibold small fs-small" for="statusToggle">Active Status</label>
+                        <input
+                        class="form-check-input ms-auto"
+                        type="checkbox"
+                        role="switch"
+                        id="statusToggle"
+                        name="active"
+                        />
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button
+                            type="button"
+                            class="btn btn-danger rounded-pill px-3 py-1 fw-bold small fs-small"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="btn btn-success rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 small fs-small"
+                        >
+                            Save Changes
+                            <i class="bi bi-save small"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer-bar text-center text-muted">
-    <small style="font-weight: 700;">Powered by Wearlytic &copy; 2025</small>
+        <small style="font-weight: 700;">Powered by Wearlytic &copy; 2025</small>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Populate Edit Modal with the source data when edit button is clicked
+        var editSourceModal = document.getElementById('editSourceModal');
+        editSourceModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+
+            var sourceId = button.getAttribute('data-source-id');
+            var sourceName = button.getAttribute('data-source-name');
+            var baseUrl = button.getAttribute('data-base-url');
+            var isActive = button.getAttribute('data-is-active') === 'true';
+
+            var modalSourceId = editSourceModal.querySelector('#sourceId');
+            var modalSourceName = editSourceModal.querySelector('#sourceNameEdit');
+            var modalBaseUrl = editSourceModal.querySelector('#baseUrlEdit');
+            var modalIsActive = editSourceModal.querySelector('#statusToggle');
+
+            modalSourceId.value = sourceId;
+            modalSourceName.value = sourceName;
+            modalBaseUrl.value = baseUrl;
+            modalIsActive.checked = isActive;
+        });
+    </script>
 </body>
 </html>

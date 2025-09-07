@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, StrictBool
 from typing import List
 from datetime import datetime
-from .listing import Listing
 
 class Source(BaseModel):
     """
@@ -9,8 +8,8 @@ class Source(BaseModel):
 
     - id (str): Unique identifier for the source.  
         Example: "src_001"
-    - listings (List[Listing]): List of listing objects associated with the source.  
-        Example: [Listing(id="lst_101", source_id="src_001", last_listed=None)]
+    - listings (List[str]): List of listing IDs associated with the source.  
+        Example: ["lst_101", "lst_102"]
     - active (bool): Whether the source is active in the system (default: True).  
         Example: True
     - name (str): Human-readable source name for administrators.  
@@ -22,7 +21,7 @@ class Source(BaseModel):
     """
 
     id: str = Field(..., description="Unique identifier for the source.")
-    listings: List[Listing] = Field(..., description="List of listing objects associated with the source.")
+    listings: List[str] = Field(default=[],description="List of listing IDs associated with the source.")
     active: StrictBool = Field(default=True, description="Whether the source is active in the system (default: True).")
     name: str = Field(..., description="Human-readable source name for administrators.")
     created_at: datetime = Field(..., description="Datetime when the source was created.")

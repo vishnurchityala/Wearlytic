@@ -1,0 +1,36 @@
+/* ========== GLOBAL STYLES ========== */
+body {
+    background-color: #f8f9fa;
+    user-select: none;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.footer-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f3f5;
+    padding: 0.25rem 0;
+    font-size: 0.75rem;
+    border-top: 1px solid #dee2e6;
+    z-index: 1030;
+}
+
+/* ========== FONT UTILITIES ========== */
+.fs-xsmall {
+    font-size: x-small;
+}
+.fs-xxsmall {
+    font-size: xx-small;
+}
+.fs-small {
+    font-size: small;
+}
+
+/* ========== HELPERS ========== */
+.max-height-650 {
+    max-height: 650px;
+}
