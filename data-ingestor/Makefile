@@ -3,7 +3,7 @@
 -include .env
 export $(shell sed 's/=.*//' .env)
 APP_MODULE = main:app
-PORT = 8090
+PORT = 8081
 RELOAD = --reload
 UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD)
 
