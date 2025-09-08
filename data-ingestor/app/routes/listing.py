@@ -42,7 +42,7 @@ def create_listing(
     listing_manager.create_listing(listing=listing)
     source_manager.add_listing_to_source(listing.source_id,listing.id)
 
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/api/listings/edit", response_class=HTMLResponse)
 def edit_listing(
@@ -64,7 +64,7 @@ def edit_listing(
         changes=changes
     )
 
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/api/listings/delete", response_class=HTMLResponse)
 def delete_listing(
@@ -81,4 +81,4 @@ def delete_listing(
     source_manager.remove_listing_from_source(source_id=source_id,listing_id=listing_id)
     listing_manager.delete_listing(listing_id=listing_id)
 
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/dashboard", status_code=status.HTTP_303_SEE_OTHER)

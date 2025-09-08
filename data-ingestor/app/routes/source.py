@@ -86,7 +86,7 @@ def edit_source(
         changes=changes
     )
 
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/api/sources/delete", response_class=HTMLResponse)
 def delete_source(
@@ -109,4 +109,4 @@ def delete_source(
         listing_manager.delete_listing(listing)
     source_manager.delete_source(source_id=source_id)
 
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/dashboard", status_code=status.HTTP_303_SEE_OTHER)

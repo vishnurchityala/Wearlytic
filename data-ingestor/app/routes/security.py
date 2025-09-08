@@ -38,62 +38,7 @@ def home(request: Request):
             "dashboard.html",
             {"request": request, "username": username,"sources":sources,"listings":listings}
         )
-    return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
-
-@router.post("/sources", response_class=HTMLResponse)
-def create_source(
-    request: Request,
-    source_name: str = Form(...),
-    base_url: str = Form(...)
-):
-    """
-    Handle creation of a new source from dashboard form submission.
-
-    - Validate and create new source using source_manager.
-    - Then redirect back to the dashboard page.
-    """
-    username = request.session.get("user")
-    if not username:
-        return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
-
-    source = Source(name=source_name,base_url=base_url,active=False,created_at=datetime.now(),id=str(uuid4()))
-    source_manager.create_source(source=source)
-
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-
-@router.post("/sources/edit", response_class=HTMLResponse)
-def edit_source(
-    request: Request,
-    source_id: str = Form(...),
-    source_name: str = Form(...),
-    base_url: str = Form(...),
-    active: str = Form(None)
-):
-    """
-    Handle editing/updating a source.
-
-    - Requires the source ID and updated data.
-    - Updates source in backend.
-    - Redirects back to dashboard.
-    """
-    username = request.session.get("user")
-    if not username:
-        return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
-
-    active_flag = active == "on"
-    # TODO: Explicit Methods for DB is Source Turned Off.
-    changes = {
-        "name": source_name,
-        "base_url": base_url,
-        "active": active_flag
-    }
-
-    source_manager.update_source(
-        source_id=source_id,
-        changes=changes
-    )
-
-    return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/dashboard", status_code=status.HTTP_302_FOUND)
 
 @router.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):
@@ -119,7 +64,7 @@ def login(request: Request, username: str = Form(...), password: str = Form(...)
     """
     if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
         request.session["user"] = username
-        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse("/dashboard", status_code=status.HTTP_302_FOUND)
 
     return templates.TemplateResponse(
         "login.html",
