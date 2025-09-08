@@ -76,7 +76,7 @@ def delete_listing(
     if not username:
         return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 
-    # TODO: Explicit Methods for DB is Source Turned Off.
+    # Testing Changes =======>
     source_id = listing_manager.get_listing(listing_id=listing_id)['source_id']
     source_manager.remove_listing_from_source(source_id=source_id,listing_id=listing_id)
     listing_manager.delete_listing(listing_id=listing_id)
