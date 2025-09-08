@@ -22,6 +22,7 @@ class Source(BaseModel):
 
     id: str = Field(..., description="Unique identifier for the source.")
     listings: List[str] = Field(default=[],description="List of listing IDs associated with the source.")
+    listing_count: int = Field(default=0,description="Listing Count for Track")
     active: StrictBool = Field(default=True, description="Whether the source is active in the system (default: True).")
     name: str = Field(..., description="Human-readable source name for administrators.")
     created_at: datetime = Field(..., description="Datetime when the source was created.")

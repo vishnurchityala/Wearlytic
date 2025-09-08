@@ -28,7 +28,9 @@ class ListingsManager:
     def create_listing(self, listing: Listing) -> None:
         try:
             logging.info(f"[CREATE] Inserting Listing: {listing.id}")
-            self.collection.insert_one(listing.model_dump(mode="json"))
+            listing_dict = listing.model_dump(mode="json")
+            listing_dict["_id"] = listing_dict["id"] 
+            self.collection.insert_one(listing_dict)
             logging.info(f"[CREATE] Successfully inserted Listing: {listing.id}")
         except Exception as e:
             logging.error(f"[CREATE] Failed to insert Listing {getattr(listing, 'id', '')}: {e}")
@@ -80,3 +82,15 @@ class ListingsManager:
         except Exception as e:
             logging.error(f"[DELETE] Failed to delete Listing {listing_id}: {e}")
             raise
+
+    def get_all_listings(self) -> list:
+        """Fetch all listings from the collection."""
+        try:
+            logging.info("[READ] Fetching all listings")
+            results = list(self.collection.find())
+            logging.info(f"[READ] Total listings fetched: {len(results)}")
+            return results
+        except Exception as e:
+            logging.error(f"[READ] Failed to fetch all listings: {e}")
+            raise
+

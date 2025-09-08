@@ -3,12 +3,13 @@ from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
 from dotenv import load_dotenv
-from app.db import SourceManager
+from app.db import SourceManager, ListingsManager
 from app.models import Source
 from datetime import datetime
 from uuid import uuid4
 
 source_manager = SourceManager()
+listings_mangaer = ListingsManager()
 
 load_dotenv()
 
@@ -32,9 +33,10 @@ def home(request: Request):
     username = request.session.get("user")
     if username:
         sources = source_manager.get_sources()
+        listings = listings_mangaer.get_all_listings()
         return templates.TemplateResponse(
             "dashboard.html",
-            {"request": request, "username": username,"sources":sources}
+            {"request": request, "username": username,"sources":sources,"listings":listings}
         )
     return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 

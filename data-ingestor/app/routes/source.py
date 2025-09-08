@@ -105,11 +105,6 @@ def delete_source(
         return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 
     # TODO: Explicit Methods for DB is Source Turned Off.
-    listings = source_manager.get_source(source_id=source_id)["listings"]
-    
-    for listing in listings:
-        listing_manager.delete_listing(listing_id=listing)
-        
     source_manager.delete_source(source_id=source_id)
 
     return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)

@@ -48,18 +48,15 @@ def create_listing(
 def edit_listing(
     request: Request,
     listing_id: str = Form(...),
-    listing_url: str = Form(...),
-    active: str = Form(None)
+    listing_url: str = Form(...)
 ):
     username = request.session.get("user")
     if not username:
         return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 
-    active_flag = active == "on"
 
     changes = {
         "url": listing_url,
-        "active":active_flag
     }
 
     listing_manager.update_listing(
@@ -80,15 +77,8 @@ def delete_listing(
         return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 
     # TODO: Explicit Methods for DB is Source Turned Off.
-    listing_data = listing_manager.get_listing(listing_id=listing_id)
-    
-    if listing_data:
-        source_id = listing_data.get("source_id")
-        print(f"Source ID from listing: {source_id}")
-        source_manager.remove_listing_from_source(source_id=source_id,listing_id=listing_id)
-        listing_manager.delete_listing(listing_id=listing_id)
-        print(f"Listing {listing_id} deleted successfully")
-    else:
-        print(f"Listing {listing_id} not found")
+    source_id = listing_manager.get_listing(listing_id=listing_id)['source_id']
+    source_manager.remove_listing_from_source(source_id=source_id,listing_id=listing_id)
+    listing_manager.delete_listing(listing_id=listing_id)
 
     return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)

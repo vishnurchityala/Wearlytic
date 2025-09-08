@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool
 from typing import Optional
 from datetime import datetime
 
@@ -20,3 +20,5 @@ class Listing(BaseModel):
         default=None,
         description="Datetime when data was last ingested from the listing, or None if not yet ingested."
     )
+    url: str = Field(...)
+    active: StrictBool = Field(default=False)
