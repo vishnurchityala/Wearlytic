@@ -27,7 +27,10 @@
         <div class="col-12 col-md-3">
             <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
                 <div class="d-flex justify-content-between align-items-center p-3">
-                    <span class="fw-bold fs-6">Sources</span>
+                    <div class="">
+                        <span class="fw-bold fs-6">Sources</span>
+                        <span class="badge bg-light fs-xsmall text-dark border fw-semibold rounded-pill px-2 py-1 ms-1">{{ sources|length }} Sources</span>
+                    </div>
                     <button
                         type="button"
                         class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2"
@@ -121,7 +124,10 @@
         <div class="col-12 col-md-3">
             <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
                 <div class="d-flex justify-content-between align-items-center p-3">
-                    <span class="fw-bold fs-6">Listings</span>
+                    <div>
+                        <span class="fw-bold fs-6">Listings</span>
+                        <span class="badge bg-light fs-xsmall text-dark border fw-semibold rounded-pill px-2 py-1 ms-1">{{ listings|length }} Listings</span>
+                    </div>
                     <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#addListingModal" >+ Add</button>
                 </div>
                 <div class="px-2 d-flex flex-column g-2 overflow-y-scroll max-height-650" style="max-height: 650px;">
