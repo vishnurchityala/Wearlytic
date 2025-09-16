@@ -10,14 +10,12 @@ UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0
 all: run
 
 run: start-redis start-mongo start-celery-workers
-	@echo "<========== Starting ScrapingAgent Service ===========>"
+	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
-	@{ \
-		$(UVICORN_CMD) & \
-		echo $$! > .uvicorn_pid; \
-		echo "Uvicorn app started. PID: $$(cat .uvicorn_pid)"; \
-	}
-	@echo "<========== Started ScrapingAgent Service ===========>"
+	@$(UVICORN_CMD) & \
+	echo $$! > .uvicorn_pid
+	@echo "Uvicorn app started. PID: $$(cat .uvicorn_pid)"
+	@echo "<========== Started Data Ingestor Service ===========>"
 
 start-mongo:
 	@echo "<========== Starting MongoDB Server ===========>"
@@ -31,9 +29,9 @@ start-redis:
 
 start-celery-workers:
 	@echo "<========== Starting Celery Workers ===========>"
-	@celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_low --loglevel=info --concurrency=2 & \
-	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_medium --loglevel=info --concurrency=5 & \
-	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_high --loglevel=info --concurrency=10 &
+	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_low --loglevel=info --concurrency=2 & echo $$! > .celery_worker_low_pid
+	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_medium --loglevel=info --concurrency=5 & echo $$! > .celery_worker_medium_pid
+	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_high --loglevel=info --concurrency=10 & echo $$! > .celery_worker_high_pid
 	@echo "<========== Celery Workers Started ===========>"
 
 stop: kill-celery-workers stop-redis stop-mongo
@@ -63,21 +61,16 @@ stop-mongo:
 
 kill-celery-workers:
 	@echo "<========== Stopping Celery Workers ===========>"
-	@PIDS=$$(ps aux | grep 'celery' | grep -v 'grep' | awk '{print $$2}'); \
-	if [ -z "$$PIDS" ]; then \
-		echo "No Celery processes found."; \
-	else \
-		echo "Killing Celery PIDs: $$PIDS"; \
-		kill $$PIDS; \
-		sleep 2; \
-		for PID in $$PIDS; do \
-			if ps -p $$PID > /dev/null; then \
-				echo "Force killing PID: $$PID"; \
-				kill -9 $$PID; \
-			fi; \
-		done; \
-		echo "All Celery processes terminated."; \
-	fi
+	@for pidfile in .celery_worker_low_pid .celery_worker_medium_pid .celery_worker_high_pid; do \
+		if [ -f $$pidfile ]; then \
+			PID=$$(cat $$pidfile); \
+			echo "Killing Celery worker PID: $$PID"; \
+			kill $$PID || kill -9 $$PID; \
+			rm -f $$pidfile; \
+		else \
+			echo "PID file $$pidfile not found."; \
+		fi \
+	done
 	@echo "<========== Celery Workers Stopped ===========>"
 
 setup:

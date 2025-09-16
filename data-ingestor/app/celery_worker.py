@@ -4,11 +4,22 @@ Importing Modules for Celery Workers.
 from celery import Celery
 from celery.schedules import crontab
 from celery.utils.log import get_task_logger
+from app.db import ListingsManager, StatusManager
+from app.models import Status
+from dotenv import load_dotenv
+import requests
+import uuid
+import os
+
+load_dotenv()
 
 """
 Creating Logger fot the Tasks.
 """
 logger = get_task_logger(__name__)
+
+listing_manager = ListingsManager()
+status_manager = StatusManager()
 
 """
 Celery Queue Configuration.
@@ -18,6 +29,9 @@ app = Celery(
     broker="redis://localhost:6379/0",
     backend = 'rpc://'
 )
+
+SCRAPING_AGENT_ENDPOINT = os.getenv("SCRAPING_AGENT_API_URL")
+SCRAPING_AGENT_TOKEN = os.getenv("SCRAPING_AGENT_TOKEN")
 
 """
 Creating or Configuring Queue for DataIngestor
@@ -43,11 +57,45 @@ Together, these functions cover scheduling, batching, scraping,
 status tracking, and data ingestion.
 """
 def start_scraping_listing():
-    # TODO: Retrieve the oldest pending (unscraped) listing from each source.
-    # TODO: Trigger the Scraping Agent via API request.
-    # TODO: Record the Celery task IDs (AsyncIDs) in the status tracker.
-    # TODO: Create and persist status objects in the database.
-    pass
+    """
+    Trigger scraping for the oldest listing per source via Scraping Agent.
+    Records job IDs in status tracker.
+    """
+    listings = listing_manager.get_oldest_listings_per_source()
+    headers = {
+        "Authorization": f"Bearer {SCRAPING_AGENT_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    if not listings:
+        logger.info("No listings found to scrape.")
+        return
+    for listing in listings:
+        try:
+            payload = {
+                "webpage_url": listing['url'],
+                "priority": "low",
+                "type_page": "listing"
+            }
+            logger.info(f"Calling Scraping Agent for URL: {listing['url']}")
+            response = requests.post(SCRAPING_AGENT_ENDPOINT + '/scrape', json=payload, headers=headers)
+            if response.status_code == 200:
+                job_id = response.json().get('job_id')
+                logger.info(f"Scraping job created for {listing['url']}, job_id: {job_id}")
+
+                status = Status(
+                    id=str(uuid.uuid4()),
+                    ingestion_type="listing",
+                    job_id=job_id,
+                    status="processing"
+                )
+                status_manager.create_status(status)
+            else:
+                logger.error(
+                    f"Failed to call Scraping Agent for {listing['url']}. "
+                    f"Status code: {response.status_code}, Response: {response.text}"
+                )
+        except Exception as e:
+            logger.exception(f"Exception occurred while scraping {listing['url']}: {e}")
 
 def create_product_batches():
     # TODO: Retrieve all ProductURLs that have not yet been assigned to a batch.

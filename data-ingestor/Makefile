@@ -25,37 +25,35 @@ run: test-scraping-agent start-celery-beats
 
 start-celery-beats:
 	@echo "<========== Starting Celery Beats and Workers ==========>"
-	@{ \
-		echo "<---------- Starting Celery Worker ---------->"; \
-		celery -A app.celery_worker worker -Q data_ingestor_queue --loglevel=info & \
-		echo "<---------- Started Celery Worker Successfully ---------->"; \
-		echo "<---------- Starting Celery Beat ---------->"; \
-		celery -A app.celery_worker beat --loglevel=info & \
-		echo "<---------- Started Celery Beat Successfully --------->"; \
-	}
-	@echo "<========== Started Celery Beats and Workers Successfully ==========>"
-
+	@echo "<---------- Starting Celery Worker ---------->"; \
+	celery -A app.celery_worker worker -Q data_ingestor_queue --loglevel=info & echo $$! > .celery_worker_pid; \
+	echo "Celery Worker started with PID $$(cat .celery_worker_pid)"; \
+	echo "<---------- Starting Celery Beat ---------->"; \
+	celery -A app.celery_worker beat --loglevel=info & echo $$! > .celery_beat_pid; \
+	echo "Celery Beat started with PID $$(cat .celery_beat_pid)"; \
+	echo "<========== Started Celery Beats and Workers Successfully ==========>"
 
 kill-celery-workers:
-	@echo "<========== Stopping Celery Workers ===========>"
-	@PIDS=$$(ps aux | grep 'celery' | grep -v 'grep' | awk '{print $$2}'); \
-	if [ -z "$$PIDS" ]; then \
-		echo "No Celery processes found."; \
+	@echo "<========== Stopping Celery Workers and Beat ===========>"
+	@if [ -f .celery_worker_pid ]; then \
+		PID=$$(cat .celery_worker_pid); \
+		echo "Killing Celery Worker PID: $$PID"; \
+		kill $$PID || kill -9 $$PID; \
+		rm -f .celery_worker_pid; \
 	else \
-		echo "Killing Celery PIDs: $$PIDS"; \
-		kill $$PIDS; \
-		sleep 2; \
-		for PID in $$PIDS; do \
-			if ps -p $$PID > /dev/null; then \
-				echo "Force killing PID: $$PID"; \
-				kill -9 $$PID; \
-			fi; \
-		done; \
-		echo "All Celery processes terminated."; \
+		echo "No Celery Worker PID file found."; \
 	fi
-	@echo "<========== Celery Workers Stopped ===========>"
+	@if [ -f .celery_beat_pid ]; then \
+		PID=$$(cat .celery_beat_pid); \
+		echo "Killing Celery Beat PID: $$PID"; \
+		kill $$PID || kill -9 $$PID; \
+		rm -f .celery_beat_pid; \
+	else \
+		echo "No Celery Beat PID file found."; \
+	fi
+	@echo "<========== Celery Processes Stopped ===========>"
 
-stop:
+stop: kill-celery-workers
 	@echo "<========== Stopping Data Ingestor Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \
@@ -67,15 +65,14 @@ stop:
 				echo "Force killing PID $$PID"; \
 				kill -9 $$PID; \
 			fi; \
-			rm -f .uvicorn_pid; \
-			echo "Uvicorn app stopped."; \
-		else \
-			echo "No process running with PID $$PID. Cleaning up PID file."; \
-			rm -f .uvicorn_pid; \
-		fi \
+		fi; \
+		rm -f .uvicorn_pid; \
+		echo "Uvicorn app stopped."; \
 	else \
 		echo "No PID file found. Is the service running?"; \
 	fi
-	@echo "<========== Stopped Data Ingestor Service ===========>"
+	@echo "<========== Cleaning Up Files ==========>"
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	@echo "<========== Clean Up Completed ==========>"
 
 
