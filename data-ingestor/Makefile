@@ -13,7 +13,7 @@ test-scraping-agent:
 		&& echo "<=========== ScrapingAgent Service is Started ===========>" \
 		|| (echo "<=========== ScrapingAgent is NOT running! =========>" && exit 1)
 
-run: test-scraping-agent
+run: test-scraping-agent start-celery-beats
 	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
@@ -22,6 +22,39 @@ run: test-scraping-agent
 		echo "Uvicorn app started. PID: $$(cat .uvicorn_pid)"; \
 	}
 	@echo "<========== Started Data Ingestor Service ===========>"
+
+start-celery-beats:
+	@echo "<========== Starting Celery Beats and Workers ==========>"
+	@{ \
+		echo "<---------- Starting Celery Worker ---------->"; \
+		celery -A app.celery_worker worker -Q data_ingestor_queue --loglevel=info & \
+		echo "<---------- Started Celery Worker Successfully ---------->"; \
+		echo "<---------- Starting Celery Beat ---------->"; \
+		celery -A app.celery_worker beat --loglevel=info & \
+		echo "<---------- Started Celery Beat Successfully --------->"; \
+	}
+	@echo "<========== Started Celery Beats and Workers Successfully ==========>"
+
+
+kill-celery-workers:
+	@echo "<========== Stopping Celery Workers ===========>"
+	@PIDS=$$(ps aux | grep 'celery' | grep -v 'grep' | awk '{print $$2}'); \
+	if [ -z "$$PIDS" ]; then \
+		echo "No Celery processes found."; \
+	else \
+		echo "Killing Celery PIDs: $$PIDS"; \
+		kill $$PIDS; \
+		sleep 2; \
+		for PID in $$PIDS; do \
+			if ps -p $$PID > /dev/null; then \
+				echo "Force killing PID: $$PID"; \
+				kill -9 $$PID; \
+			fi; \
+		done; \
+		echo "All Celery processes terminated."; \
+	fi
+	@echo "<========== Celery Workers Stopped ===========>"
+
 stop:
 	@echo "<========== Stopping Data Ingestor Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
