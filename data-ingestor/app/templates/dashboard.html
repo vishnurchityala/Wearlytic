@@ -115,7 +115,7 @@
                 <div class="mb-2 px-1 d-flex align-items-center">
                     <span class="fw-bold fs-6">Status Distribution</span>
                 </div>
-                <canvas id="statusBarChart" style="width: fit-content;" height="167"></canvas>
+                <canvas id="statusBarChart" style="width: fit-content;" height="194"></canvas>
             </div>
         </div>
         <div class="col-12 col-md-3">
@@ -124,7 +124,7 @@
                     <span class="fw-bold fs-6">Source Distribution</span>
                 </div>
                 <div class="d-flex justify-content-center align-items-center">
-                    <div style="height:260px;">
+                    <div style="height:300px;">
                         <canvas id="sourcePieChart"></canvas>
                     </div>
                 </div>
@@ -359,12 +359,12 @@
                             {{ product_urls|length }} Product URLs
                         </span>
                     </div>
-                    <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#addProductUrlModal">
+                    <!-- <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#addProductUrlModal">
                         + Add
-                    </button>
+                    </button> -->
                 </div>
                 <div class="px-2 d-flex flex-column g-1 overflow-y-scroll" style="max-height: 650px;">
-                    {% for product in product_urls %}
+                    {% for product in product_urls[:100] %}
                     <div class="card border shadow-sm rounded-2 p-3 mb-2" style="max-width: 380px; font-size: 0.85rem;">
                         <!-- ID + Page Index -->
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -463,7 +463,7 @@
             <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
                 <div class="d-flex justify-content-between align-items-center p-3">
                     <span class="fw-bold fs-6">Batches</span>
-                    <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2">+ Add</button>
+                    <!-- <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2">+ Add</button> -->
                 </div>
             </div>
         </div>
