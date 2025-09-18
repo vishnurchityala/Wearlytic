@@ -32,7 +32,6 @@ UPSTASH_REDIS_HOST = os.getenv("UPSTASH_REDIS_HOST")
 UPSTASH_REDIS_PORT = os.getenv("UPSTASH_REDIS_PORT")
 UPSTASH_REDIS_PASSWORD = os.getenv("UPSTASH_REDIS_PASSWORD")
 connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
-
 app = Celery(
     "dataingestor",
     broker=connection_link,
@@ -184,3 +183,4 @@ app.conf.beat_schedule = {
         "schedule": 900.0,
     },
 }
+app.conf.broker_transport_options = {'polling_interval': 60}

@@ -33,6 +33,8 @@ celery_app.conf.task_queues = [
     Queue("scraping_agent_scrape_low"),
 ]
 celery_app.conf.task_default_queue = "scraping_agent_scrape_medium"
+celery_app.conf.broker_transport_options = {'polling_interval': 60}
+
 
 @celery_app.task(name="scrape.listing", bind=True)
 def scrape_listing_task(self, url: str):
