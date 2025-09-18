@@ -9,11 +9,21 @@ from scraperkit.utils import get_scraper_from_url
 from api.db import JobsManager, JobResultsManager
 from api.models import Listing, ListingItem, JobResult
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 logger = get_task_logger(__name__)
+
+UPSTASH_REDIS_HOST = os.getenv("UPSTASH_REDIS_HOST")
+UPSTASH_REDIS_PORT = os.getenv("UPSTASH_REDIS_PORT")
+UPSTASH_REDIS_PASSWORD = os.getenv("UPSTASH_REDIS_PASSWORD")
+connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
 
 celery_app = Celery(
     "scrapingagent",
-    broker="redis://localhost:6379/0",
+    broker=connection_link,
     backend = 'rpc://'
 )
 
