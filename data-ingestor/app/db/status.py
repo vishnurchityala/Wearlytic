@@ -27,11 +27,14 @@ class StatusManager:
     def create_status(self, status: Status) -> None:
         try:
             logging.info(f"[CREATE] Inserting Status: {status.id}")
-            self.collection.insert_one(status.model_dump(mode="json"))
+            status_dict = status.model_dump(mode="json")
+            status_dict["_id"] = status_dict["id"]
+            self.collection.insert_one(status_dict)
             logging.info(f"[CREATE] Successfully inserted Status: {status.id}")
         except Exception as e:
             logging.error(f"[CREATE] Failed to insert Status {getattr(status, 'id', '')}: {e}")
             raise
+
 
     def update_status(self, status_id: str, changes: dict) -> None:
         try:

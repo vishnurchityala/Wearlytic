@@ -3,13 +3,16 @@ from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
 from dotenv import load_dotenv
-from app.db import SourceManager, ListingsManager
+from app.db import SourceManager, ListingsManager, StatusManager, ProductUrlManager
+from collections import Counter
 from app.models import Source
 from datetime import datetime
 from uuid import uuid4
 
 source_manager = SourceManager()
 listings_mangaer = ListingsManager()
+status_manager = StatusManager()
+product_url_mangaer = ProductUrlManager()
 
 load_dotenv()
 
@@ -34,8 +37,35 @@ def home(request: Request):
     if username:
         sources = source_manager.get_sources()
         listings = listings_mangaer.get_all_listings()
+        statuses = status_manager.get_all_status()
+        product_urls = product_url_mangaer.get_all_product_urls()
+        status_bar_graph_data_dict = {
+            "Completed": 0,
+            "Processing": 0,
+            "Failed": 0
+        }
+        for status in statuses:
+            if status['status'] == 'completed':
+                status_bar_graph_data_dict['Completed'] += 1
+            elif status['status'] == 'processing':
+                status_bar_graph_data_dict['Processing'] += 1
+            elif status['status'] == 'failed':
+                status_bar_graph_data_dict['Failed'] += 1
+        status_bar_chart_data = {
+            "labels": list(status_bar_graph_data_dict.keys()),
+            "values": list(status_bar_graph_data_dict.values())
+        }
+        source_distribution = Counter(p["source_id"] for p in product_urls)
+        source_distribution_named = {}
+        for source_id, count in source_distribution.items():
+            source_name = source_manager.get_source_name(source_id) or source_id
+            source_distribution_named[source_name] = count
+        source_pie_chart_data = {
+            "labels": list(source_distribution_named.keys()),
+            "values": list(source_distribution_named.values()),
+        }
         return templates.TemplateResponse(
             "dashboard.html",
-            {"request": request, "username": username,"sources":sources,"listings":listings}
+            {"request": request, "username": username,"sources":sources,"listings":listings,"statuses":statuses,"product_urls":product_urls,"status_bar_chart_data":status_bar_chart_data,"source_pie_chart_data":source_pie_chart_data}
         )
     return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)

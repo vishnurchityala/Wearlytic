@@ -27,11 +27,14 @@ class ProductUrlManager:
     def create_product_url(self, product_url: ProductUrl) -> None:
         try:
             logging.info(f"[CREATE] Inserting ProductUrl: {product_url.id}")
-            self.collection.insert_one(product_url.model_dump(mode="json"))
+            product_url_dict = product_url.model_dump(mode="json")
+            product_url_dict["_id"] = product_url_dict["id"]
+            self.collection.insert_one(product_url_dict)
             logging.info(f"[CREATE] Successfully inserted ProductUrl: {product_url.id}")
         except Exception as e:
             logging.error(f"[CREATE] Failed to insert ProductUrl {getattr(product_url, 'id', '')}: {e}")
             raise
+
 
     def get_product_url(self, product_url_id: str) -> dict | None:
         try:

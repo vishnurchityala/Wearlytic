@@ -4,10 +4,12 @@ Importing Modules for Celery Workers.
 from celery import Celery
 from celery.schedules import crontab
 from celery.utils.log import get_task_logger
-from app.db import ListingsManager, StatusManager
-from app.models import Status
+from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager
+from app.models import Status, ProductUrl
 from dotenv import load_dotenv
 import requests
+from datetime import datetime
+import hashlib
 import uuid
 import os
 
@@ -20,6 +22,8 @@ logger = get_task_logger(__name__)
 
 listing_manager = ListingsManager()
 status_manager = StatusManager()
+source_manager = SourceManager()
+product_url_manager = ProductUrlManager()
 
 """
 Celery Queue Configuration.
@@ -32,6 +36,10 @@ app = Celery(
 
 SCRAPING_AGENT_ENDPOINT = os.getenv("SCRAPING_AGENT_API_URL")
 SCRAPING_AGENT_TOKEN = os.getenv("SCRAPING_AGENT_TOKEN")
+headers = {
+    "Authorization": f"Bearer {SCRAPING_AGENT_TOKEN}",
+    "Content-Type": "application/json"
+}
 
 """
 Creating or Configuring Queue for DataIngestor
@@ -56,16 +64,14 @@ Core workflow functions for the Data Ingestor service.
 Together, these functions cover scheduling, batching, scraping, 
 status tracking, and data ingestion.
 """
+@app.task(name="celery_worker.start_scraping_listing")
 def start_scraping_listing():
     """
     Trigger scraping for the oldest listing per source via Scraping Agent.
     Records job IDs in status tracker.
     """
     listings = listing_manager.get_oldest_listings_per_source()
-    headers = {
-        "Authorization": f"Bearer {SCRAPING_AGENT_TOKEN}",
-        "Content-Type": "application/json"
-    }
+
     if not listings:
         logger.info("No listings found to scrape.")
         return
@@ -86,7 +92,8 @@ def start_scraping_listing():
                     id=str(uuid.uuid4()),
                     ingestion_type="listing",
                     job_id=job_id,
-                    status="processing"
+                    status="processing",
+                    entity_id=listing['id']
                 )
                 status_manager.create_status(status)
             else:
@@ -112,20 +119,63 @@ def scrape_batch():
     # TODO: Update the batch record to reflect its current processing state.
     pass
 
+@app.task(name="celery_worker.fetch_results")
 def fetch_results():
-    # TODO: Query the database for all records with status = "processing".
-    # TODO: For each record, fetch the latest result from the Scraping Agent.
-    # TODO: Determine the ingestion type and insert the data into the database.
-    # TODO: Update the record’s status in the database based on the response.
-    pass
-
+    processing_statuses = status_manager.get_status_by_status('processing')
+    for status in processing_statuses:
+        status_id = status['id']
+        fetch_url = SCRAPING_AGENT_ENDPOINT+"/scrape/"+status['job_id']+"/status/"
+        logger.info(f"Fetching Status for Job-ID : {status['job_id']}")
+        status_response = requests.get(fetch_url,headers=headers).json()
+        entity_id = status['entity_id']
+        source_id = listing_manager.get_listing(entity_id)['source_id']
+        logger.info(f"Fetched Status for Job-ID : {status['job_id']}")
+        job_status = status_response['status']
+        entity_type = status_response['type_page']
+        if job_status == 'completed':
+            fetch_result_url = SCRAPING_AGENT_ENDPOINT+"/scrape/"+status['job_id']+"/result/"
+            result_response = requests.get(fetch_result_url,headers=headers).json()
+            status_manager.update_status(status_id=status_id,changes={'status':'completed'})
+            if entity_type == 'listing':
+                product_urls = result_response['result']['items']
+                listing_manager.update_listing(listing_id=entity_id,changes={'last_listed':str(datetime.now())})
+                for product_url in product_urls:
+                    product_url_entity = ProductUrl(id=str(uuid.uuid4()),url=product_url['url'],source_id= source_id,listing_id=entity_id,page_index=product_url['page_rank'])
+                    try:
+                        product_url_manager.create_product_url(product_url_entity)
+                    except Exception as e:
+                        print(product_url['url'])
+            elif entity_type == 'product':
+                # TODO: Product Ingestion Handled
+                pass
+        elif job_status == 'failed':
+            status_manager.update_status(status_id=status_id,changes={'status':'failed'})
 
 """
 Creating Celery Beat to trigger a function call in a fixed schedules.
 """
 app.conf.beat_schedule = {
+    # Every 10 seconds
     "print-hello-every-10-seconds": {
         "task": "celery_worker.print_hello",
         "schedule": 10.0,
+    },
+
+    # Every day at 7:00 AM
+    "daily-task-7am": {
+        "task": "celery_worker.start_scraping_listing",
+        "schedule": crontab(hour=7, minute=0),
+    },
+
+    # Every day at 1:00 AM
+    "daily-task-1am": {
+        "task": "celery_worker.start_scraping_listing",
+        "schedule": crontab(hour=1, minute=0),
+    },
+
+    # Every 15 minute
+    "task-every-1-minute": {
+        "task": "celery_worker.fetch_results",
+        "schedule": 900.0,
     },
 }

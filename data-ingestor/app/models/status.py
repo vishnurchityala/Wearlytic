@@ -13,9 +13,12 @@ class Status(BaseModel):
         Example: "job_12345"
     - status (Literal["processing", "completed", "failed"]): Current status of the ingestion process.  
         Example: "processing"
+    - entity_id (str): Reference ID of the related entity (listing ID or product URL ID).  
+        Example: "lst_12345"
     """
 
     id: str = Field(..., description="Unique identifier for the ingestion process.")
     ingestion_type: Literal["listing", "product"] = Field(..., description="Type of ingestion, either 'listing' or 'product'.")
     job_id: str = Field(..., description="ScrapingAgent job identifier for the background task.")
     status: Literal["processing", "completed", "failed"] = Field(..., description="Current status of the ingestion process.")
+    entity_id: str = Field(..., description="Reference ID of the related entity (listing ID or product URL ID).")

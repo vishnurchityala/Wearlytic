@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}" />
     <link rel="icon" href="{{ url_for('static', path='images/logo.png') }}" />
 </head>
 <body>
-    
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
         <div class="container-fluid px-md-5">
             <img src="{{ url_for('static', path='images/logo.png') }}" width="30px" alt="Logo" />
@@ -24,7 +24,115 @@
         </div>
     </nav>
 
-    <div class="row g-3 py-3 px-2 px-md-3">
+    <div class="row g-2 py-2 px-2 px-md-3">
+        <div class="col-12 col-md-5">
+            <div class="bg-white shadow-sm rounded-2 border py-2 px-2">
+                <div class="mb-2 px-1 d-flex align-items-center">
+                    <span class="fw-bold fs-6">Status</span>
+                    <span class="badge bg-light fs-xxsmall text-dark border fw-semibold rounded-pill px-2 py-1 ms-2">{{ statuses|length }} Status</span>
+                </div>
+                <!-- Table -->
+                <div class="table-responsive rounded-2" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-bordered table-sm mb-0 fs-xsmall">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" class="fw-semibold">Status ID</th>
+                                <th scope="col" class="fw-semibold">Job ID</th>
+                                <th scope="col" class="fw-semibold">Entity ID</th>
+                                <th scope="col" class="fw-semibold">Status</th>
+                                <th scope="col" class="fw-semibold">Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status in statuses %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="fs-xsmall">{{status.id}}</span>
+                                        <button
+                                            type="button"
+                                            class="ms-2 btn btn-link p-0 border-0 text-decoration-none text-muted"
+                                            style="line-height: 1; font-size: 0.7rem;"
+                                            data-id="{{ status.id }}"
+                                            onclick="copyToClipboard(this)"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Copy ID">
+                                            <i class="bi bi-files" style="font-size: 0.8rem;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="fs-xsmall">{{ status.job_id }}</span>
+                                        <button
+                                            type="button"
+                                            class="ms-2 btn btn-link p-0 border-0 text-decoration-none text-muted"
+                                            style="line-height: 1; font-size: 0.7rem;"
+                                            onclick="copyToClipboard(this)"
+                                            data-id="{{status.job_id}}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Copy ID">
+                                            <i class="bi bi-files" style="font-size: 0.8rem;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="fs-xsmall">{{ status.entity_id }}</span>
+                                        <button
+                                            type="button"
+                                            class="ms-2 btn btn-link p-0 border-0 text-decoration-none text-muted"
+                                            style="line-height: 1; font-size: 0.7rem;"
+                                            onclick="copyToClipboard(this)"
+                                            data-id="{{status.entity_id}}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Copy ID">
+                                            <i class="bi bi-files" style="font-size: 0.8rem;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                {% if status.status == "completed" %}
+                                <td><span class="badge border border-success text-success fs-xxsmall rounded-pill">Completed</span></td>
+                                {% elif status.status == "processing" %}
+                                <td><span class="badge border border-warning text-warning fs-xxsmall rounded-pill">Processing</span></td>
+                                {% elif status.status == "failed" %}
+                                <td><span class="badge border border-danger text-danger fs-xxsmall rounded-pill">Failed</span></td>
+                                {% endif %}
+                                <td class="text-capitalize">{{ status.ingestion_type }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="bg-white shadow-sm rounded-2 border py-2 px-2">
+                <div class="mb-2 px-1 d-flex align-items-center">
+                    <span class="fw-bold fs-6">Status Distribution</span>
+                </div>
+                <canvas id="statusBarChart" style="width: fit-content;" height="167"></canvas>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="bg-white shadow-sm rounded-2 border py-2 px-2">
+                <div class="mb-2 px-1 d-flex align-items-center">
+                    <span class="fw-bold fs-6">Source Distribution</span>
+                </div>
+                <div class="d-flex justify-content-center align-items-center">
+                    <div style="height:260px;">
+                        <canvas id="sourcePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-3 py-2 px-2 px-md-3">
         <div class="col-12 col-md-3">
             <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
                 <div class="d-flex justify-content-between align-items-center p-3">
@@ -245,8 +353,109 @@
         <div class="col-12 col-md-3">
             <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
                 <div class="d-flex justify-content-between align-items-center p-3">
-                    <span class="fw-bold fs-6">Product URLs</span>
-                    <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2">+ Add</button>
+                    <div>
+                        <span class="fw-bold fs-6">Product URLs</span>
+                        <span class="badge bg-light fs-xsmall text-dark border fw-semibold rounded-pill px-2 py-1 ms-1">
+                            {{ product_urls|length }} Product URLs
+                        </span>
+                    </div>
+                    <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#addProductUrlModal">
+                        + Add
+                    </button>
+                </div>
+                <div class="px-2 d-flex flex-column g-1 overflow-y-scroll" style="max-height: 650px;">
+                    {% for product in product_urls %}
+                    <div class="card border shadow-sm rounded-2 p-3 mb-2" style="max-width: 380px; font-size: 0.85rem;">
+                        <!-- ID + Page Index -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div
+                                    class="rounded-circle bg-dark text-white d-flex fs-xxsmall align-items-center justify-content-center fw-bold"
+                                    style="width: 22px; height: 22px;">
+                                    ID
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="text-muted fw-medium fs-xsmall text-truncate"
+                                        data-bs-toggle="tooltip"
+                                        title="{{ product.id }}">
+                                        {{ product.id[:25] }}{% if product.id|length > 25 %}...{% endif %}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        class="btn btn-link p-0 m-0 border-0 text-decoration-none text-muted"
+                                        style="line-height: 1; font-size: 0.75rem;"
+                                        data-id="{{ product.id }}"
+                                        onclick="copyToClipboard(this)"
+                                        data-bs-toggle="tooltip"
+                                        title="Copy Product ID">
+                                        <i class="bi bi-files" style="font-size: 0.85rem;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="badge rounded-pill border border-dark text-dark px-2 py-1 fw-semibold fs-xxsmall">
+                                Page Index: {{ product.page_index }}
+                            </span>
+                        </div>
+
+                        <!-- URL -->
+                        <div class="mb-2">
+                            <a href="{{ product.url }}" target="_blank" rel="noopener noreferrer"
+                            class="text-decoration-none text-primary fs-small text-truncate d-block"
+                            style="max-width: 100%;">
+                                {{ product.url[:50] }}{% if product.url|length > 50 %}...{% endif %}
+                            </a>
+                        </div>
+
+                        <!-- Metadata -->
+                        <div class="d-flex flex-column gap-1 text-muted fs-xsmall">
+                            <div class="d-flex align-items-center">
+                                <small class="m-0 fs-xxsmall border bg-light rounded-pill fw-bold text-dark px-1">Listing ID</small>
+                                <span class="ms-1 text-truncate"
+                                    data-bs-toggle="tooltip"
+                                    title="{{ product.listing_id }}">
+                                    {{ product.listing_id}}
+                                </span>
+                                <button
+                                    type="button"
+                                    class="ms-2 btn btn-link p-0 border-0 text-decoration-none text-muted"
+                                    style="line-height: 1; font-size: 0.75rem;"
+                                    data-id="{{ product.listing_id }}"
+                                    onclick="copyToClipboard(this)"
+                                    data-bs-toggle="tooltip"
+                                    title="Copy Listing ID">
+                                    <i class="bi bi-files" style="font-size: 0.85rem;"></i>
+                                </button>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <small class="m-0 fs-xxsmall border bg-light rounded-pill fw-bold text-dark px-1">Source ID</small>
+                                <span class="ms-1 text-truncate"
+                                    data-bs-toggle="tooltip"
+                                    title="{{ product.source_id }}">
+                                    {{ product.source_id }}
+                                </span>
+                                <button
+                                    type="button"
+                                    class="ms-2 btn btn-link p-0 border-0 text-decoration-none text-muted"
+                                    style="line-height: 1; font-size: 0.75rem;"
+                                    data-id="{{ product.source_id }}"
+                                    onclick="copyToClipboard(this)"
+                                    data-bs-toggle="tooltip"
+                                    title="Copy Source ID">
+                                    <i class="bi bi-files" style="font-size: 0.85rem;"></i>
+                                </button>
+                            </div>
+                            <div>Batched:
+                                <span class="fw-semibold text-capitalize">{{ product.batched }}</span>
+                            </div>
+                            <div>
+                                Batch ID:
+                                <span class="text-truncate">{{ product.batch_id or "—" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <p class="text-muted p-3">No product URLs found</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -561,23 +770,72 @@
             }
         });
         function copyToClipboard(button) {
-            const text = button.getAttribute("data-id");
+            const text = button.getAttribute("data-id");            
+            console.log("Copy button clicked, text to copy:", text);
+            if (!text) {
+                console.error("No text found in data-id attribute");
+                return;
+            }
+            if (!navigator.clipboard) {
+                console.log("Clipboard API not available, using fallback");
+                fallbackCopyTextToClipboard(text, button);
+                return;
+            }
             navigator.clipboard.writeText(text).then(() => {
-                let tooltip = bootstrap.Tooltip.getInstance(button);
-                if (!tooltip) {
-                    tooltip = new bootstrap.Tooltip(button);
+                console.log("Successfully copied to clipboard:", text);
+                showCopyFeedback(button);
+            }).catch(err => {
+                console.error("Clipboard copy failed, trying fallback:", err);
+                fallbackCopyTextToClipboard(text, button);
+            });
+        }
+        function fallbackCopyTextToClipboard(text, button) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-999px";
+            textArea.style.left = "-999px";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    console.log('Fallback copy successful');
+                    showCopyFeedback(button);
+                } else {
+                    console.error('Fallback copy failed');
                 }
-                const originalTitle = button.getAttribute("data-bs-original-title") || button.getAttribute("title") || "";
-                button.setAttribute("data-bs-original-title", "Copied ✓");
-                tooltip.setContent && tooltip.setContent({ '.tooltip-inner': "Copied ✓" });
+            } catch (err) {
+                console.error('Fallback copy error:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showCopyFeedback(button) {
+            let tooltip = bootstrap.Tooltip.getInstance(button);
+
+            if (tooltip) {
+                const originalTitle = button.getAttribute('title') || 'Copy ID';
+                tooltip.setContent({ '.tooltip-inner': "Copied ✓" });
                 tooltip.show();
                 setTimeout(() => {
+                    tooltip.setContent({ '.tooltip-inner': originalTitle });
                     tooltip.hide();
-                    button.setAttribute("data-bs-original-title", originalTitle || "Copy ID");
-                }, 500);
-            }).catch(err => {
-                console.error("Failed to copy: ", err);
-            });
+                }, 1500);
+            } else {
+                const tempTooltip = new bootstrap.Tooltip(button, {
+                    title: "Copied ✓",
+                    placement: "top",
+                    trigger: "manual"
+                });                
+                tempTooltip.show();
+                setTimeout(() => {
+                    tempTooltip.hide();
+                    tempTooltip.dispose();
+                }, 1500);
+            }
         }
         var deleteListingModal = document.getElementById('deleteListingModal');
         deleteListingModal.addEventListener('show.bs.modal', function (event) {
@@ -607,7 +865,51 @@
                 }
             }
         });
+    </script>
+    <script>
+    const statusLabels = {{ status_bar_chart_data["labels"] | tojson }};
+    const statusValues = {{ status_bar_chart_data["values"] | tojson }};
 
+    const ctx = document.getElementById('statusBarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels: statusLabels,
+        datasets: [{
+            label: 'Status Count',
+            data: statusValues,
+            backgroundColor: ['#4caf50', '#36a2eb', '#ff6384']
+        }]
+        },
+        options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+        }
+    });
+    const sourceLabels = {{ source_pie_chart_data["labels"] | tojson }};
+    const sourceValues = {{ source_pie_chart_data["values"] | tojson }};
+    const ctx2 = document.getElementById('sourcePieChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+        labels: sourceLabels,
+        datasets: [{
+            data: sourceValues,
+            backgroundColor: [
+            '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+            ]
+        }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+            position: 'bottom' // legend below the chart
+            }
+        }
+        }
+    });
     </script>
 </body>
 </html>

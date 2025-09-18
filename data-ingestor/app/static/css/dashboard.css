@@ -18,7 +18,13 @@ body {
     border-top: 1px solid #dee2e6;
     z-index: 1030;
 }
-
+  #loaderOverlay {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  #loaderOverlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
 /* ========== FONT UTILITIES ========== */
 .fs-xsmall {
     font-size: x-small;

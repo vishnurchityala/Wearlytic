@@ -147,3 +147,16 @@ class SourceManager:
         except Exception as e:
             logging.error(f"[DELETE] Failed to remove Listing {listing_id} from Source {source_id}: {e}")
             raise
+    def get_source_name(self, source_id: str) -> str | None:
+        try:
+            logging.info(f"[READ] Fetching Source name for ID: {source_id}")
+            result = self.collection.find_one({"id": source_id}, {"name": 1, "_id": 0})
+            if result and "name" in result:
+                logging.info(f"[READ] Source name fetched successfully for ID: {source_id}")
+                return result["name"]
+            else:
+                logging.warning(f"[READ] Source name not found for ID: {source_id}")
+                return None
+        except Exception as e:
+            logging.error(f"[READ] Failed to fetch Source name for {source_id}: {e}")
+            raise
