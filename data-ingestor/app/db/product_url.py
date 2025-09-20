@@ -102,3 +102,24 @@ class ProductUrlManager:
         except Exception as e:
             logging.error(f"[DELETE] Failed to delete ProductUrl {product_url_id}: {e}")
             raise
+    def product_url_exists(self, url: str) -> bool:
+        """
+        Check if a ProductUrl exists in the database by URL.
+
+        Args:
+            url (str): The URL to check.
+
+        Returns:
+            bool: True if the ProductUrl exists, False otherwise.
+        """
+        try:
+            logging.info(f"[CHECK] Checking existence of ProductUrl with URL: {url}")
+            exists = self.collection.count_documents({"url": url}, limit=1) > 0
+            if exists:
+                logging.info(f"[CHECK] ProductUrl with URL exists: {url}")
+            else:
+                logging.info(f"[CHECK] ProductUrl with URL does not exist: {url}")
+            return exists
+        except Exception as e:
+            logging.error(f"[CHECK] Failed to check ProductUrl existence for URL {url}: {e}")
+            raise

@@ -19,8 +19,11 @@ logger = get_task_logger(__name__)
 UPSTASH_REDIS_HOST = os.getenv("UPSTASH_REDIS_HOST")
 UPSTASH_REDIS_PORT = os.getenv("UPSTASH_REDIS_PORT")
 UPSTASH_REDIS_PASSWORD = os.getenv("UPSTASH_REDIS_PASSWORD")
-connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
-
+RUN_TYPE_LOCAL = os.getenv("RUN_TYPE_LOCAL")
+if RUN_TYPE_LOCAL == 'YES':
+    connection_link ="redis://localhost:6379/0"
+else:
+    connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
 celery_app = Celery(
     "scrapingagent",
     broker=connection_link,

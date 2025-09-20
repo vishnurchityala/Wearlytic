@@ -31,7 +31,11 @@ Celery Queue Configuration.
 UPSTASH_REDIS_HOST = os.getenv("UPSTASH_REDIS_HOST")
 UPSTASH_REDIS_PORT = os.getenv("UPSTASH_REDIS_PORT")
 UPSTASH_REDIS_PASSWORD = os.getenv("UPSTASH_REDIS_PASSWORD")
-connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
+RUN_TYPE_LOCAL = os.getenv("RUN_TYPE_LOCAL")
+if RUN_TYPE_LOCAL == 'YES':
+    connection_link ="redis://localhost:6379/0"
+else:
+    connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
 app = Celery(
     "dataingestor",
     broker=connection_link,
@@ -144,6 +148,8 @@ def fetch_results():
                 product_urls = result_response['result']['items']
                 listing_manager.update_listing(listing_id=entity_id,changes={'last_listed':str(datetime.now())})
                 for product_url in product_urls:
+                    if product_url_manager.product_url_exists(url=product_url['url']):
+                        continue
                     product_url_entity = ProductUrl(id=str(uuid.uuid4()),url=product_url['url'],source_id= source_id,listing_id=entity_id,page_index=product_url['page_rank'])
                     try:
                         product_url_manager.create_product_url(product_url_entity)

@@ -96,12 +96,13 @@ class ListingsManager:
 
     def get_oldest_listings_per_source(self) -> list[dict]:
         """
-        Fetch the oldest listing per source based on last_listed.
+        Fetch the oldest active listing per source based on last_listed.
         Returns only the listing objects, not the wrapper.
         """
         try:
-            logging.info("[READ] Fetching oldest listings per source, prioritizing unspraped listings")
+            logging.info("[READ] Fetching oldest active listings per source, prioritizing unscraped listings")
             pipeline = [
+                {"$match": {"active": True}},  # only active listings
                 {"$sort": {"source_id": 1, "last_listed": 1}},  # None comes first
                 {"$group": {
                     "_id": "$source_id",
@@ -110,8 +111,8 @@ class ListingsManager:
             ]
             results = list(self.collection.aggregate(pipeline))
             listings = [r["oldest_listing"] for r in results]  # extract only the listing objects
-            logging.info(f"[READ] Oldest listing objects fetched for {len(listings)} sources")
+            logging.info(f"[READ] Oldest active listing objects fetched for {len(listings)} sources")
             return listings
         except Exception as e:
-            logging.error(f"[READ] Failed to fetch oldest listings per source: {e}")
+            logging.error(f"[READ] Failed to fetch oldest active listings per source: {e}")
             raise
