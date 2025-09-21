@@ -334,8 +334,12 @@ def fetch_results():
                                 page_index=product_url_doc.get("page_index", 0),
                                 page_content=result_response['result'].get('page_content', "")
                             )
-                            product_manager.create_product(product=product)
-                            status_manager.update_status(status_id=status_id, changes={'status': 'completed'})
+                            try:
+                                product_manager.create_product(product=product)
+                                status_manager.update_status(status_id=status_id, changes={'status': 'completed'})
+                            except Exception as e:
+                                logger.error(f"[RESULT PROCESSING] Failed for job {job_id}: {e}")
+                                status_manager.update_status(status_id=status_id, changes={'status': 'failed'})
 
                 except Exception as e:
                     logger.error(f"[RESULT PROCESSING] Failed for job {job_id}: {e}")

@@ -3,3 +3,4 @@ from .security import router as SecurityRouter
 from .source import router as SourceRouter
 from .listing import router as ListingRouter
 from .dashboard import router as DashboardRouter
+from .ingest import router as IngestionRouter
