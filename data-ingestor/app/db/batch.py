@@ -144,3 +144,30 @@ class BatchManager:
         except Exception as e:
             logging.error(f"[DELETE] Failed to delete Batch {batch_id}: {e}")
             raise
+
+    def get_batch_with_space(self, capacity: int = 100) -> dict | None:
+        """
+        Fetch a batch that has space for more ProductUrls.
+        Default maximum capacity is 100.
+
+        Args:
+            capacity (int): Maximum allowed batch size (default=100).
+
+        Returns:
+            dict | None: Batch document with available space, or None if none found.
+        """
+        try:
+            logging.info(f"[READ] Fetching a batch with space (capacity < {capacity})")
+            batch = self.collection.find_one(
+                {"batch_size": {"$lt": capacity}},
+                sort=[("created_at", 1)]  # Optional: choose oldest batch first
+            )
+            if batch:
+                logging.info(f"[READ] Found batch with available space: {batch.get('id', 'Unknown')}")
+                return batch
+            else:
+                logging.warning("[READ] No batches with available space found")
+                return None
+        except Exception as e:
+            logging.error(f"[READ] Failed to fetch batch with space: {e}")
+            raise

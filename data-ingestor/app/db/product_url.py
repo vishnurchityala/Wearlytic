@@ -123,3 +123,20 @@ class ProductUrlManager:
         except Exception as e:
             logging.error(f"[CHECK] Failed to check ProductUrl existence for URL {url}: {e}")
             raise
+        
+    def get_unbatched_product_urls(self) -> list[dict]:
+        """
+        Fetch all ProductUrls that are not yet batched.
+        Assumes unbatched means 'batched' == False.
+
+        Returns:
+            list[dict]: List of unbatched ProductUrl documents.
+        """
+        try:
+            logging.info("[READ] Fetching unbatched ProductUrls")
+            results = list(self.collection.find({"batched": False}))
+            logging.info(f"[READ] Total unbatched ProductUrls fetched: {len(results)}")
+            return results
+        except Exception as e:
+            logging.error(f"[READ] Failed to fetch unbatched ProductUrls: {e}")
+            raise

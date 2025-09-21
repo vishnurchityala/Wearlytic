@@ -4,12 +4,11 @@ Importing Modules for Celery Workers.
 from celery import Celery
 from celery.schedules import crontab
 from celery.utils.log import get_task_logger
-from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager
-from app.models import Status, ProductUrl
+from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager, BatchManager
+from app.models import Status, ProductUrl, Batch
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
-import hashlib
 import uuid
 import os
 
@@ -24,7 +23,7 @@ listing_manager = ListingsManager()
 status_manager = StatusManager()
 source_manager = SourceManager()
 product_url_manager = ProductUrlManager()
-
+batch_manager = BatchManager()
 """
 Celery Queue Configuration.
 """
@@ -48,6 +47,8 @@ headers = {
     "Authorization": f"Bearer {SCRAPING_AGENT_TOKEN}",
     "Content-Type": "application/json"
 }
+
+MAXIMUM_BATCH_SIZE = int(os.getenv('MAXIMUM_BATCH_SIZE'))
 
 """
 Creating or Configuring Queue for DataIngestor
@@ -112,13 +113,58 @@ def start_scraping_listing():
         except Exception as e:
             logger.exception(f"Exception occurred while scraping {listing['url']}: {e}")
 
+@app.task(name="celery_worker.create_product_batches")
 def create_product_batches():
-    # TODO: Retrieve all ProductURLs that have not yet been assigned to a batch.
-    # TODO: Identify existing batches with available capacity.
-    # TODO: Assign unbatched ProductURLs to these partially filled batches.
-    # TODO: Create new batches for any remaining ProductURLs.
-    # TODO: Save all batches and persist them in the database.
-    pass
+    unbatched_product_urls = product_url_manager.get_unbatched_product_urls()
+    if not unbatched_product_urls:
+        logger.info("[BATCH] No unbatched ProductUrls found. Nothing to do.")
+        return []
+
+    logger.info(f"[BATCH] Found {len(unbatched_product_urls)} unbatched ProductUrls")
+
+    reusable_batch = batch_manager.get_batch_with_space(MAXIMUM_BATCH_SIZE)
+    batches_created_or_updated = []
+
+    if reusable_batch:
+        empty_space = MAXIMUM_BATCH_SIZE - reusable_batch["batch_size"]
+        assign_count = min(empty_space, len(unbatched_product_urls))
+        urls_for_reuse = unbatched_product_urls[:assign_count]
+
+        logger.info(f"[BATCH] Filling existing batch {reusable_batch['id']} with {len(urls_for_reuse)} ProductUrls")
+
+        for url in urls_for_reuse:
+            batch_manager.add_product_url(reusable_batch["id"], url["id"])
+            product_url_manager.update_product_url(url["id"], {"batched": True,"batch_id":reusable_batch['id']})
+
+        batches_created_or_updated.append(reusable_batch)
+        unbatched_product_urls = unbatched_product_urls[assign_count:]
+
+        if not unbatched_product_urls:
+            logger.info("[BATCH] All unbatched ProductUrls assigned to existing batch.")
+            return batches_created_or_updated
+
+    while unbatched_product_urls:
+
+        batch_urls = unbatched_product_urls[:MAXIMUM_BATCH_SIZE]
+        unbatched_product_urls = unbatched_product_urls[MAXIMUM_BATCH_SIZE:]
+
+        new_batch_id = str(uuid.uuid4())
+        new_batch = Batch(
+            id=new_batch_id,
+            urls=[url["id"] for url in batch_urls],
+            batch_size=len(batch_urls),
+            last_processed=None
+        )
+        logger.info(f"[BATCH] Creating new batch {new_batch_id} with {len(batch_urls)} ProductUrls")
+        batch_manager.create_batch(new_batch)
+
+        for url in batch_urls:
+            product_url_manager.update_product_url(url["id"], {"batched": True,"batch_id":new_batch_id})
+
+        batches_created_or_updated.append(new_batch.model_dump())
+
+    logger.info(f"[BATCH] Completed batching. {len(batches_created_or_updated)} batches created/updated.")
+
 
 def scrape_batch():
     # TODO: Retrieve the N oldest unprocessed batches.
@@ -164,29 +210,33 @@ def fetch_results():
 """
 Creating Celery Beat to trigger a function call in a fixed schedules.
 """
-app.conf.beat_schedule = {
-    # Every 10 seconds
-    "print-hello-every-10-seconds": {
-        "task": "celery_worker.print_hello",
-        "schedule": 10.0,
-    },
+app.conf.timezone = "Asia/Kolkata"
+app.conf.enable_utc = False
 
-    # Every day at 7:00 AM
+app.conf.beat_schedule = {
+    
+    # Every 10 seconds
+    # "print-hello-every-10-seconds": {
+    #     "task": "celery_worker.print_hello",
+    #     "schedule": 10.0,
+    # },
+
+    # Every day at 7:00 AM IST
     "daily-task-7am": {
         "task": "celery_worker.start_scraping_listing",
         "schedule": crontab(hour=7, minute=0),
     },
 
-    # Every day at 1:00 AM
+    # Every day at 1:00 AM IST
     "daily-task-1am": {
-        "task": "celery_worker.start_scraping_listing",
+        "task": "celery_worker.create_product_batches",
         "schedule": crontab(hour=1, minute=0),
     },
 
-    # Every 15 minute
-    "task-every-1-minute": {
+    # Every 15 minutes
+    "task-every-15-minutes": {
         "task": "celery_worker.fetch_results",
         "schedule": 900.0,
     },
 }
-app.conf.broker_transport_options = {'polling_interval': 60}
+app.conf.broker_transport_options = {'polling_interval': 180}
