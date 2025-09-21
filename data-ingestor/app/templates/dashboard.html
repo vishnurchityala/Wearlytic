@@ -413,7 +413,7 @@
                                 <span class="ms-1 text-truncate"
                                     data-bs-toggle="tooltip"
                                     title="{{ product.listing_id }}">
-                                    {{ product.listing_id}}
+                                    {{ product.listing_id[:25]}}
                                 </span>
                                 <button
                                     type="button"
@@ -431,7 +431,7 @@
                                 <span class="ms-1 text-truncate"
                                     data-bs-toggle="tooltip"
                                     title="{{ product.source_id }}">
-                                    {{ product.source_id }}
+                                    {{ product.source_id[:25] }}
                                 </span>
                                 <button
                                     type="button"

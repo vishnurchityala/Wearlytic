@@ -32,13 +32,8 @@ def home(request: Request):
     """
     username = request.session.get("user")
     if username:
-        sources = source_manager.get_sources()
-        listings = listings_mangaer.get_all_listings()
-        return templates.TemplateResponse(
-            "dashboard.html",
-            {"request": request, "username": username,"sources":sources,"listings":listings}
-        )
-    return RedirectResponse("/dashboard", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse("/dashboard", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
 
 @router.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):

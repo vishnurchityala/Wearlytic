@@ -245,6 +245,7 @@ def fetch_results():
                 source_id = listing_manager.get_listing(entity_id)['source_id']
                 product_urls = result_response['result']['items']
                 listing_manager.update_listing(listing_id=entity_id,changes={'last_listed':str(datetime.now())})
+                if len(product_urls) == 0:status_manager.update_status(status_id=status_id,changes={'status':'completed'})
                 for product_url in product_urls:
                     if product_url_manager.product_url_exists(url=product_url['url']):
                         status_manager.update_status(status_id=status_id,changes={'status':'completed'})
