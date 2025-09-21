@@ -461,9 +461,93 @@
         </div>
         <div class="col-12 col-md-3">
             <div class="bg-white shadow-sm rounded-2 h-100 pb-2 border">
-                <div class="d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center p-3">
                     <span class="fw-bold fs-6">Batches</span>
+                    <span class="badge bg-light fs-xsmall text-dark border fw-semibold rounded-pill px-2 py-1 ms-2">
+                        {{ batches|length }} Batches
+                    </span>
                     <!-- <button class="btn btn-sm btn-dark fw-bold fs-xsmall rounded-pill px-2">+ Add</button> -->
+                </div>
+                <div class="px-2 d-flex flex-column g-1 overflow-y-scroll" style="max-height: 650px;">
+                    {% for batch in batches %}
+                    <div class="card border shadow-sm rounded-2 p-2 mb-2" style="font-size: 0.75rem;">
+                        <!-- Header: Batch ID -->
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle bg-dark fw-bold text-white d-flex fs-xxsmall align-items-center justify-content-center"
+                                    style="width: 18px; height: 18px;">
+                                    ID
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="text-muted fs-xsmall"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="{{ batch.id }}">
+                                        {{ batch.id}}
+                                    </span>
+                                    <button type="button"
+                                            class="btn btn-link p-0 m-0 border-0 text-decoration-none text-muted"
+                                            style="line-height: 1; font-size: 0.65rem;"
+                                            data-id="{{ batch.id }}"
+                                            onclick="copyToClipboard(this)"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Copy ID">
+                                        <i class="bi bi-files" style="font-size: 0.7rem;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Body: Batch Details -->
+                        <div class="text-muted fs-xsmall">
+                            <div>Batch Size: {{ batch.batch_size }}</div>
+                            <div>URLs Count: {{ batch.urls|length }}</div>
+                            <div>
+                                Last Processed: 
+                                {% if batch.last_processed %}
+                                    {{ batch.last_processed }}
+                                {% else %}
+                                    Not yet processed
+                                {% endif %}
+                            </div>
+                            <div class="mt-1">
+                                <div class="d-flex align-items-center justify-content-start w-100 p-1"
+                                    data-bs-toggle="collapse" data-bs-target="#batchUrls{{ batch.id }}"
+                                    aria-expanded="false" aria-controls="batchUrls{{ batch.id }}"
+                                    style="font-size: 0.7rem; cursor: pointer;">
+                                    <span class="badge rounded-pill bg-light text-dark px-2 py-1" style="font-size: 0.65rem;">
+                                        View URLs <i class="bi bi-chevron-down"></i>
+                                    </span>
+                                </div>
+                                <div class="collapse mt-1" id="batchUrls{{ batch.id }}">
+                                    <ul class="list-group list-group-flush">
+                                        {% for url in batch.urls %}
+                                        <li class="list-group-item p-1 d-flex align-items-center justify-content-between" style="font-size: 0.65rem;">
+                                            <div>
+                                                <small class="m-0 fs-xxsmall border bg-light rounded-pill fw-bold text-dark px-1">URL ID</small>
+                                                {{ url }}
+                                            </div>
+                                            <button type="button"
+                                                    class="btn btn-link p-0 m-0 border-0 text-decoration-none text-muted"
+                                                    style="line-height: 1; font-size: 0.65rem;"
+                                                    data-id="{{ url }}"
+                                                    onclick="copyToClipboard(this)"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="Copy URL">
+                                                <i class="bi bi-files" style="font-size: 0.6rem;"></i>
+                                            </button>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted p-3">No batches found</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -905,7 +989,7 @@
         responsive: true,
         plugins: {
             legend: {
-            position: 'bottom' // legend below the chart
+            position: 'bottom'
             }
         }
         }

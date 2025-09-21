@@ -4,12 +4,13 @@ Importing Modules for Celery Workers.
 from celery import Celery
 from celery.schedules import crontab
 from celery.utils.log import get_task_logger
-from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager, BatchManager
-from app.models import Status, ProductUrl, Batch
+from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager, BatchManager, ProductManager
+from app.models import Status, ProductUrl, Batch, Product
 from dotenv import load_dotenv
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
+import time
 import os
 
 load_dotenv()
@@ -24,6 +25,7 @@ status_manager = StatusManager()
 source_manager = SourceManager()
 product_url_manager = ProductUrlManager()
 batch_manager = BatchManager()
+product_manager = ProductManager()
 """
 Celery Queue Configuration.
 """
@@ -49,6 +51,7 @@ headers = {
 }
 
 MAXIMUM_BATCH_SIZE = int(os.getenv('MAXIMUM_BATCH_SIZE'))
+MAXIMUM_BATCHES_TO_PROCESS = int(os.getenv('MAXIMUM_BATCHES_TO_PROCESS'))
 
 """
 Creating or Configuring Queue for DataIngestor
@@ -165,13 +168,63 @@ def create_product_batches():
 
     logger.info(f"[BATCH] Completed batching. {len(batches_created_or_updated)} batches created/updated.")
 
-
+@app.task(name="celery_worker.scrape_batch")
 def scrape_batch():
-    # TODO: Retrieve the N oldest unprocessed batches.
-    # TODO: For each ProductURL in the batch, trigger a ScrapingAgent API call.
-    # TODO: Create a status record for each ProductURL request.
-    # TODO: Update the batch record to reflect its current processing state.
-    pass
+    batches_to_process = batch_manager.get_top_n_batches(MAXIMUM_BATCHES_TO_PROCESS)
+    
+    for batch in batches_to_process:
+        urls = batch.get('urls', [])
+        if not urls:
+            logger.warning(f"[BATCH] Batch {batch['id']} has no URLs to process.")
+            continue
+        
+        logger.info(f"[BATCH] Processing Batch {batch['id']} with {len(urls)} URLs.")
+        
+        for product_url_id in urls:
+            try:
+                product_url_doc = product_url_manager.get_product_url(product_url_id=product_url_id)
+                product_url = product_url_doc.get('url')
+                if not product_url:
+                    logger.warning(f"[BATCH] URL not found for ID: {product_url_id}")
+                    continue
+
+                payload = {
+                    "webpage_url": product_url,
+                    "priority": "high",
+                    "type_page": "product"
+                }
+
+                response = requests.post(
+                    f"{SCRAPING_AGENT_ENDPOINT}/scrape",
+                    json=payload,
+                    headers=headers,
+                    timeout=20
+                )
+
+                if response.status_code == 200:
+                    job_id = response.json().get('job_id')
+                    logger.info(f"[BATCH] Scraping job created for {product_url_id}, job_id: {job_id}")
+                    status = Status(
+                        id=str(uuid.uuid4()),
+                        ingestion_type="product",
+                        job_id=job_id,
+                        status="processing",
+                        entity_id=product_url_id
+                    )
+                    status_manager.create_status(status)
+                else:
+                    logger.error(
+                        f"[BATCH] Failed to call Scraping Agent for {product_url_id}. "
+                        f"Status code: {response.status_code}, Response: {response.text}"
+                    )
+            except Exception as e:
+                logger.error(f"[BATCH] Exception while processing URL {product_url_id}: {e}")
+
+        batch_manager.update_batch(
+            batch_id=batch['id'],
+            changes={"last_processed": str(datetime.now())}
+        )
+        logger.info(f"[BATCH] Finished processing Batch {batch['id']}")
 
 @app.task(name="celery_worker.fetch_results")
 def fetch_results():
@@ -182,28 +235,80 @@ def fetch_results():
         logger.info(f"Fetching Status for Job-ID : {status['job_id']}")
         status_response = requests.get(fetch_url,headers=headers).json()
         entity_id = status['entity_id']
-        source_id = listing_manager.get_listing(entity_id)['source_id']
         logger.info(f"Fetched Status for Job-ID : {status['job_id']}")
         job_status = status_response['status']
         entity_type = status_response['type_page']
         if job_status == 'completed':
             fetch_result_url = SCRAPING_AGENT_ENDPOINT+"/scrape/"+status['job_id']+"/result/"
             result_response = requests.get(fetch_result_url,headers=headers).json()
-            status_manager.update_status(status_id=status_id,changes={'status':'completed'})
             if entity_type == 'listing':
+                source_id = listing_manager.get_listing(entity_id)['source_id']
                 product_urls = result_response['result']['items']
                 listing_manager.update_listing(listing_id=entity_id,changes={'last_listed':str(datetime.now())})
                 for product_url in product_urls:
                     if product_url_manager.product_url_exists(url=product_url['url']):
+                        status_manager.update_status(status_id=status_id,changes={'status':'completed'})
                         continue
-                    product_url_entity = ProductUrl(id=str(uuid.uuid4()),url=product_url['url'],source_id= source_id,listing_id=entity_id,page_index=product_url['page_rank'])
+                    product_url_entity = ProductUrl(id=str(uuid.uuid4()),url=product_url['url'],source_id=source_id,listing_id=entity_id,page_index=product_url['page_rank'])
                     try:
                         product_url_manager.create_product_url(product_url_entity)
+                        status_manager.update_status(status_id=status_id,changes={'status':'completed'})
                     except Exception as e:
                         print(product_url['url'])
             elif entity_type == 'product':
-                # TODO: Product Ingestion Handled
-                pass
+                product_id = result_response['result']['id']
+                search_product = product_manager.get_product(product_id=product_id)
+                if search_product:
+                    updates = {}
+                    if result_response['result'].get('price') is not None:
+                        updates["price"] = result_response['result']['price']
+                    new_colors = result_response['result'].get('colors')
+                    if new_colors:
+                        updates["colors"] = new_colors
+                    new_size = result_response['result'].get('size')
+                    if new_size:
+                        updates["size"] = new_size
+                    if result_response['result'].get('rating') is not None:
+                        updates["rating"] = result_response['result']['rating']
+                    if result_response['result'].get('review_count') not in (None, 0):
+                        updates["review_count"] = result_response['result']['review_count']
+                    if result_response['result'].get('scraped_datetime') is not None:
+                        updates["scraped_datetime"] = result_response['result']['scraped_datetime']
+                    new_page_content = result_response['result'].get('page_content')
+                    if new_page_content:
+                        updates["page_content"] = new_page_content
+                    if updates:
+                        product_manager.update_product(product_id=product_id, changes=updates)
+                    status_manager.update_status(status_id=status_id, changes={'status': 'completed'})
+                else:
+                    product_url_doc = product_url_manager.get_product_url_by_url(result_response['result']['url'])
+                    if not product_url_doc:
+                        status_manager.update_status(status_id=status_id,changes={'status':'failed'})
+                        raise ValueError(f"No ProductUrl found for URL: {result_response['result']['url']}")
+                    product = Product(
+                        id=result_response['result']['id'],
+                        url_id=product_url_doc["id"],
+                        title=result_response['result']['title'],
+                        price=result_response['result']['price'],
+                        category=result_response['result']['category'],
+                        gender=result_response['result']['gender'],
+                        url=result_response['result']['url'],
+                        image_url=result_response['result']['image_url'],
+                        colors=result_response['result'].get('colors', []),
+                        size=result_response['result'].get('size', []),
+                        material=result_response['result'].get('material', ""),
+                        description=result_response['result'].get('description', ""),
+                        rating=result_response['result'].get('rating'),
+                        review_count=result_response['result'].get('review_count', 0),
+                        processed=False,
+                        scraped_datetime=result_response['result']['scraped_datetime'],
+                        processed_datetime=None,
+                        page_index=product_url_doc.get("page_index", 0),
+                        page_content=result_response['result'].get('page_content', "")
+                    )
+                    product_manager.create_product(product=product)
+                    status_manager.update_status(status_id=status_id,changes={'status':'completed'})
+
         elif job_status == 'failed':
             status_manager.update_status(status_id=status_id,changes={'status':'failed'})
 
@@ -212,25 +317,38 @@ Creating Celery Beat to trigger a function call in a fixed schedules.
 """
 app.conf.timezone = "Asia/Kolkata"
 app.conf.enable_utc = False
-
 app.conf.beat_schedule = {
-    
-    # Every 10 seconds
-    # "print-hello-every-10-seconds": {
-    #     "task": "celery_worker.print_hello",
-    #     "schedule": 10.0,
-    # },
-
     # Every day at 7:00 AM IST
     "daily-task-7am": {
         "task": "celery_worker.start_scraping_listing",
         "schedule": crontab(hour=7, minute=0),
     },
+    # Every day at 7:00 PM IST
+    "daily-task-7pm": {
+        "task": "celery_worker.start_scraping_listing",
+        "schedule": crontab(hour=19, minute=0),
+    },
 
-    # Every day at 1:00 AM IST
-    "daily-task-1am": {
+    # Every day at 8:00 AM IST
+    "daily-task-8am": {
         "task": "celery_worker.create_product_batches",
-        "schedule": crontab(hour=1, minute=0),
+        "schedule": crontab(hour=8, minute=0),
+    },
+    # Every day at 8:00 PM IST
+    "daily-task-8pm": {
+        "task": "celery_worker.create_product_batches",
+        "schedule": crontab(hour=20, minute=0),
+    },
+
+    # Every day at 9:00 AM IST
+    "daily-task-9am": {
+        "task": "celery_worker.scrape_batch",
+        "schedule": crontab(hour=9, minute=0),
+    },
+    # Every day at 9:00 PM IST
+    "daily-task-9pm": {
+        "task": "celery_worker.scrape_batch",
+        "schedule": crontab(hour=21, minute=0),
     },
 
     # Every 15 minutes
@@ -239,4 +357,5 @@ app.conf.beat_schedule = {
         "schedule": 900.0,
     },
 }
+
 app.conf.broker_transport_options = {'polling_interval': 180}

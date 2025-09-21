@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
 from dotenv import load_dotenv
-from app.db import SourceManager, ListingsManager, StatusManager, ProductUrlManager
+from app.db import SourceManager, ListingsManager, StatusManager, ProductUrlManager, BatchManager
 from collections import Counter
 from app.models import Source
 from datetime import datetime
@@ -13,6 +13,7 @@ source_manager = SourceManager()
 listings_mangaer = ListingsManager()
 status_manager = StatusManager()
 product_url_mangaer = ProductUrlManager()
+batch_manager = BatchManager()
 
 load_dotenv()
 
@@ -39,6 +40,7 @@ def home(request: Request):
         listings = listings_mangaer.get_all_listings()
         statuses = status_manager.get_all_status()
         product_urls = product_url_mangaer.get_all_product_urls()
+        batches = batch_manager.get_all_batches()
         status_bar_graph_data_dict = {
             "Completed": 0,
             "Processing": 0,
@@ -66,6 +68,6 @@ def home(request: Request):
         }
         return templates.TemplateResponse(
             "dashboard.html",
-            {"request": request, "username": username,"sources":sources,"listings":listings,"statuses":statuses,"product_urls":product_urls,"status_bar_chart_data":status_bar_chart_data,"source_pie_chart_data":source_pie_chart_data}
+            {"request": request, "username": username,"sources":sources,"listings":listings,"statuses":statuses,"product_urls":product_urls,"status_bar_chart_data":status_bar_chart_data,"source_pie_chart_data":source_pie_chart_data,"batches":batches}
         )
     return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)

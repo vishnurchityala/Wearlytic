@@ -3,11 +3,13 @@ from .listing import ListingsManager
 from .product_url import ProductUrlManager
 from .status import StatusManager
 from .batch import BatchManager
+from .product import ProductManager
 
 __all__ = [
     "SourceManager",
     "ListingsManager",
     "ProductUrlManager",
     "StatusManager",
-    "BatchManager"
+    "BatchManager",
+    "ProductManager"
 ]

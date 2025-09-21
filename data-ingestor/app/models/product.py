@@ -8,8 +8,6 @@ class Product(BaseModel):
 
     - id (str): Unique identifier for the product.  
         Example: "prd_001"
-    - job_id (str): ScrapingAgent job identifier assigned to this product.  
-        Example: "job_12345"
     - url_id (str): Unique URL identifier for the product.  
         Example: "url_789"
     - title (str): Title of the product from the product page.  
@@ -49,7 +47,6 @@ class Product(BaseModel):
     """
 
     id: str = Field(..., description="Unique identifier for the product.")
-    job_id: str = Field(..., description="ScrapingAgent job identifier assigned to this product.")
     url_id: str = Field(..., description="Unique URL identifier for the product.")
     title: str = Field(..., description="Title of the product from the product page.")
     price: float = Field(..., description="Price of the product.")

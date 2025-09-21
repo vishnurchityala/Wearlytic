@@ -171,3 +171,41 @@ class BatchManager:
         except Exception as e:
             logging.error(f"[READ] Failed to fetch batch with space: {e}")
             raise
+
+    def get_top_n_batches(self, n: int = 10) -> list[dict]:
+        """
+        Fetch top `n` batches prioritizing unprocessed batches first.
+        If unprocessed batches are fewer than `n`, include oldest processed batches.
+
+        Args:
+            n (int): Number of batches to return (default=5).
+
+        Returns:
+            list[dict]: List of batch documents.
+        """
+        try:
+            logging.info(f"[READ] Fetching top {n} batches (unprocessed first, then oldest processed)")
+            
+            # Step 1: Fetch unprocessed batches
+            unprocessed_batches = list(
+                self.collection.find({"last_processed": None}).sort("created_at", 1).limit(n)
+            )
+            remaining = n - len(unprocessed_batches)
+
+            if remaining > 0:
+                # Step 2: Fetch oldest processed batches if needed
+                processed_batches = list(
+                    self.collection.find({"last_processed": {"$ne": None}})
+                    .sort("last_processed", 1)
+                    .limit(remaining)
+                )
+                result_batches = unprocessed_batches + processed_batches
+            else:
+                result_batches = unprocessed_batches
+
+            logging.info(f"[READ] Fetched {len(result_batches)} batches successfully")
+            return result_batches
+
+        except Exception as e:
+            logging.error(f"[READ] Failed to fetch top {n} batches: {e}")
+            raise

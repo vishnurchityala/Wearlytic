@@ -140,3 +140,26 @@ class ProductUrlManager:
         except Exception as e:
             logging.error(f"[READ] Failed to fetch unbatched ProductUrls: {e}")
             raise
+
+    def get_product_url_by_url(self, url: str) -> str | None:
+        """
+        Fetch the ProductUrl ID by searching for the given URL string.
+
+        Args:
+            url (str): The URL to search.
+
+        Returns:
+            str | None: The ProductUrl ID if found, else None.
+        """
+        try:
+            logging.info(f"[READ] Fetching ProductUrl ID for URL: {url}")
+            result = self.collection.find_one({"url": url}, {"id": 1})
+            if result:
+                logging.info(f"[READ] Found ProductUrl ID: {result['id']} for URL: {url}")
+                return result
+            else:
+                logging.warning(f"[READ] No ProductUrl found for URL: {url}")
+                return None
+        except Exception as e:
+            logging.error(f"[READ] Failed to fetch ProductUrl ID for URL {url}: {e}")
+            raise
