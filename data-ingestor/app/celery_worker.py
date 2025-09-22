@@ -317,7 +317,7 @@ def fetch_results():
                                 id=result_response['result']['id'],
                                 url_id=product_url_doc["id"],
                                 title=result_response['result']['title'],
-                                price=result_response['result']['price'],
+                                price=float(result_response['result']['price']),
                                 category=result_response['result']['category'],
                                 gender=result_response['result']['gender'],
                                 url=result_response['result']['url'],
