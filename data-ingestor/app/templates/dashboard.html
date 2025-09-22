@@ -14,7 +14,13 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
         <div class="container-fluid px-md-5">
             <img src="{{ url_for('static', path='images/logo.png') }}" width="30px" alt="Logo" />
-            <a class="navbar-brand fw-bold ms-md-1" href="/" style="font-size: medium;">Wearlytic - Data Ingestor</a>
+            <a class="navbar-brand fw-bold ms-md-1" href="/" style="font-size: medium;">
+                Wearlytic - Data Ingestor
+                <span class="badge rounded-pill text-dark ms-2 border bg-light" >
+                    {{ products_count }} Products Ingested
+                </span>
+
+            </a>
             <form method="post" action="/logout" class="ms-auto">
                 <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center gap-1 px-3">
                     <span style="font-size: 0.8rem; font-weight: bold;">Admin</span>

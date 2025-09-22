@@ -116,3 +116,14 @@ class ProductManager:
         except Exception as e:
             logging.error(f"[READ] Failed to fetch unprocessed Products: {e}")
             raise
+        
+    def get_products_count(self) -> int:
+        """Return the total number of products in the collection"""
+        try:
+            logging.info("[COUNT] Getting total number of Products")
+            count = self.collection.count_documents({})
+            logging.info(f"[COUNT] Total Products: {count}")
+            return count
+        except Exception as e:
+            logging.error(f"[COUNT] Failed to get Products count: {e}")
+            raise
