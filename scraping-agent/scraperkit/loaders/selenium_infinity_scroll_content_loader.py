@@ -121,6 +121,9 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
             self.driver.quit()
         if self.service:
             self.service.stop()
+            
+    def __del__(self):
+        self.close()
 
 
 if __name__ == "__main__":

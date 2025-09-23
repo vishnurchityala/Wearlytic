@@ -45,3 +45,6 @@ class PlaywrightContentLoader(BaseContentLoader):
             self.browser.close()
         if self.playwright:
             self.playwright.stop()
+
+    def __del__(self):
+        self.close()

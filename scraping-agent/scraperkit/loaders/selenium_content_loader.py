@@ -109,6 +109,8 @@ class SeleniumContentLoader(BaseContentLoader):
         if self.service:
             self.service.stop()
 
+    def __del__(self):
+        self.close()
 
 if __name__ == "__main__":
     demo_page_url = "https://bluorng.com/collections/polos"
