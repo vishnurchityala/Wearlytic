@@ -13,7 +13,7 @@ test-scraping-agent:
 		&& echo "<=========== ScrapingAgent Service is Started ===========>" \
 		|| (echo "<=========== ScrapingAgent is NOT running! =========>" && exit 1)
 
-run: test-scraping-agent start-celery-beats
+run: start-redis start-mongo start-celery-beats
 	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
@@ -53,7 +53,7 @@ kill-celery-workers:
 	fi
 	@echo "<========== Celery Processes Stopped ===========>"
 
-stop: kill-celery-workers
+stop: kill-celery-workers stop-redis stop-mongo 
 	@echo "<========== Stopping Data Ingestor Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \
@@ -75,4 +75,23 @@ stop: kill-celery-workers
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	@echo "<========== Clean Up Completed ==========>"
 
+start-mongo:
+	@echo "<========== Starting MongoDB Server ===========>"
+	@command -v brew >/dev/null && brew services start mongodb-community || echo "Brew not available; please start MongoDB manually."
+	@echo "<========== MongoDB Server Started (if available) ===========>"
+
+start-redis:
+	@echo "<========== Starting Redis Server ===========>"
+	@command -v brew >/dev/null && brew services start redis || echo "Brew not available; please start Redis manually."
+	@echo "<========== Redis Server Started (if available) ===========>"
+
+stop-redis:
+	@echo "<========== Stopping Redis Server ===========>"
+	@command -v brew >/dev/null && brew services stop redis || echo "Brew not available; please stop Redis manually."
+	@echo "<========== Redis Server Stopped (if available) ===========>"
+
+stop-mongo:
+	@echo "<========== Stopping MongoDB Server ===========>"
+	@command -v brew >/dev/null && brew services stop mongodb-community || echo "Brew not available; please stop MongoDB manually."
+	@echo "<========== MongoDB Server Stopped (if available) ===========>"
 

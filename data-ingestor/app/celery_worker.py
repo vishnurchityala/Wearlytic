@@ -3,6 +3,7 @@ Importing Modules for Celery Workers.
 """
 from celery import Celery
 from celery.schedules import crontab
+from celery.exceptions import Ignore
 from celery.utils.log import get_task_logger
 from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager, BatchManager, ProductManager
 from app.models import Status, ProductUrl, Batch, Product
@@ -58,6 +59,24 @@ Creating or Configuring Queue for DataIngestor
 """
 app.conf.task_default_queue = "data_ingestor_queue"
 
+def is_scraping_agent_active():
+    """
+    Check if the Scraping Agent is reachable.
+    Returns True if active, False otherwise.
+    Does not raise exceptions.
+    """
+    try:
+        response = requests.get(url=SCRAPING_AGENT_ENDPOINT, timeout=5)
+        if response.status_code == 200:
+            logger.info("Scraping agent is active.")
+            return True
+        else:
+            logger.warning(f"Scraping agent returned status code {response.status_code}. Skipping task.")
+            return False
+    except requests.RequestException as e:
+        logger.warning(f"Scraping agent not reachable: {e}. Skipping task.")
+        return False
+
 """
 Celery tasks to automate.
 """
@@ -82,6 +101,9 @@ def start_scraping_listing():
     Trigger scraping for the oldest listing per source via Scraping Agent.
     Records job IDs in status tracker.
     """
+    if is_scraping_agent_active() == False:
+        logger.warning("Scraping agent not active. Quitting task.")
+        raise Ignore() 
     listings = listing_manager.get_oldest_listings_per_source()
 
     if not listings:
@@ -170,6 +192,9 @@ def create_product_batches():
 
 @app.task(name="celery_worker.scrape_batch")
 def scrape_batch():
+    if not is_scraping_agent_active():
+        logger.warning("Scraping agent not active. Quitting task.")
+        raise Ignore() 
     batches_to_process = batch_manager.get_top_n_batches(MAXIMUM_BATCHES_TO_PROCESS)
     
     for batch in batches_to_process:
@@ -228,6 +253,9 @@ def scrape_batch():
 
 @app.task(name="celery_worker.fetch_results")
 def fetch_results():
+    if not is_scraping_agent_active():
+        logger.warning("Scraping agent not active. Quitting task.")
+        raise Ignore() 
     processing_statuses = status_manager.get_status_by_status('processing')
 
     for status in processing_statuses:

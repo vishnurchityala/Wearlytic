@@ -136,7 +136,9 @@ class AmazonScraper(BaseScraper):
                 raise DataParsingException("Price text is empty")
 
             try:
-                price = int(price_text.replace(",", ""))
+                # OLD Code --> price = int(price_text.replace(",", ""))
+                price = float(price_text.replace(",", ""))
+                
             except ValueError:
                 raise DataParsingException(f"Price text '{price_text}' is not a valid integer")
 
