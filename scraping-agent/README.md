@@ -24,12 +24,9 @@ This folder contains a modular web scraping service for product and listing data
 
 ## API Endpoints (see `api/routes/`)
 
-- **POST `/api/scrape/listing/`**: Start a listing scrape job
-- **GET `/api/scrape/listing/{task_id}/status/`**: Get status of a listing job
-- **GET `/api/scrape/listing/{task_id}/result/`**: Get results of a listing job
-- **POST `/api/scrape/product/`**: Start a product scrape job
-- **GET `/api/scrape/product/{task_id}/status/`**: Get status of a product job
-- **GET `/api/scrape/product/{task_id}/result/`**: Get results of a product job
+- **POST `/api/scrape`**: Start a scraping job
+- **GET `/api/scrape/{task_id}/status/`**: Get status of a scraping job
+- **GET `/api/scrape/{task_id}/result/`**: Get results of a scraping job
 
 ## Extending
 
