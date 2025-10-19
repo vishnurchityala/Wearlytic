@@ -155,6 +155,8 @@ class ScraperLRUCache:
         """
         Remove the oldest scraper from the global doubly linked list and the corresponding
         local doubly linked list. This is called automatically when the cache exceeds max_size.
+
+        Also deletes the scraper object to free resources.
         """
         oldest_global = self.global_head
         if not oldest_global:
@@ -187,6 +189,10 @@ class ScraperLRUCache:
 
         local_node.prev = local_node.next = None
         oldest_global.prev = oldest_global.next = None
+
+        # Delete the scraper object to free memory/resources
+        del oldest_global.scraper
+        del local_node.scraper
 
         # Update or delete local DLL entry
         if not local_head and not local_tail:
