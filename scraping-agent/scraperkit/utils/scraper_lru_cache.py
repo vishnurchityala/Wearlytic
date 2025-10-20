@@ -59,9 +59,8 @@ class ScraperLRUCache:
 
             local_node = local_tail
             global_node = local_node.global_node
-            scraper = global_node.scraper  # Save scraper to return later
+            scraper = global_node.scraper
 
-            # === Remove from global DLL ===
             if global_node.prev:
                 global_node.prev.next = global_node.next
             else:
@@ -74,7 +73,6 @@ class ScraperLRUCache:
 
             global_node.prev = global_node.next = None
 
-            # === Remove from local DLL ===
             if local_node.prev:
                 local_node.prev.next = local_node.next
             else:
@@ -87,7 +85,6 @@ class ScraperLRUCache:
 
             local_node.prev = local_node.next = None
 
-            # Update or delete local DLL entry
             if not local_head and not local_tail:
                 del self.source_dll_map[source_website]
             else:
@@ -95,7 +92,6 @@ class ScraperLRUCache:
 
             self.global_count -= 1
 
-            # Delete the nodes to free memory
             del global_node
             del local_node
 
@@ -115,7 +111,6 @@ class ScraperLRUCache:
             global_node = GlobalDLLNode(local_node=local_node, scraper=scraper_object, source_website=source_website)
             local_node.global_node = global_node
 
-            # === Add to global DLL tail (newest) ===
             global_node.prev = self.global_tail
             global_node.next = None
             if self.global_tail:
@@ -124,7 +119,6 @@ class ScraperLRUCache:
             if not self.global_head:
                 self.global_head = global_node
 
-            # === Add to local DLL tail (newest) ===
             local_head, local_tail = self.source_dll_map.get(source_website, (None, None))
             local_node.prev = local_tail
             local_node.next = None
@@ -138,7 +132,6 @@ class ScraperLRUCache:
 
             self.global_count += 1
 
-            # === Evict if over capacity ===
             if self.global_count > self.max_size:
                 self._evict_oldest()
 
@@ -153,7 +146,6 @@ class ScraperLRUCache:
 
         source_website = oldest_global.source_website
 
-        # === Remove from global DLL ===
         self.global_head = oldest_global.next
         if self.global_head:
             self.global_head.prev = None
@@ -162,7 +154,6 @@ class ScraperLRUCache:
 
         self.global_count -= 1
 
-        # === Remove from local DLL ===
         local_node = oldest_global.local_node
         local_head, local_tail = self.source_dll_map.get(source_website, (None, None))
 
@@ -179,16 +170,13 @@ class ScraperLRUCache:
         local_node.prev = local_node.next = None
         oldest_global.prev = oldest_global.next = None
 
-        # Delete scraper to release resources
         del oldest_global.scraper
         del local_node.scraper
 
-        # Update or remove from source map
         if not local_head and not local_tail:
             del self.source_dll_map[source_website]
         else:
             self.source_dll_map[source_website] = (local_head, local_tail)
 
-        # Delete nodes
         del oldest_global
         del local_node

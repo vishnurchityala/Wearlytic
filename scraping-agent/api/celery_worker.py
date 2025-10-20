@@ -38,6 +38,18 @@ celery_app.conf.task_queues = [
 celery_app.conf.task_default_queue = "scraping_agent_scrape_medium"
 celery_app.conf.broker_transport_options = {'polling_interval': 60}
 
+"""
+TODO:
+Refactor Celery tasks to improve structure, clarity, and reliability:
+
+1. Extract repetitive logic (e.g., job status updates, result creation, logging) into reusable helper functions.
+2. Improve exception handling by logging full stack traces and handling scraper-specific errors more gracefully.
+3. Make pagination and scraping loops more robust to prevent infinite loops or premature termination.
+4. Ensure consistent use of 'completed_at' timestamps and accurate job status transitions.
+5. Implement caching for scraper instances to avoid redundant instantiation and improve performance.
+6. Add validation and sanitization for incoming URLs to prevent failures on invalid input.
+"""
+
 
 @celery_app.task(name="scrape.listing", bind=True)
 def scrape_listing_task(self, url: str):
