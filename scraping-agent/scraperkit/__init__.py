@@ -5,9 +5,9 @@ from scraperkit.scrapers import JayWalkingScraper
 from scraperkit.scrapers import SouledStoreScraper
 
 SCRAPER_URL_MAP = {
-    "amazon.in": AmazonScraper,
-    "myntra.com": MyntraScraper,
-    "bluorng.com": BluOrngScraper,
-    "jaywalking.in": JayWalkingScraper,
-    "thesouledstore.com": SouledStoreScraper
+    "amazon": AmazonScraper,
+    "myntra": MyntraScraper,
+    "bluorng": BluOrngScraper,
+    "jaywalking": JayWalkingScraper,
+    "thesouledstore": SouledStoreScraper
 }

@@ -5,7 +5,8 @@ from celery import Celery
 from celery.utils.log import get_task_logger
 from kombu import Queue
 
-from scraperkit.utils import get_scraper_from_url
+from scraperkit.utils import get_scraper_from_url, extract_domain
+from scraperkit.utils import cache as ScraperCache
 from api.db import JobsManager, JobResultsManager
 from api.models import Listing, ListingItem, JobResult
 
@@ -97,8 +98,8 @@ def scrape_listing_task(self, url: str):
         )
         job_result_manager.create_result(result)
         job_manager.update_job(job_id=self.request.id,updates={"status":"failed","completed_at":datetime.now()})
-        return f"Scrape Listing Task : {url}"
-
+    
+    ScraperCache.insert(extract_domain(url),scraper_object=scraper)
     return f"Scrape Listing Task : {url}"
 
 @celery_app.task(name="scrape.product", bind=True)
@@ -131,8 +132,8 @@ def scrape_product_task(self, url: str):
         )
         job_result_manager.create_result(result)
         job_manager.update_job(job_id=self.request.id,updates={"status":"failed","completed_at":datetime.now()})
-        return f"Scrape Product Task : {url}"
 
     time.sleep(20)
     job_manager.update_job(job_id=self.request.id,updates={"status":"completed","completed_at":datetime.now()})
+    ScraperCache.insert(extract_domain(url),scraper_object=scraper)
     return f"Scrape Product Task : {url}"
