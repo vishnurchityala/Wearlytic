@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 from urllib.parse import urlparse
 
 def get_scraper_from_url(url: str):
+    """
+    TODO: Refactor the domain-to-scraper class mapping logic to directly check for the specific domain instead of using an iterative search.
+    """
     from scraperkit import SCRAPER_URL_MAP
     domain = urlparse(url).netloc.replace("www.", "")
     for known_domain, scraper_class in SCRAPER_URL_MAP.items():
