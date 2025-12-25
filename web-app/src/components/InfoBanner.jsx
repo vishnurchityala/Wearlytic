@@ -54,7 +54,7 @@ function InfoBanner() {
         <img
           src={image}
           alt="Feature preview"
-          className="w-full md:w-120 grayscale hover:grayscale-0 transition duration-300 object-cover"
+          className="w-full md:w-120 h-80 md:h-125 transition duration-300 object-cover"
         />
 
         <div className="flex flex-col items-center md:items-start text-center md:text-left gap-4">
