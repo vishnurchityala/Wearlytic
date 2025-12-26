@@ -33,7 +33,7 @@ function InfoCards() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-12 sm:px-25 py-10">
         {cardData.map(({ step, image, title, description }) => (
           <div key={step} className="bg-white shadow-xl rounded-xl p-4 h-82">
-            <p className="bg-black text-white font-bold anton-regular rounded-full w-8 h-8 flex items-center justify-center">
+            <p className="bg-black text-white font-bold text-2xl anton-regular rounded-full w-10 h-10 flex items-center justify-center">
               {step}
             </p>
 
