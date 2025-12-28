@@ -6,6 +6,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import LandingPage from './pages/LandingPage.jsx';
+import { AgentPage } from './pages/AgentPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: "/landing",
     element: <LandingPage/>,
+  },
+  {
+    path: "/playground",
+    element: <AgentPage/>,
   },
 ]);
 

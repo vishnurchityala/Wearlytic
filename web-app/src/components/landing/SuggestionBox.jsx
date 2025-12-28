@@ -6,11 +6,11 @@ function SuggestionBox() {
                     Didn't find what you were looking for ?
                 </p>
 
-                <p className="outfit-regular font-light mt-4 text-base sm:text-lg md:text-xl w-full sm:w-[70%] md:w-[50%]">
+                <p className="outfit-regular font-light mt-5 text-base sm:text-lg md:text-xl w-full sm:w-[70%] md:w-[50%]">
                     Our team is dedicated to provide personalised answers and discuss your specific needs.
                 </p>
 
-                <button className="mt-6 px-6 py-3 text-base sm:text-lg text-white bg-black rounded-full outfit-regular">
+                <button className="mt-6 px-6 py-3 text-base sm:text-lg text-white bg-black rounded-full outfit-regular font-medium">
                     Contact Us <span className="px-1 font-bold">→</span>
                 </button>
             </div>

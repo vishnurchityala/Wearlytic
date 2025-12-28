@@ -28,7 +28,7 @@ const cardData = [
 function InfoCards() {
   return (
     <section className="mt-20">
-      <p className="text-center outfit-regular text-5xl">How it Works ?</p>
+      <p className="text-center outfit-regular text-6xl">How it Works ?</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-12 sm:px-25 py-10">
         {cardData.map(({ step, image, title, description }) => (

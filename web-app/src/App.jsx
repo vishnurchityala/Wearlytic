@@ -1,9 +1,9 @@
 import './App.css'
-import { Navbar } from './components/Navbar'
-import { HeroBanner } from './components/HeroBanner'
-import {Footer} from './components/Footer'
-import { InfoBanner } from './components/InfoBanner'
-import { InfoCards } from './components/InfoCards'
+import { Navbar } from './components/general/Navbar'
+import { HeroBanner } from './components/landing/HeroBanner'
+import {Footer} from './components/general/Footer'
+import { InfoBanner } from './components/landing/InfoBanner'
+import { InfoCards } from './components/landing/InfoCards'
 function App() {
 
   return (
