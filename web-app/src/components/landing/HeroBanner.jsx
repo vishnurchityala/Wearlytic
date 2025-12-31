@@ -16,9 +16,9 @@ function HeroBanner() {
           Clothes at your fingertips
         </p>
 
-        <button className="mt-6 px-7 py-3 text-lg text-white bg-black rounded-full outfit-regular font-medium">
+        <a href="/playground" className="mt-6 px-7 py-3 text-lg text-white bg-black rounded-full outfit-regular font-medium">
           Get Started <span className="px-1 font-bold">→</span>
-        </button>
+        </a>
       </div>
 
       <div className="flex flex-col items-center gap-3">
