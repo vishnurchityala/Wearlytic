@@ -2,7 +2,7 @@ function HeroBanner() {
   return (
     <section className="min-h-[calc(95vh-5rem)] my-4 flex flex-col text-center">
       <div className="flex-1 flex flex-col items-center justify-center -mt-4">
-        <p className="bbh-bartle-regular text-4xl sm:text-[70px]">
+        <p className="bbh-bartle-regular text-4xl sm:text-[80px]">
           Try Any Outfit Instantly
         </p>
 

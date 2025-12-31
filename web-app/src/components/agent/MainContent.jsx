@@ -16,12 +16,17 @@ function MainContent() {
                     className="flex items-center justify-between px-4 mb-2 cursor-pointer"
                     onClick={() => setShowClothes(!showClothes)}
                 >
-                    <span className="font-medium text-gray-800 outfit-regular">Clothes</span>
+                    <div className="flex items-center gap-2 font-medium text-gray-800 outfit-regular">
+                        <img src="clothes-icon.png" className="h-4 w-4" alt="" />
+                        <span>Clothes</span>
+                    </div>
+
                     <FontAwesomeIcon
                         icon={showClothes ? faChevronUp : faChevronDown}
-                        className="text-gray-800 lg:hidden"
+                        className="text-gray-800"
                     />
                 </div>
+
 
                 <div
                     className={`overflow-y-auto transition-all duration-300 
