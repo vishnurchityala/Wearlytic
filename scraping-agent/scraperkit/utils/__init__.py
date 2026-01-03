@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 from scraperkit.exceptions import BadURLException
@@ -6,11 +7,22 @@ from .scraper_lru_cache import ScraperLRUCache
 
 cache = ScraperLRUCache(max_size=17)
 
+
 def extract_domain(url):
-    parsed_url = urlparse(url)
-    host = parsed_url.netloc or parsed_url.path
+    if isinstance(url, bytes):
+        url = url.decode('utf-8', errors='ignore')
+
+    url = re.sub(r'[^\x20-\x7E]', '', url)
+
+    if not url.startswith(('http://', 'https://')):
+        url = 'http://' + url
+
+    parsed = urlparse(url)
+    host = parsed.netloc or parsed.path
+
     if host.startswith("www."):
         host = host[4:]
+
     parts = host.split('.')
     if len(parts) >= 2:
         return parts[-2]

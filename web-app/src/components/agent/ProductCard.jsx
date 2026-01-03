@@ -6,7 +6,7 @@ function ProductCard({ product }){
     const [selected, setSelected] = useState(false);
 
     return (
-        <div className={`w-full rounded-md p-3 shadow-sm bg-white border border-gray-300` + `${selected ? 'border border-green-500' : ''}`}>
+        <div className={`w-full rounded-md p-3 shadow-sm bg-white border border-gray-300` + `${selected ? ' border border-green-500 place-self-start' : ''}`}>
             <div className="w-full h-40 bg-gray-100 rounded-md mb-2 overflow-hidden flex items-center justify-center">
                 {product.image ? (
                     <img 
