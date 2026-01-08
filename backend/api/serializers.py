@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AppUser
+from .models import AppUser, Category, Product
 
 
 class AppUserSerializer(serializers.ModelSerializer):
@@ -13,6 +13,7 @@ class AppUserSerializer(serializers.ModelSerializer):
 			"info_prompt",
 			"base_image_path",
 			"email",
+			"role",
 		]
 
 
@@ -32,5 +33,26 @@ class GenerateTokenInputSerializer(serializers.Serializer):
 		if not attrs.get("supabase_uid") and not attrs.get("email"):
 			raise serializers.ValidationError("Provide 'supabase_uid' (preferred) or 'email'.")
 		return attrs
+
+
+class CategorySerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Category
+		fields = ["id", "name"]
+
+
+class ProductSerializer(serializers.ModelSerializer):
+	category = CategorySerializer(read_only=True)
+
+	class Meta:
+		model = Product
+		fields = [
+			"id",
+			"title",
+			"price",
+			"url",
+			"image_url",
+			"category",
+		]
 
 

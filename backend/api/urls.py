@@ -5,6 +5,7 @@ from .views import (
 	create_user_view,
 	generate_token_view,
 	validate_token_view,
+	products_list_view,
 )
 
 urlpatterns = [
@@ -14,6 +15,7 @@ urlpatterns = [
 	path('auth/token/validate/', validate_token_view, name='token_validate'),
 	path('users/create/', create_user_view, name='users_create'),
 	path('is_authenticated/', is_authenticated_view, name='is_authenticated'),
+	path('products/', products_list_view, name='products_list'),
 ]
 
 

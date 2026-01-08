@@ -3,14 +3,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
-from .models import AppUser
+from .models import AppUser, Product
 from .serializers import (
 	CreateUserSerializer,
 	AppUserSerializer,
 	GenerateTokenInputSerializer,
+	ProductSerializer,
 )
 
 
@@ -33,13 +36,16 @@ def create_user_view(request):
 	validated = serializer.validated_data
 
 	app_user_id = validated["supabase_uid"]
+	role = "user"
+	tokens = 50
 	app_user_defaults = {
 		"supabase_uid": validated["supabase_uid"],
 		"name": validated.get("name", ""),
-		"tokens": 50,
+		"tokens": tokens,
 		"info_prompt": validated.get("info_prompt", ""),
 		"base_image_path": validated.get("base_image_path", ""),
 		"email": validated["email"],
+		"role": role,
 	}
 
 	app_user, created = AppUser.objects.update_or_create(
@@ -109,3 +115,42 @@ def validate_token_view(request):
 	serializer = TokenVerifySerializer(data={"token": token})
 	serializer.is_valid(raise_exception=True)
 	return Response({"valid": True}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def products_list_view(request):
+	queryset = Product.objects.select_related("category").all()
+	params = request.query_params
+
+	category = params.get("category")
+	category_id = params.get("category_id")
+	min_price = params.get("min_price")
+	max_price = params.get("max_price")
+
+	if category:
+		queryset = queryset.filter(category__name__iexact=category)
+	elif category_id:
+		queryset = queryset.filter(category_id=category_id)
+
+	if min_price is not None:
+		try:
+			min_price_val = float(min_price)
+		except ValueError:
+			raise ValidationError({"min_price": "Must be a valid number."})
+		queryset = queryset.filter(price__gte=min_price_val)
+
+	if max_price is not None:
+		try:
+			max_price_val = float(max_price)
+		except ValueError:
+			raise ValidationError({"max_price": "Must be a valid number."})
+		queryset = queryset.filter(price__lte=max_price_val)
+
+	paginator = PageNumberPagination()
+	paginator.page_size = 10
+	paginator.page_size_query_param = "page_size"
+	paginator.max_page_size = 100
+	page = paginator.paginate_queryset(queryset, request)
+
+	serializer = ProductSerializer(page, many=True)
+	return paginator.get_paginated_response(serializer.data)
