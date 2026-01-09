@@ -17,5 +17,3 @@ urlpatterns = [
 	path('is_authenticated/', is_authenticated_view, name='is_authenticated'),
 	path('products/', products_list_view, name='products_list'),
 ]
-
-

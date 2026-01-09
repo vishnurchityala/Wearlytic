@@ -1,3 +1,5 @@
+import requests
+from dotenv import load_dotenv
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +18,11 @@ from .serializers import (
 	ProductSerializer,
 )
 
+from .storage import SupabaseBucketManager
+
+load_dotenv()
+supabase_bucket_manager = SupabaseBucketManager.from_env("image_assets")
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -31,41 +38,56 @@ def is_authenticated_view(request):
 
 @api_view(['POST'])
 def create_user_view(request):
-	serializer = CreateUserSerializer(data=request.data)
-	serializer.is_valid(raise_exception=True)
-	validated = serializer.validated_data
+    serializer = CreateUserSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    validated = serializer.validated_data
 
-	app_user_id = validated["supabase_uid"]
-	role = "user"
-	tokens = 50
-	app_user_defaults = {
-		"supabase_uid": validated["supabase_uid"],
-		"name": validated.get("name", ""),
-		"tokens": tokens,
-		"info_prompt": validated.get("info_prompt", ""),
-		"base_image_path": validated.get("base_image_path", ""),
-		"email": validated["email"],
-		"role": role,
-	}
+    app_user_id = validated["supabase_uid"]
+    role = "user"
+    tokens = 50
 
-	app_user, created = AppUser.objects.update_or_create(
-		id=app_user_id,
-		defaults=app_user_defaults,
-	)
+    default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
+    uploaded_image_url = ""
 
-	UserModel = get_user_model()
-	auth_user, _ = UserModel.objects.get_or_create(
-		username=app_user.email,
-		defaults={"email": app_user.email},
-	)
+    try:
+        img_response = requests.get(default_image_url, timeout=15)
+        img_response.raise_for_status()
 
-	return Response(
-		{
-			"created": created,
-			"app_user": AppUserSerializer(app_user).data,
-		},
-		status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
-	)
+        uploaded_image_url = supabase_bucket_manager.store_bytes(
+            img_response.content,
+            f"base_images/{app_user_id}.jpg"
+        )
+    except Exception:
+        uploaded_image_url = "https://knrbxuzorgcjgfmtkias.supabase.co/storage/v1/object/public/image_assets/1234567890.jpg"
+
+    app_user_defaults = {
+        "supabase_uid": validated["supabase_uid"],
+        "name": validated.get("name", ""),
+        "tokens": tokens,
+        "info_prompt": validated.get("info_prompt", ""),
+        "base_image_path": uploaded_image_url,
+        "email": validated["email"],
+        "role": role,
+    }
+
+    app_user, created = AppUser.objects.update_or_create(
+        id=app_user_id,
+        defaults=app_user_defaults,
+    )
+
+    UserModel = get_user_model()
+    auth_user, _ = UserModel.objects.get_or_create(
+        username=app_user.email,
+        defaults={"email": app_user.email},
+    )
+
+    return Response(
+        {
+            "created": created,
+            "app_user": AppUserSerializer(app_user).data,
+        },
+        status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+    )
 
 
 @api_view(['POST'])
