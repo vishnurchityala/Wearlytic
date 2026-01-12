@@ -16,7 +16,6 @@ class AppUserSerializer(serializers.ModelSerializer):
 			"role",
 		]
 
-
 class CreateUserSerializer(serializers.Serializer):
 	supabase_uid = serializers.CharField(max_length=255)
 	email = serializers.EmailField()
