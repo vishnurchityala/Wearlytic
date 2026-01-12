@@ -80,7 +80,7 @@ class ImageGeneration(models.Model):
     id = models.CharField(primary_key=True, max_length=64)
     task = models.ForeignKey(ImageGenerationTask, on_delete=models.CASCADE, related_name="generated_images")
     creator = models.ForeignKey("AppUser", on_delete=models.CASCADE, related_name="generated_images")
-    image = models.CharField(upload_to="generated_images/")
+    image = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

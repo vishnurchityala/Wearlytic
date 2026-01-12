@@ -2,7 +2,6 @@ import os
 import threading
 import time
 from django.apps import AppConfig
-from .models import ImageGenerationTask, ImageGeneration
 from .utils import generate_ai_product_image
 from uuid import uuid4
 
@@ -11,6 +10,7 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
+        from .models import ImageGenerationTask, ImageGeneration
         if os.environ.get('RUN_MAIN') != 'true':
             return
 
