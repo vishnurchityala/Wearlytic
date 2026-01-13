@@ -1,6 +1,6 @@
 function FiltersBar() {
     return (
-        <div className="w-full bg-white px-4 pb-4 space-y-3 text-xs">
+        <div className="w-full bg-white rounded-full px-4 pb-4 space-y-3 text-xs">
             <div>
                 <input
                     type="text"
