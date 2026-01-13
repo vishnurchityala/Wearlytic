@@ -29,7 +29,7 @@ function ChatInputBar({ onSubmit }) {
 
                     <button
                         type="submit"
-                        className="py-2 px-3 outfit-regular text-sm sm:text-md rounded-full flex items-center justify-center bg-black text-white"
+                        className="py-2 px-3 outfit-regular text-sm sm:text-md rounded-full flex items-center justify-center bg-black text-white cursor-pointer"
                     >
                         Generate <span className="px-1 text-lg">↑</span>
                     </button>
