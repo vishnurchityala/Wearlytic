@@ -1,8 +1,11 @@
+import FilterSection from "./FilterSection";
+
 function ClothesSection() {
-    const [showFilters, setShowFilters] = useState(true);
 
     return (
-        <p>Clothes Section</p>
+        <div>
+            <FilterSection/>
+        </div>
     );
 }
 
