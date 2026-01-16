@@ -1,30 +1,55 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import LandingPage from './pages/LandingPage.jsx';
-import { AgentPage } from './pages/AgentPage.jsx';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-router-dom";
+
+import AuthProvider, { useAuth } from "./auth/AuthProvider.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
+import { AgentPage } from "./pages/AgentPage.jsx";
+
+const ProtectedRoute = ({ redirectTo = "/landing" }) => {
+  const { user, loading } = useAuth();
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-10 h-10 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
+      </div>
+    );
+
+  if (!user) return <Navigate to={redirectTo} replace />;
+
+  return <Outlet />;
+};
+
+
+const AuthLayout = () => (
+  <AuthProvider>
+    <Outlet />
+  </AuthProvider>
+);
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <LandingPage/>,
-  },
-  {
-    path: "/landing",
-    element: <LandingPage/>,
-  },
-  {
-    path: "/playground",
-    element: <AgentPage/>,
+    element: <AuthLayout />,
+    children: [
+      // Public routes
+      { path: "/", element: <LandingPage /> },
+      { path: "/landing", element: <LandingPage /> },
+
+      // Protected routes
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: "/playground", element: <AgentPage /> }
+        ],
+      },
+    ],
   },
 ]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>,
-)
+  </StrictMode>
+);
