@@ -70,6 +70,7 @@ const AuthProvider = ({ children }) => {
 
       setToken(data.access); // Only store access in memory
     } catch (err) {
+      
       console.error("Token generation error:", err.message);
       setUser(null);
       setToken(null);
