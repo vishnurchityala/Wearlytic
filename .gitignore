@@ -46,3 +46,8 @@ backend/firebase-credentials-key.json
 backend/firebase-key.json
 tree.txt
 warehouse_data.json
+web-app/api_category_rows.csv
+web-app/api_products_data.csv
+web-app/categories_data.csv
+web-app/product_warehouse.json
+web-app/trial.py
