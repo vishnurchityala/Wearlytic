@@ -23,6 +23,10 @@ class AppUser(models.Model):
         default="user",
     )
 
+    @property
+    def is_authenticated(self):
+        return True
+
     def __str__(self) -> str:
         return f"{self.name or self.email} ({self.id})"
 

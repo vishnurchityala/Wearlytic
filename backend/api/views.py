@@ -1,87 +1,66 @@
-import requests
-from dotenv import load_dotenv
-from django.contrib.auth import get_user_model
+import os
+
+import dotenv
+dotenv.load_dotenv()
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.serializers import TokenVerifySerializer
-
+from supabase import create_client
 from .models import AppUser, Product
 from .serializers import (
 	CreateUserSerializer,
 	AppUserSerializer,
-	GenerateTokenInputSerializer,
-	ProductSerializer,
+	ProductSerializer
 )
 
 from .storage import SupabaseBucketManager
 
-load_dotenv()
 supabase_bucket_manager = SupabaseBucketManager.from_env("image_assets")
 
+supabase_url = os.getenv("SUPABASE_URL")
+service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def is_authenticated_view(request):
-	user = request.user
-	return Response({
-		"authenticated": True,
-		"user_id": getattr(user, "id", None),
-		"username": getattr(user, "username", None),
-		"email": getattr(user, "email", None),
-	})
+supabase = create_client(
+    supabase_url,
+    service_role_key
+)
+
+admin_auth_client = supabase.auth.admin
+
+
 
 
 @api_view(['POST'])
 def create_user_view(request):
-    serializer = CreateUserSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    validated = serializer.validated_data
+	serializer = CreateUserSerializer(data=request.data)
+	serializer.is_valid(raise_exception=True)
+	validated = serializer.validated_data
+	app_user_id = validated["supabase_uid"]
+	role = "user"
+	tokens = 50
+	default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
+	info_prompt = "A man standing with jacket on his hand and his handsome."
 
-    app_user_id = validated["supabase_uid"]
-    role = "user"
-    tokens = 50
-
-    default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
-    uploaded_image_url = ""
-
-    try:
-        img_response = requests.get(default_image_url, timeout=15)
-        img_response.raise_for_status()
-
-        uploaded_image_url = supabase_bucket_manager.store_bytes(
-            img_response.content,
-            f"base_images/{app_user_id}.jpg"
-        )
-    except Exception:
-        uploaded_image_url = "https://knrbxuzorgcjgfmtkias.supabase.co/storage/v1/object/public/image_assets/1234567890.jpg"
-
-    app_user_defaults = {
+	app_user_defaults = {
         "supabase_uid": validated["supabase_uid"],
         "name": validated.get("name", ""),
         "tokens": tokens,
-        "info_prompt": validated.get("info_prompt", ""),
-        "base_image_path": uploaded_image_url,
+        "info_prompt": validated.get("info_prompt",info_prompt),
+        "base_image_path": default_image_url,
         "email": validated["email"],
         "role": role,
     }
-
-    app_user, created = AppUser.objects.update_or_create(
+	
+	app_user, created = AppUser.objects.update_or_create(
         id=app_user_id,
         defaults=app_user_defaults,
     )
 
-    UserModel = get_user_model()
-    auth_user, _ = UserModel.objects.get_or_create(
-        username=app_user.email,
-        defaults={"email": app_user.email},
-    )
-
-    return Response(
+	return Response(
         {
             "created": created,
             "app_user": AppUserSerializer(app_user).data,
@@ -89,57 +68,14 @@ def create_user_view(request):
         status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
     )
 
-
 @api_view(['POST'])
-def generate_token_view(request):
-	input_serializer = GenerateTokenInputSerializer(data=request.data)
-	input_serializer.is_valid(raise_exception=True)
-	data = input_serializer.validated_data
-
-	try:
-		if data.get("supabase_uid"):
-			app_user = AppUser.objects.get(supabase_uid=data["supabase_uid"])
-		else:
-			app_user = AppUser.objects.get(email=data["email"])
-	except AppUser.DoesNotExist:
-		return Response(
-			{"detail": "AppUser not found."},
-			status=status.HTTP_404_NOT_FOUND,
-		)
-
-	UserModel = get_user_model()
-	try:
-		auth_user = UserModel.objects.get(username=app_user.email)
-	except UserModel.DoesNotExist:
-		return Response(
-			{"detail": "Auth user missing. Create user first via /api/users/create/."},
-			status=status.HTTP_400_BAD_REQUEST,
-		)
-
-	refresh = RefreshToken.for_user(auth_user)
-	return Response(
-		{
-			"access": str(refresh.access_token),
-			"refresh": str(refresh),
-		},
-		status=status.HTTP_200_OK,
-	)
-
-
-@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def validate_token_view(request):
-	token = (request.data or {}).get("token")
-	if not token:
-		return Response(
-			{"detail": "Field 'token' is required."},
-			status=status.HTTP_400_BAD_REQUEST,
-		)
-	serializer = TokenVerifySerializer(data={"token": token})
-	serializer.is_valid(raise_exception=True)
-	return Response({"valid": True}, status=status.HTTP_200_OK)
+    return Response({"valid": True, "user": request.user.email})
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def products_list_view(request):
 	queryset = Product.objects.select_related("category").all()
 	params = request.query_params
