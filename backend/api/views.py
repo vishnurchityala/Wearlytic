@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from supabase import create_client
 from .models import AppUser, Product
 from .serializers import (
@@ -16,6 +16,8 @@ from .serializers import (
 	AppUserSerializer,
 	ProductSerializer
 )
+
+import requests
 
 from .storage import SupabaseBucketManager
 
@@ -32,8 +34,6 @@ supabase = create_client(
 admin_auth_client = supabase.auth.admin
 
 
-
-
 @api_view(['POST'])
 def create_user_view(request):
 	serializer = CreateUserSerializer(data=request.data)
@@ -43,6 +43,16 @@ def create_user_view(request):
 	role = "user"
 	tokens = 50
 	default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
+	uploaded_image_url = ""
+	try:
+		image_bytes = requests.get(default_image_url).content
+		uploaded_image_url = supabase_bucket_manager.store_bytes(image_bytes,f"/profile/{app_user_id}.jpg")
+	except Exception:
+		return Response({
+			"created":False,
+			"response":"Failed to create user."
+		}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 	info_prompt = "A man standing with jacket on his hand and his handsome."
 
 	app_user_defaults = {
@@ -50,7 +60,7 @@ def create_user_view(request):
         "name": validated.get("name", ""),
         "tokens": tokens,
         "info_prompt": validated.get("info_prompt",info_prompt),
-        "base_image_path": default_image_url,
+        "base_image_path": uploaded_image_url,
         "email": validated["email"],
         "role": role,
     }
@@ -105,10 +115,22 @@ def products_list_view(request):
 		queryset = queryset.filter(price__lte=max_price_val)
 
 	paginator = PageNumberPagination()
-	paginator.page_size = 10
+	paginator.page_size = 100
 	paginator.page_size_query_param = "page_size"
-	paginator.max_page_size = 100
+	paginator.max_page_size = 300
 	page = paginator.paginate_queryset(queryset, request)
 
 	serializer = ProductSerializer(page, many=True)
 	return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def product_detail_view(request, product_id):
+    try:
+        product = Product.objects.select_related("category").get(id=product_id)
+    except Product.DoesNotExist:
+        raise NotFound("Product not found")
+
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)

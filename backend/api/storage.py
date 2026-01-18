@@ -49,7 +49,7 @@ class SupabaseBucketManager:
         storage.remove([object_path])
         return True
 
-    def delete_by_url(self, file_url: str) -> bool:
+    def delete_by_url(self, file_url: str) -> bool: 
         """Delete an object using its Supabase URL."""
         path = self._extract_object_path_from_url(file_url)
         if not path:

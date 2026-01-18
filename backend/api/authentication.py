@@ -7,11 +7,13 @@ import dotenv
 dotenv.load_dotenv()
 from jwt import InvalidTokenError, ExpiredSignatureError
 from .models import AppUser
+from .storage import SupabaseBucketManager
+
+supabase_bucket_manager = SupabaseBucketManager.from_env("image_assets")
+
 """
 Token validation functions
 """
-
-
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
 SUPABASE_PROJECT_ID = os.getenv("SUPABASE_PROJECT_ID")
 SUPABASE_ISSUER = f"https://{SUPABASE_PROJECT_ID}.supabase.co/auth/v1"
@@ -38,16 +40,13 @@ def validate_access_token(token: str) -> dict:
     Raises ValueError if token is invalid or expired.
     """
     try:
-        # Read the token header without verification to get the kid
         header = jwt.get_unverified_header(token)
         kid = header.get("kid")
         if not kid:
             raise ValueError("Token missing 'kid' header")
 
-        # Fetch public key
         public_key = get_public_key(kid)
 
-        # Decode & verify token
         payload = jwt.decode(
             token,
             public_key,
@@ -88,24 +87,29 @@ class SupabaseJWTAuthentication(BaseAuthentication):
 
         try:
             payload = validate_access_token(token)
-            # You can fetch or create a Django user here if needed
             try:
                 user = AppUser.objects.get(supabase_uid=payload["sub"])
             except AppUser.DoesNotExist:
                 email = payload['email']
-                name = "DUMMY_NAME"
+                user_metadata = payload.get("user_metadata", {})
+                name = (
+                    user_metadata.get("full_name")
+                    or user_metadata.get("name")
+                    or user_metadata.get("preferred_username")
+                    or ""
+                )
                 role = "user"
                 tokens = 50
                 default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
                 info_prompt = "A man standing with jacket on his hand and his handsome."
-
-                # default values for account creation
+                image_bytes = requests.get(default_image_url).content
+                uploaded_image_url = supabase_bucket_manager.store_bytes(image_bytes,f"/profile/{payload["sub"]}.jpg")
                 app_user_defaults = {
                     "supabase_uid": payload["sub"],
                     "name":name,
                     "tokens": tokens,
                     "info_prompt": info_prompt,
-                    "base_image_path": default_image_url,
+                    "base_image_path": uploaded_image_url,
                     "email": email,
                     "role": role,
                 }
