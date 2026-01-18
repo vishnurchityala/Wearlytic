@@ -24,18 +24,17 @@ function MainContent() {
 
   return (
     <div className="border-t-2 border-gray-300 h-screen flex flex-col">
-      {/* Mobile layout: dynamic full-height scroll */}
       <div className="flex flex-col md:hidden h-full overflow-y-auto">
-        <ClothesSection
+        <div>
+          <ClothesSection
             categories={categories}
             selectedProducts={selectedProducts}
-        />
+          />
+        </div>
         <div className="h-full">
           <PlaygroundSection />
         </div>
       </div>
-
-      {/* Desktop layout: horizontal resizable panels */}
       <div className="hidden md:flex h-full">
         <Group direction="horizontal" className="h-full w-full">
           <Panel className="h-full" minSize="20%" defaultSize={40}>
