@@ -26,12 +26,10 @@ function MainContent() {
     <div className="border-t-2 border-gray-300 h-screen flex flex-col">
       {/* Mobile layout: dynamic full-height scroll */}
       <div className="flex flex-col md:hidden h-full overflow-y-auto">
-        <div className="h-full">
-          <ClothesSection
+        <ClothesSection
             categories={categories}
             selectedProducts={selectedProducts}
-          />
-        </div>
+        />
         <div className="h-full">
           <PlaygroundSection />
         </div>
