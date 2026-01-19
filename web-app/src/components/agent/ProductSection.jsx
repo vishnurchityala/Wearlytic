@@ -14,7 +14,7 @@ function ProductSection({products,loading}){
     }
     const productCount = products.length;
     return (
-        <div className="w-full rounded-xl border-2 border-gray-300 overflow-y-scroll outfit-regular max-h-150 sm:h-fit">
+        <div className="w-full rounded-xl border-2 border-gray-300 overflow-y-scroll outfit-regular max-h-150 sm:max-h-full sm:h-fit">
         <button
             onClick={() => setCollapsed(!collapsed)}
             className="w-full px-4 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
