@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown,faChevronUp,faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown,faChevronUp,faShirt } from "@fortawesome/free-solid-svg-icons";
 import ProductList from "./ProductList";
 
 function ProductSection({products,loading}){
@@ -20,7 +20,7 @@ function ProductSection({products,loading}){
             className="w-full px-4 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
         >
             <span>
-            Clothes <FontAwesomeIcon icon={faFilter} />
+            Clothes <FontAwesomeIcon icon={faShirt} />
             </span>
             <FontAwesomeIcon icon={collapsed ? faChevronDown : faChevronUp} />
         </button>
