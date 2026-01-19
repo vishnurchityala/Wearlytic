@@ -8,14 +8,29 @@ function MainContent() {
   const { token } = useAuth();
   const [categories, setCategories] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [loading,setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchCategories() {
-      setCategories([
-        { id: "1", name: "T-Shirt" },
-        { id: "2", name: "Shirt" },
-        { id: "3", name: "Pants" },
-      ]);
+      setLoading(true);
+      try{
+        const response = await fetch("https://wearlytic-zbas.onrender.com/api/categories", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data);
+      }
+      catch(error){
+        console.error("Error fetching categories:", error);
+      }
+      setLoading(false);
     }
     fetchCategories();
   }, []);
@@ -29,6 +44,7 @@ function MainContent() {
           <ClothesSection
             categories={categories}
             selectedProducts={selectedProducts}
+            loading={loading}
           />
         </div>
         <div className="h-full">
@@ -41,6 +57,7 @@ function MainContent() {
             <ClothesSection
               categories={categories}
               selectedProducts={selectedProducts}
+              loading={loading}
             />
           </Panel>
           <Separator className="w-1 bg-gray-300 cursor-col-resize" />

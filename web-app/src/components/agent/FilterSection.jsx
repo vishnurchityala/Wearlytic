@@ -11,7 +11,7 @@ function CategoryButton({ category, selectedCategories, toggleCategory }) {
       className={`px-2.5 py-0.5 rounded-full border transition-colors duration-200 cursor-pointer ${
         isSelected
           ? "bg-black text-white font-semibold border-2 border-black"
-          : "border-2 border-gray-300"
+          : "border-2 border-gray-200"
       }`}
     >
       {category.name}
@@ -39,7 +39,7 @@ function FilterSection({
   };
 
   return (
-    <div className="w-full rounded-xl border-2 border-gray-300 overflow-hidden outfit-regular">
+    <div className="w-full rounded-xl border-2 border-gray-300 outfit-regular h-fit">
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="w-full px-4 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
@@ -73,21 +73,27 @@ function FilterSection({
           <div className="space-y-1">
             <div className="font-medium text-gray-800">Price Range</div>
             <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={minPrice}
-                onChange={(e) => setMinPrice(Number(e.target.value))}
-                placeholder="Min"
-                className="px-2 py-1 rounded-full border border-gray-300 text-[11px] outline-none"
-              />
-              <span className="text-[11px] text-gray-700">to</span>
-              <input
-                type="number"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                placeholder="Max"
-                className="px-2 py-1 rounded-full border border-gray-300 text-[11px] outline-none"
-              />
+              <div>
+                <span className="text-[11px] text-gray-700 me-1">₹</span>
+                <input
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(Number(e.target.value))}
+                  placeholder="Min"
+                  className="px-2 py-1 rounded-full border w-20 border-gray-300 text-[11px] outline-none"
+                />
+              </div>
+              <span className="text-[12px] text-gray-700">to</span>
+              <div>
+                <span className="text-[11px] text-gray-700 me-1">₹</span>
+                <input
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  placeholder="Max"
+                  className="px-2 py-1 rounded-full border w-20 border-gray-300 text-[11px] outline-none"
+                />
+              </div>
             </div>
           </div>
 

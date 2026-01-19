@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-router-dom";
@@ -23,11 +23,31 @@ const ProtectedRoute = ({ redirectTo = "/landing" }) => {
 };
 
 
-const AuthLayout = () => (
-  <AuthProvider>
-    <Outlet />
-  </AuthProvider>
-);
+const AuthLayout = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://wearlytic-zbas.onrender.com/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      } catch (error) {
+        console.error("API error:", error);
+      }
+    };
+    fetchData();
+    const intervalId = setInterval(fetchData, 40000); 
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
+};
 
 const router = createBrowserRouter([
   {
