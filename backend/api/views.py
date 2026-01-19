@@ -87,6 +87,7 @@ def validate_token_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def products_list_view(request):
+	# TODO: Multiple category support, request parameter.
 	queryset = Product.objects.select_related("category").all()
 	params = request.query_params
 

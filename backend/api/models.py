@@ -58,6 +58,12 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f"{self.title} ({self.id})"
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["price"]),
+            models.Index(fields=["category", "price"]),
+        ]
+
 
 class ImageGenerationTask(models.Model):
     id = models.UUIDField(
