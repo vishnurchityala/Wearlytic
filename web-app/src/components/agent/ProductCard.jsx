@@ -3,8 +3,8 @@ import { faEye } from "@fortawesome/free-solid-svg-icons";
 
 function ProductCard({ product }) {
     return (
-        <div className="border-2 border-gray-200 shadow rounded-xl py-2 px-2 w-40 overflow-hidden ms-auto me-auto mb-5" id={product.id}>
-            <div className="h-40 flex items-center justify-center mb-2 overflow-hidden border-2 border-gray-200 rounded-lg">
+        <div className="border-2 border-gray-200 shadow rounded-xl py-2 px-2 w-30 sm:w-40 overflow-hidden ms-auto me-auto mb-5" id={product.id}>
+            <div className="h-25 sm:h-40 flex items-center justify-center mb-2 overflow-hidden border-2 border-gray-200 rounded-lg">
                 <img
                     src={product.image_url}
                     alt={product.title}
