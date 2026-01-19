@@ -38,7 +38,7 @@ function MainContent() {
   const [generations, setGenerations] = useState([]);
 
   return (
-    <div className="border-t-2 border-gray-300 h-screen flex flex-col">
+    <div className="border-t-2 border-gray-300 h-[91%] flex flex-col">
       <div className="flex flex-col md:hidden h-full overflow-y-auto">
         <div>
           <ClothesSection
