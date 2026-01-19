@@ -14,7 +14,7 @@ function ChatInputBar({ onSubmit }) {
     return (
         <form 
             onSubmit={handleSubmit} 
-            className="w-full px-6 py-4 flex items-center justify-center bg-white"
+            className="w-full px-2 md:px-6 py-4 flex items-center justify-center bg-white"
         >
             <div className="w-full max-w-5xl relative">
                 <div className="flex items-center rounded-full px-3 py-2 shadow-sm border-2 border-gray-200">
