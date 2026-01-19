@@ -10,11 +10,12 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError, NotFound
 from supabase import create_client
-from .models import AppUser, Product
+from .models import AppUser, Product, Category
 from .serializers import (
 	CreateUserSerializer,
 	AppUserSerializer,
-	ProductSerializer
+	ProductSerializer,
+	CategorySerializer
 )
 
 import requests
@@ -83,6 +84,14 @@ def create_user_view(request):
 def validate_token_view(request):
     return Response({"valid": True, "user": request.user.email})
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def categories_list_view(request):
+	queryset = Category.objects.all()
+	serializer = CategorySerializer(queryset, many=True)
+
+	return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
