@@ -6,24 +6,20 @@ function ProductCard({ product, setSelectedProducts }) {
     const [selected, setSelected] = useState(false);
 
     const handleSelectClick = () => {
-        setSelected(prevSelected => {
-            const nextSelected = !prevSelected;
+        setSelectedProducts(prevProducts => {
+            const exists = prevProducts.some(p => p.id === product.id);
 
-            setSelectedProducts(prevProducts => {
-                const exists = prevProducts.some(p => p.id === product.id);
-
-                if (nextSelected && !exists) {
-                    return [...prevProducts, product];
-                }
-
-                if (!nextSelected && exists) {
-                    return prevProducts.filter(p => p.id !== product.id);
-                }
-
+            if (!exists && prevProducts.length >= 3) {
                 return prevProducts;
-            });
+            }
 
-            return nextSelected;
+            if (exists) {
+                setSelected(false);
+                return prevProducts.filter(p => p.id !== product.id);
+            } else {
+                setSelected(true);
+                return [...prevProducts, product];
+            }
         });
     };
 
@@ -61,7 +57,7 @@ function ProductCard({ product, setSelectedProducts }) {
                 >
                     Select
                     {selected && (
-                        <FontAwesomeIcon icon={faCheck} className="text-sm" />
+                        <FontAwesomeIcon icon={faCheck} className="text-xs" />
                     )}
                 </button>
 

@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-rou
 import AuthProvider, { useAuth } from "./auth/AuthProvider.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import { AgentPage } from "./pages/AgentPage.jsx";
+import UserPage from "./pages/UserPage.jsx";
 
 const ProtectedRoute = ({ redirectTo = "/landing" }) => {
   const { user, loading } = useAuth();
@@ -61,7 +62,8 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
-          { path: "/playground", element: <AgentPage /> }
+          { path: "/playground", element: <AgentPage /> },
+          { path: "/profile", element: <UserPage /> }
         ],
       },
     ],
