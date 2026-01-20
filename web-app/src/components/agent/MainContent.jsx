@@ -38,7 +38,7 @@ function MainContent() {
   const [generations, setGenerations] = useState([]);
 
   return (
-    <div className="border-t-2 border-gray-300 h-[91%] flex flex-col">
+    <div className="border-t-2 border-gray-300 h-[91%] flex flex-col min-h-0">
       <div className="flex flex-col md:hidden h-full overflow-y-auto">
         <div>
           <ClothesSection
@@ -52,9 +52,9 @@ function MainContent() {
           <PlaygroundSection selectedProducts={selectedProducts}/>
         </div>
       </div>
-      <div className="hidden md:flex h-full">
+      <div className="hidden md:flex h-full min-h-0">
         <Group direction="horizontal" className="h-full w-full">
-          <Panel className="h-full" minSize="20%" defaultSize={40}>
+          <Panel className="h-full min-h-0" minSize="20%" defaultSize={40}>
             <ClothesSection
               categories={categories}
               selectedProducts={selectedProducts}
@@ -63,7 +63,7 @@ function MainContent() {
             />
           </Panel>
           <Separator className="w-1 bg-gray-300 cursor-col-resize" />
-          <Panel className="h-full" minSize="30%" defaultSize={40}>
+          <Panel className="h-full min-h-0" minSize="30%" defaultSize={40}>
             <PlaygroundSection selectedProducts={selectedProducts}/>
           </Panel>
         </Group>

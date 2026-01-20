@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function ChatInputBar({ onSubmit }) {
+function ChatInputBar({ setImageGenerations,setLoading }) {
     const [value, setValue] = useState("");
 
     const handleSubmit = (e) => {
