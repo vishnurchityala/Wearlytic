@@ -13,10 +13,6 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, Base
 
 
 class RawImageParser(BaseParser):
-    """
-    Accept raw request bodies such as image/jpeg or image/png and return bytes.
-    Placed last in parser_classes to avoid shadowing JSON/multipart parsers.
-    """
     media_type = "*/*"
 
     def parse(self, stream, media_type=None, parser_context=None):
@@ -100,7 +96,7 @@ def me_view(request):
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
-@parser_classes([MultiPartParser, FormParser, JSONParser, RawImageParser])
+@parser_classes([FormParser, JSONParser])
 def update_user_view(request, user_id):
 	try:
 		user = AppUser.objects.get(id=user_id)
@@ -110,30 +106,6 @@ def update_user_view(request, user_id):
 	if str(request.user.id) != str(user_id) and request.user.role != "super_user":
 		raise PermissionDenied("You are not allowed to update this user")
 
-	# Handle raw-bytes image uploads (e.g., Content-Type: image/jpeg with raw body)
-	if isinstance(request.data, (bytes, bytearray)):
-		ct = request.META.get("CONTENT_TYPE", "") or request.content_type or ""
-		if not ct.startswith("image/"):
-			return Response({"detail": "Unsupported media type"}, status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-		image_bytes = bytes(request.data)
-		ext = ct.split("/")[-1].lower() if "/" in ct else "jpg"
-		if ext == "jpeg":
-			ext = "jpg"
-		try:
-			if user.base_image_path:
-				try:
-					supabase_bucket_manager.delete_by_url(user.base_image_path)
-				except Exception:
-					pass
-			object_path = f"profile/{user.supabase_uid}.{ext}"
-			new_url = supabase_bucket_manager.store_bytes(image_bytes, object_path)
-			user.base_image_path = new_url
-			user.save()
-			return Response(AppUserSerializer(user).data)
-		except Exception as e:
-			return Response({"detail": f"Failed to upload image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-	# Otherwise, handle JSON/form and optional multipart file via serializer
 	serializer = UpdateAppUserSerializer(data=request.data)
 	serializer.is_valid(raise_exception=True)
 	validated = serializer.validated_data
@@ -147,31 +119,71 @@ def update_user_view(request, user_id):
 		user.info_prompt = validated["info_prompt"]
 		updated = True
 
-	uploaded_file = validated.get("image")
-	if uploaded_file is not None:
-		try:
-			image_bytes = uploaded_file.read()
-			ext = "jpg"
-			if getattr(uploaded_file, "name", None) and "." in uploaded_file.name:
-				ext = uploaded_file.name.rsplit(".", 1)[-1].lower()
-				if ext == "jpeg":
-					ext = "jpg"
-			if user.base_image_path:
-				try:
-					supabase_bucket_manager.delete_by_url(user.base_image_path)
-				except Exception:
-					pass
-			object_path = f"profile/{user.supabase_uid}.{ext}"
-			new_url = supabase_bucket_manager.store_bytes(image_bytes, object_path)
-			user.base_image_path = new_url
-			updated = True
-		except Exception as e:
-			return Response({"detail": f"Failed to upload image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 	if updated:
 		user.save()
 
 	return Response(AppUserSerializer(user).data)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser, RawImageParser, JSONParser])
+def update_user_base_image_view(request, user_id):
+	try:
+		user = AppUser.objects.get(id=user_id)
+	except AppUser.DoesNotExist:
+		raise NotFound("User not found")
+
+	if str(request.user.id) != str(user_id) and request.user.role != "super_user":
+		raise PermissionDenied("You are not allowed to update this user")
+
+	image_bytes = None
+	uploaded_file = request.FILES.get("image") or request.FILES.get("file")
+	if uploaded_file is not None:
+		image_bytes = uploaded_file.read()
+	elif isinstance(request.data, (bytes, bytearray)):
+		ct = request.META.get("CONTENT_TYPE", "") or request.content_type or ""
+		if ct.startswith("image/"):
+			image_bytes = bytes(request.data)
+	else:
+		possible_file = request.data.get("file") if hasattr(request.data, "get") else None
+		if possible_file is not None and hasattr(possible_file, "read"):
+			image_bytes = possible_file.read()
+		else:
+			image_b64 = request.data.get("image_base64") if hasattr(request.data, "get") else None
+			if image_b64:
+				import base64
+				try:
+					image_bytes = base64.b64decode(image_b64)
+				except Exception:
+					return Response({"detail": "Invalid image_base64 payload"}, status=status.HTTP_400_BAD_REQUEST)
+
+	if not image_bytes:
+		return Response({"detail": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+	try:
+		if user.base_image_path:
+			try:
+				supabase_bucket_manager.delete_by_url(user.base_image_path)
+			except Exception:
+				pass
+		ext = "jpg"
+		if uploaded_file and getattr(uploaded_file, "name", None) and "." in uploaded_file.name:
+			ext = uploaded_file.name.rsplit(".", 1)[-1].lower()
+		else:
+			ct = request.META.get("CONTENT_TYPE", "") or request.content_type or ""
+			if ct.startswith("image/"):
+				ext = ct.split("/")[-1].lower()
+				if ext == "jpeg":
+					ext = "jpg"
+		object_path = f"profile/{user.supabase_uid}.{ext}"
+		new_url = supabase_bucket_manager.store_bytes(image_bytes, object_path)
+		user.base_image_path = new_url
+		user.save()
+	except Exception as e:
+		return Response({"detail": f"Failed to upload image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	return Response({"base_image_path": user.base_image_path})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def validate_token_view(request):
