@@ -20,17 +20,15 @@ function ProductSection({products,loading,selectedProducts,setSelectedProducts,n
     const productCount = products.length;
     return (
         <div className="w-full rounded-xl border-2 border-gray-300 overflow-y-scroll outfit-regular max-h-150 sm:max-h-full sm:h-fit">
-            <div className="flex align-content-center">
-                <span className="text-center ms-3 my-auto text-sm">
+            <button
+                onClick={() => setCollapsed(!collapsed)}
+                className="w-full ms-auto px-1 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
+            >
+                 <span className="text-center ms-2 my-auto text-sm">
                     Clothes <FontAwesomeIcon icon={faShirt}/>
                 </span>
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="w-fit ms-auto px-4 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
-                >
-                    <FontAwesomeIcon icon={collapsed ? faChevronDown : faChevronUp} />
-                </button>
-            </div>
+                <FontAwesomeIcon icon={collapsed ? faChevronDown : faChevronUp} />
+            </button>
 
             {!collapsed && (
                 <>

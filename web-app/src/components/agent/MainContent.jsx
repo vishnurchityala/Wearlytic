@@ -49,7 +49,7 @@ function MainContent() {
           />
         </div>
         <div className="h-full">
-          <PlaygroundSection />
+          <PlaygroundSection selectedProducts={selectedProducts}/>
         </div>
       </div>
       <div className="hidden md:flex h-full">
@@ -64,7 +64,7 @@ function MainContent() {
           </Panel>
           <Separator className="w-1 bg-gray-300 cursor-col-resize" />
           <Panel className="h-full" minSize="30%" defaultSize={40}>
-            <PlaygroundSection />
+            <PlaygroundSection selectedProducts={selectedProducts}/>
           </Panel>
         </Group>
       </div>

@@ -6,7 +6,6 @@ function ProductCard({ product, selected, setSelectedProducts }) {
     const handleSelectClick = () => {
         setSelectedProducts(prevProducts => {
             const exists = prevProducts.some(p => p.id === product.id);
-
             if (!exists && prevProducts.length >= 3) {
                 return prevProducts;
             }

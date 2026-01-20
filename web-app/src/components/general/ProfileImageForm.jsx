@@ -77,10 +77,11 @@ function ProfileImageForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white border-2 border-gray-300  rounded-lg shadow-lg p-4 sm:p-6"
+            className="bg-white border-2 border-gray-300  rounded-lg shadow-lg p-2 sm:p-6"
             encType="multipart/form-data"
         >
-            <h2 className="outfit-regular text-xl sm:text-2xl mb-3">Profile Image</h2>
+            <h2 className="outfit-regular text-xl sm:text-2xl mb-3">Base Image</h2>
+            <p className="outfit-regular text-[12px] text-gray-400 mb-3">Base Image is used for Image Generation of clothes Try-Out in playground.</p>
 
             <div className="flex items-center gap-4">
 				<div className="relative w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
@@ -145,6 +146,7 @@ function ProfileImageForm() {
                 </button>
                 {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
                 {success && <p className="mt-2 text-sm text-green-600">Profile image updated.</p>}
+                <p className="outfit-regular text-[12px] mt-2 text-red-300">Image Update will take time to reflect.</p>
             </div>
         </form>
     );

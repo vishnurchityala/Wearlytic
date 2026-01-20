@@ -96,7 +96,7 @@ function ProfileDetailsForm() {
                 <>
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div className="col-span-1">
-                            <label className="block text-sm text-gray-700 mb-1">Name</label>
+                            <label className="block text-sm text-gray-700 mb-1 outfit-regular">Name</label>
                             <input
                                 name="name"
                                 value={form.name}
@@ -106,7 +106,7 @@ function ProfileDetailsForm() {
                             />
                         </div>
                         <div className="col-span-1">
-                            <label className="block text-sm text-gray-700 mb-1">Email</label>
+                            <label className="block text-sm text-gray-700 mb-1 outfit-regular">Email</label>
                             <input
                                 value={form.email}
                                 disabled
@@ -116,25 +116,25 @@ function ProfileDetailsForm() {
                     </div>
 
                     <div className="mt-4">
-                        <label className="block text-sm text-gray-700 mb-1">About you</label>
+                        <label className="block text-sm text-gray-700 mb-1 outfit-regular">Info Prompt</label>
                         <textarea
                             name="info_prompt"
                             value={form.info_prompt}
                             onChange={handleChange}
                             placeholder="Tell us about your style, fit, and preferences…"
-                            className="w-full border-2 border-gray-300 px-3 py-2 rounded-xl min-h-28 bg-white outfit-regular"
+                            className="w-full border-2 border-gray-300 px-3 py-2 rounded-xl min-h-60 bg-white outfit-regular"
                         />
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-3">
                         <div className="inline-flex items-center px-2.5 py-1 rounded-full border-2 border-gray-300 bg-white text-gray-700 text-xs">
                             <FontAwesomeIcon icon={faUser} className="me-1" />
-                            <span className="opacity-80">Role:</span>
+                            <span className="opacity-80 outfit-regular">Role:</span>
                             <span className="ms-1">{form.role || "—"}</span>
                         </div>
                         <div className="inline-flex items-center px-2.5 py-1 rounded-full border-2 border-gray-300 bg-white text-gray-700 text-xs">
                             <FontAwesomeIcon icon={faCoins} className="me-1" />
-                            <span className="opacity-80">Tokens:</span>
+                            <span className="opacity-80 outfit-regular">Tokens:</span>
                             <span className="ms-1">{form.tokens}</span>
                         </div>
                     </div>
