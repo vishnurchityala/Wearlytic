@@ -49,42 +49,29 @@ class UpdateAppUserSerializer(serializers.Serializer):
 	info_prompt = serializers.CharField(required=False, allow_blank=True)
 	image = serializers.FileField(required=False, allow_empty_file=False)
 
+class CreatorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppUser
+        fields = ["id", "name", "email", "role"]
+
 class ImageGenerationTaskSerializer(serializers.ModelSerializer):
-    # Nested creator info
-    creator = serializers.StringRelatedField(read_only=True)
-    # Nested product IDs as full objects
+    creator = CreatorSerializer(read_only=True)
     products = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = ImageGenerationTask
-        fields = [
-            "id",
-            "creator",
-            "product_ids",
-            "products",
-            "custom_prompt",
-            "status",
-            "created_at",
-            "updated_at",
-        ]
+        fields = ["id", "creator", "product_ids", "products", "custom_prompt", "status", "created_at", "updated_at"]
         read_only_fields = ["status", "created_at", "updated_at"]
 
     def get_products(self, obj):
-        from .models import Product
         products = Product.objects.filter(id__in=obj.product_ids)
         return ProductSerializer(products, many=True).data
 
 class ImageGenerationSerializer(serializers.ModelSerializer):
-    task = serializers.StringRelatedField(read_only=True)
-    creator = serializers.StringRelatedField(read_only=True)
+    task = ImageGenerationTaskSerializer(read_only=True)
+    creator = CreatorSerializer(read_only=True)
 
     class Meta:
         model = ImageGeneration
-        fields = [
-            "id",
-            "task",
-            "creator",
-            "image",
-            "created_at",
-        ]
+        fields = ["id", "task", "creator", "image", "created_at"]
         read_only_fields = ["created_at"]

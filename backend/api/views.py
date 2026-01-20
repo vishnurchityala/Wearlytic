@@ -311,7 +311,7 @@ def image_generation_view(request):
 		image_generated_bytes = generate_ai_product_image(info_prompt+custom_prompt,base_image,input_images)
 		image_generated = supabase_bucket_manager.store_bytes(image_generated_bytes,f'/generations/{image_generation_task.id}.jpg')
 		image_generation = ImageGeneration.objects.create(
-			task=image_generation_task,
+			task=image_generation_task.id,
 			creator=user,
 			image=image_generated,
 			created_at = str(datetime.datetime.now())
@@ -325,4 +325,4 @@ def image_generation_view(request):
 		image_generation_task.save()
 	
 	serializer = ImageGenerationTaskSerializer(image_generation_task)
-	return Response(serializer.data)
+	return Response(serializer.data,status=status.HTTP_417_EXPECTATION_FAILED)
