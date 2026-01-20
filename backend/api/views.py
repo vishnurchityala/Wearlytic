@@ -79,6 +79,12 @@ def create_user_view(request):
         status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
     )
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def me_view(request):
+	serializer = AppUserSerializer(request.user)
+	return Response(serializer.data)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def validate_token_view(request):
