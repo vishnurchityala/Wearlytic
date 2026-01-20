@@ -52,7 +52,7 @@ class UpdateAppUserSerializer(serializers.Serializer):
 class CreatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppUser
-        fields = ["id", "name", "email", "role"]
+        fields = ["id", "name", "email", "role","tokens"]
 
 class ImageGenerationTaskSerializer(serializers.ModelSerializer):
     creator = CreatorSerializer(read_only=True)

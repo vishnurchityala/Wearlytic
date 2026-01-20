@@ -277,6 +277,8 @@ def image_generation_view(request):
 
 	try:
 		user = AppUser.objects.get(id=user_id)
+		if user.tokens == 0:
+			return Response({"result":"No Enough Tokens"},)
 		info_prompt = user.info_prompt
 		response = requests.get(user.base_image_path, timeout=10)
 		response.raise_for_status()
@@ -318,6 +320,9 @@ def image_generation_view(request):
 		)
 		image_generation_task.status = "completed"
 		image_generation_task.save()
+		if user.role == "user":
+			user.tokens = user.tokens - 5
+			user.save()
 		serializer = ImageGenerationSerializer(image_generation)
 		return Response(serializer.data)
 	except Exception as e:
