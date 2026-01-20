@@ -109,8 +109,12 @@ def products_list_view(request):
 		page_size = 100
 
 	if category_ids is not None:
-		if not isinstance(category_ids, list):
-			raise ValidationError({"category_ids": "Must be a list of integers."})
+		try:
+			category_ids = [str(cid) for cid in category_ids.split(",")]
+		except ValueError:
+			raise ValidationError({
+                "category_ids": "Must be a comma-separated list of integers."
+            })
 		queryset = queryset.filter(category_id__in=category_ids)
 	
 	if min_price is not None:
