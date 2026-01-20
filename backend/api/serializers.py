@@ -44,3 +44,7 @@ class ProductSerializer(serializers.ModelSerializer):
 		]
 
 
+class UpdateAppUserSerializer(serializers.Serializer):
+	name = serializers.CharField(max_length=255, required=False, allow_blank=True)
+	info_prompt = serializers.CharField(required=False, allow_blank=True)
+	image = serializers.FileField(required=False, allow_empty_file=False)

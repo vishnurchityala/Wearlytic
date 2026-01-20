@@ -3,19 +3,32 @@ import os
 import dotenv
 dotenv.load_dotenv()
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, BaseParser
+
+
+class RawImageParser(BaseParser):
+    """
+    Accept raw request bodies such as image/jpeg or image/png and return bytes.
+    Placed last in parser_classes to avoid shadowing JSON/multipart parsers.
+    """
+    media_type = "*/*"
+
+    def parse(self, stream, media_type=None, parser_context=None):
+        return stream.read()
 from supabase import create_client
 from .models import AppUser, Product, Category
 from .serializers import (
 	CreateUserSerializer,
 	AppUserSerializer,
 	ProductSerializer,
-	CategorySerializer
+	CategorySerializer,
+	UpdateAppUserSerializer
 )
 
 import requests
@@ -85,6 +98,80 @@ def me_view(request):
 	serializer = AppUserSerializer(request.user)
 	return Response(serializer.data)
 
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser, JSONParser, RawImageParser])
+def update_user_view(request, user_id):
+	try:
+		user = AppUser.objects.get(id=user_id)
+	except AppUser.DoesNotExist:
+		raise NotFound("User not found")
+
+	if str(request.user.id) != str(user_id) and request.user.role != "super_user":
+		raise PermissionDenied("You are not allowed to update this user")
+
+	# Handle raw-bytes image uploads (e.g., Content-Type: image/jpeg with raw body)
+	if isinstance(request.data, (bytes, bytearray)):
+		ct = request.META.get("CONTENT_TYPE", "") or request.content_type or ""
+		if not ct.startswith("image/"):
+			return Response({"detail": "Unsupported media type"}, status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+		image_bytes = bytes(request.data)
+		ext = ct.split("/")[-1].lower() if "/" in ct else "jpg"
+		if ext == "jpeg":
+			ext = "jpg"
+		try:
+			if user.base_image_path:
+				try:
+					supabase_bucket_manager.delete_by_url(user.base_image_path)
+				except Exception:
+					pass
+			object_path = f"profile/{user.supabase_uid}.{ext}"
+			new_url = supabase_bucket_manager.store_bytes(image_bytes, object_path)
+			user.base_image_path = new_url
+			user.save()
+			return Response(AppUserSerializer(user).data)
+		except Exception as e:
+			return Response({"detail": f"Failed to upload image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	# Otherwise, handle JSON/form and optional multipart file via serializer
+	serializer = UpdateAppUserSerializer(data=request.data)
+	serializer.is_valid(raise_exception=True)
+	validated = serializer.validated_data
+
+	updated = False
+
+	if "name" in validated:
+		user.name = validated["name"]
+		updated = True
+	if "info_prompt" in validated:
+		user.info_prompt = validated["info_prompt"]
+		updated = True
+
+	uploaded_file = validated.get("image")
+	if uploaded_file is not None:
+		try:
+			image_bytes = uploaded_file.read()
+			ext = "jpg"
+			if getattr(uploaded_file, "name", None) and "." in uploaded_file.name:
+				ext = uploaded_file.name.rsplit(".", 1)[-1].lower()
+				if ext == "jpeg":
+					ext = "jpg"
+			if user.base_image_path:
+				try:
+					supabase_bucket_manager.delete_by_url(user.base_image_path)
+				except Exception:
+					pass
+			object_path = f"profile/{user.supabase_uid}.{ext}"
+			new_url = supabase_bucket_manager.store_bytes(image_bytes, object_path)
+			user.base_image_path = new_url
+			updated = True
+		except Exception as e:
+			return Response({"detail": f"Failed to upload image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	if updated:
+		user.save()
+
+	return Response(AppUserSerializer(user).data)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def validate_token_view(request):

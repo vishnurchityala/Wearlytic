@@ -1,6 +1,7 @@
 from typing import Optional
 import os
 from urllib.parse import urlparse
+import mimetypes
 
 
 class SupabaseBucketManager:
@@ -31,11 +32,22 @@ class SupabaseBucketManager:
         final_bucket = bucket_name or os.environ.get("SUPABASE_BUCKET", "generated-images")
         return cls(supabase_url=supabase_url, supabase_key=supabase_key, bucket_name=final_bucket)
 
-    def store_bytes(self, object_bytes: bytes, object_path: str) -> str:
-        """Upload raw bytes to the bucket."""
+    def store_bytes(self, object_bytes: bytes, object_path: str, *, upsert: bool = True, content_type: Optional[str] = None) -> str:
+        """Upload raw bytes to the bucket. Upserts by default if the object exists."""
         storage = self._client.storage.from_(self.bucket_name)
-        storage.upload(object_path, object_bytes)
-        return storage.get_public_url(object_path)
+        # Normalize path to avoid leading slash issues
+        normalized_path = object_path.lstrip("/")
+        if content_type is None:
+            guessed_type, _ = mimetypes.guess_type(object_path)
+            content_type = guessed_type
+        file_options = {}
+        # Some client versions require header values to be strings
+        # Convert upsert bool to "true"/"false" strings to be safe
+        file_options["upsert"] = "true" if upsert else "false"
+        if content_type:
+            file_options["contentType"] = content_type
+        storage.upload(normalized_path, object_bytes, file_options=file_options)
+        return storage.get_public_url(normalized_path)
 
     def store_file(self, file_path: str, object_path: str) -> str:
         """Upload a local file to the bucket."""
