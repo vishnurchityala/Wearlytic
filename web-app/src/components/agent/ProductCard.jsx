@@ -1,9 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faCheck } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
 
-function ProductCard({ product, setSelectedProducts }) {
-    const [selected, setSelected] = useState(false);
+function ProductCard({ product, selected, setSelectedProducts }) {
 
     const handleSelectClick = () => {
         setSelectedProducts(prevProducts => {
@@ -14,10 +12,8 @@ function ProductCard({ product, setSelectedProducts }) {
             }
 
             if (exists) {
-                setSelected(false);
                 return prevProducts.filter(p => p.id !== product.id);
             } else {
-                setSelected(true);
                 return [...prevProducts, product];
             }
         });

@@ -11,6 +11,43 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
   const [maxPrice, setMaxPrice] = useState(3000);
   const [pageSize, setPageSize] = useState(100);
   const [productLoading,setProductLoading] = useState(false);
+  const [nextPage,setNextPage] = useState(null);
+  const [prevPage,setPrevPage] = useState(null);
+
+  async function fetchByUrl(url){
+    if (!url) return;
+    const ensureHttps = (inputUrl) => {
+      try {
+        const u = new URL(inputUrl, window.location.origin);
+        if (u.protocol === "http:") u.protocol = "https:";
+        return u.toString();
+      } catch {
+        if (inputUrl.startsWith("//")) return `https:${inputUrl}`;
+        return inputUrl.replace(/^http:/, "https:");
+      }
+    };
+    const safeUrl = ensureHttps(url);
+    setProductLoading(true);
+    try{
+      const response = await fetch(safeUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch Products");
+      }
+      const data = await response.json();
+      setProducts(data['results'] || []);
+      setNextPage(data['next'] || null);
+      setPrevPage(data['previous'] || null);
+    } catch(error){
+      console.error("Error fetching Products:", error);
+    }
+    setProductLoading(false);
+  }
 
   useEffect(()=>{
     async function fetchProducts() {
@@ -45,7 +82,9 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
           throw new Error("Failed to fetch Products");
         }
         const data = await response.json();
-        setProducts(data['results']);
+        setProducts(data['results'] || []);
+        setNextPage(data['next'] || null);
+        setPrevPage(data['previous'] || null);
       }
       catch(error){
         console.error("Error fetching Products:", error);
@@ -75,7 +114,17 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
         pageSize={pageSize}
         setPageSize={setPageSize}
       />
-      <ProductSection products={products} loading={productLoading} setSelectedProducts={setSelectedProducts}/>
+      <ProductSection 
+        products={products} 
+        loading={productLoading}
+        selectedProducts={selectedProducts} 
+        setSelectedProducts={setSelectedProducts} 
+        nextPage={nextPage} 
+        prevPage={prevPage}
+        setNextPage={setNextPage}
+        setPrevPage={setPrevPage}
+        onFetchPage={fetchByUrl}
+      />
     </div>
   );
 }
