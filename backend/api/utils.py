@@ -1,26 +1,57 @@
+import os
+import dotenv
+dotenv.load_dotenv()
 from typing import List
+from google import genai
+from google.genai import types
 
-DEFAULT_IMAGE_URL: str = "https://knrbxuzorgcjgfmtkias.supabase.co/storage/v1/object/public/image_assets/1234567890.jpg"
 
+def generate_ai_product_image(prompt: str,base_image: bytes,input_images: List[bytes],) -> bytes:
 
-def generate_ai_product_image(prompt: str, product_image_urls: List[str]) -> str:
-	"""
-	Build a marketing/creative image from a custom prompt and a set of product
-	image URLs, then return a URL to the final image.
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-	Simple implementation using Google GenAI as per the provided template:
-	- Create a genai client
-	- Combine prompt and PIL images (fetched from provided URLs)
-	- Call generate_content on "gemini-2.5-flash-image"
-	- Iterate response parts and touch text/inline image data
-	- Always return DEFAULT_IMAGE_URL (no storage/upload yet)
+    parts = [
+        types.Part(text=prompt),
 
-	Args:
-		prompt: The creative prompt to guide image generation.
-		product_image_urls: A list of source product image URLs to include.
+        types.Part(
+            inline_data=types.Blob(
+                mime_type="image/jpeg",
+                data=base_image
+            )
+        ),
+    ]
 
-	Returns:
-		For now, always DEFAULT_IMAGE_URL.
-	"""
-	return DEFAULT_IMAGE_URL
+    for img in input_images:
+        parts.append(
+            types.Part(
+                inline_data=types.Blob(
+                    mime_type="image/jpeg",
+                    data=img
+                )
+            )
+        )
 
+    contents = [
+        types.Content(
+            role="user",
+            parts=parts
+        )
+    ]
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-image",
+        contents=contents,
+        config=types.GenerateContentConfig(
+            response_modalities=["IMAGE"]
+        ),
+    )
+
+    for candidate in response.candidates or []:
+        content = candidate.content
+        if not content:
+            continue
+        for part in content.parts or []:
+            if part.inline_data and part.inline_data.data:
+                return part.inline_data.data
+
+    raise RuntimeError("No image returned by Gemini.")

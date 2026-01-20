@@ -7,7 +7,8 @@ from .views import (
     categories_list_view,
     me_view,
     update_user_view,
-    update_user_base_image_view
+    update_user_base_image_view,
+    image_generation_view
 )
 
 urlpatterns = [
@@ -17,6 +18,7 @@ urlpatterns = [
     path('users/<uuid:user_id>/', update_user_view, name='users_update'),
 	path('products/', products_list_view, name='list_products'),
 	path('categories/', categories_list_view, name='list_categories'),
+	path('image_generations/', image_generation_view, name='image_generate'),
     path("products/<uuid:product_id>/", product_detail_view, name="product-detail"),
 	path('auth/validate/', validate_token_view, name='validate_token'),
 ]

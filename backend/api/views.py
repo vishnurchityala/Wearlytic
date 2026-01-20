@@ -1,5 +1,6 @@
 import os
-
+import datetime
+import json
 import dotenv
 dotenv.load_dotenv()
 
@@ -11,6 +12,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, BaseParser
 
+from .utils import generate_ai_product_image
+
 
 class RawImageParser(BaseParser):
     media_type = "*/*"
@@ -18,13 +21,15 @@ class RawImageParser(BaseParser):
     def parse(self, stream, media_type=None, parser_context=None):
         return stream.read()
 from supabase import create_client
-from .models import AppUser, Product, Category
+from .models import AppUser, Product, Category, ImageGenerationTask,ImageGeneration
 from .serializers import (
 	CreateUserSerializer,
 	AppUserSerializer,
 	ProductSerializer,
 	CategorySerializer,
-	UpdateAppUserSerializer
+	UpdateAppUserSerializer,
+	ImageGenerationTaskSerializer,
+	ImageGenerationSerializer
 )
 
 import requests
@@ -256,3 +261,68 @@ def product_detail_view(request, product_id):
 
     serializer = ProductSerializer(product)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def image_generation_view(request):
+	body_data = request.data
+	input_products = body_data.get("input_products", [])
+	product_ids = [product['id'] for product in input_products]
+	custom_prompt = body_data.get("custom_prompt", "")
+	user_id = str(request.user.id)
+
+	if not input_products:
+		raise ValidationError("input_products is required")
+
+	try:
+		user = AppUser.objects.get(id=user_id)
+		info_prompt = user.info_prompt
+		response = requests.get(user.base_image_path, timeout=10)
+		response.raise_for_status()
+		base_image = response.content
+	except AppUser.DoesNotExist:
+		raise NotFound("User not found")
+	except requests.exceptions.RequestException:
+		raise ValidationError("Failed to fetch base image")
+	
+	input_images = []
+
+	for product in input_products:
+		try:
+			image_url = product["image_url"]
+			response = requests.get(image_url, timeout=10)
+			response.raise_for_status()
+			input_images.append(response.content)
+		except (KeyError, requests.exceptions.RequestException):
+			raise ValidationError("Invalid or unreachable product image")
+	
+	image_generation_task = ImageGenerationTask.objects.create(
+		creator=user,
+		product_ids=product_ids,
+		custom_prompt=custom_prompt,
+		created_at=str(datetime.datetime.now()),
+		updated_at=str(datetime.datetime.now()),
+		status="pending"
+	)
+	try:
+		image_generation_task.status = "processing"
+		image_generation_task.save()
+		image_generated_bytes = generate_ai_product_image(info_prompt+custom_prompt,base_image,input_images)
+		image_generated = supabase_bucket_manager.store_bytes(image_generated_bytes,f'/generations/{image_generation_task.id}.jpg')
+		image_generation = ImageGeneration.objects.create(
+			task=image_generation_task,
+			creator=user,
+			image=image_generated,
+			created_at = str(datetime.datetime.now())
+		)
+		image_generation_task.status = "completed"
+		image_generation_task.save()
+		serializer = ImageGenerationSerializer(image_generation)
+		return Response(serializer.data)
+	except Exception as e:
+		image_generation_task.status = "failed"
+		image_generation_task.save()
+	
+	serializer = ImageGenerationTaskSerializer(image_generation_task)
+	return Response(serializer.data)
