@@ -98,12 +98,12 @@ def categories_list_view(request):
 @permission_classes([IsAuthenticated])
 def products_list_view(request):
 	queryset = Product.objects.select_related("category").all()
-	data = request.data
+	params = request.query_params
 
-	category_ids = data.get("category_ids")
-	min_price = data.get("min_price")
-	max_price = data.get("max_price")
-	page_size = data.get("page_size")
+	category_ids = params.get("category_ids")
+	min_price = params.get("min_price")
+	max_price = params.get("max_price")
+	page_size = params.get("page_size")
     
 	if page_size is None:
 		page_size = 100
