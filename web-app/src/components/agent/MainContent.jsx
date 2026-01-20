@@ -45,6 +45,7 @@ function MainContent() {
             categories={categories}
             selectedProducts={selectedProducts}
             loading={loading}
+            setSelectedProducts={setSelectedProducts}
           />
         </div>
         <div className="h-full">
@@ -58,6 +59,7 @@ function MainContent() {
               categories={categories}
               selectedProducts={selectedProducts}
               loading={loading}
+              setSelectedProducts={setSelectedProducts}
             />
           </Panel>
           <Separator className="w-1 bg-gray-300 cursor-col-resize" />

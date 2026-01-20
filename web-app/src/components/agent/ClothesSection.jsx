@@ -3,7 +3,7 @@ import ProductSection from "./ProductSection";
 import { useState,useEffect } from "react";
 import { useAuth } from "../../auth/AuthProvider";
 
-function ClothesSection({ categories, selectedProducts,loading }) {
+function ClothesSection({ categories, selectedProducts,setSelectedProducts,loading }) {
   const { token } = useAuth();
   const [products, setProducts] = useState([]);
   const [categoriesSelected, setCategoriesSelected] = useState([]);
@@ -16,28 +16,45 @@ function ClothesSection({ categories, selectedProducts,loading }) {
     async function fetchProducts() {
       setProductLoading(true);
       try{
-        const response = await fetch("https://wearlytic-zbas.onrender.com/api/products", {
+        const categoryIds = categoriesSelected;
+
+        const params = new URLSearchParams();
+
+        if (categoryIds.length) {
+            params.append("category_ids", categoryIds.join(","));
+        }
+
+        if (minPrice !== undefined) {
+            params.append("min_price", minPrice);
+        }
+
+        if (maxPrice !== undefined) {
+            params.append("max_price", maxPrice);
+        }
+        if (pageSize !== undefined) {
+            params.append("page_size", pageSize);
+        }
+        const response = await fetch(`https://wearlytic-zbas.onrender.com/api/products/?${params.toString()}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
-          },
+          }
         });
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          throw new Error("Failed to fetch Products");
         }
         const data = await response.json();
-        console.log(data);
         setProducts(data['results']);
       }
       catch(error){
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching Products:", error);
       }
       setProductLoading(false);
     }
     fetchProducts();
   },[categoriesSelected,minPrice,maxPrice,pageSize]);
-  
+
   if (loading) {
         return (
         <div className="flex justify-center items-center h-screen">
@@ -58,7 +75,7 @@ function ClothesSection({ categories, selectedProducts,loading }) {
         pageSize={pageSize}
         setPageSize={setPageSize}
       />
-      <ProductSection products={products} loading={productLoading}/>
+      <ProductSection products={products} loading={productLoading} setSelectedProducts={setSelectedProducts}/>
     </div>
   );
 }
