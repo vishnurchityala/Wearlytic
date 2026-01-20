@@ -77,7 +77,7 @@ function ProfileImageForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-lg shadow-lg p-4 sm:p-6"
+            className="bg-white border-2 border-gray-300  rounded-lg shadow-lg p-4 sm:p-6"
             encType="multipart/form-data"
         >
             <h2 className="outfit-regular text-xl sm:text-2xl mb-3">Profile Image</h2>

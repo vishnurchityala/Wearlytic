@@ -74,7 +74,7 @@ function ProfileDetailsForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-lg shadow-lg p-4 sm:p-6"
+            className="bg-white border-2 border-gray-300 rounded-lg shadow-lg p-4 sm:p-6"
         >
             <div className="flex items-center justify-between">
                 <h2 className="outfit-regular text-xl sm:text-2xl">Profile Details</h2>
@@ -102,7 +102,7 @@ function ProfileDetailsForm() {
                                 value={form.name}
                                 onChange={handleChange}
                                 placeholder="Your name"
-                                className="w-full border border-gray-300 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-black bg-white outfit-regular"
+                                className="w-full border-2 border-gray-300 px-3 py-2 rounded-xl bg-white outfit-regular"
                             />
                         </div>
                         <div className="col-span-1">
@@ -110,7 +110,7 @@ function ProfileDetailsForm() {
                             <input
                                 value={form.email}
                                 disabled
-                                className="w-full border border-gray-300 px-3 py-2 rounded-xl bg-gray-100 text-gray-600 outfit-regular"
+                                className="w-full border-2 border-gray-300 px-3 py-2 rounded-xl bg-gray-100 text-gray-600 outfit-regular"
                             />
                         </div>
                     </div>
@@ -122,17 +122,17 @@ function ProfileDetailsForm() {
                             value={form.info_prompt}
                             onChange={handleChange}
                             placeholder="Tell us about your style, fit, and preferences…"
-                            className="w-full border border-gray-300 px-3 py-2 rounded-xl min-h-28 focus:outline-none focus:ring-2 focus:ring-black bg-white outfit-regular"
+                            className="w-full border-2 border-gray-300 px-3 py-2 rounded-xl min-h-28 bg-white outfit-regular"
                         />
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-full border border-gray-300 bg-white text-gray-700 text-xs">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-full border-2 border-gray-300 bg-white text-gray-700 text-xs">
                             <FontAwesomeIcon icon={faUser} className="me-1" />
                             <span className="opacity-80">Role:</span>
                             <span className="ms-1">{form.role || "—"}</span>
                         </div>
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-full border border-gray-300 bg-white text-gray-700 text-xs">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-full border-2 border-gray-300 bg-white text-gray-700 text-xs">
                             <FontAwesomeIcon icon={faCoins} className="me-1" />
                             <span className="opacity-80">Tokens:</span>
                             <span className="ms-1">{form.tokens}</span>
