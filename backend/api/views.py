@@ -93,23 +93,26 @@ def categories_list_view(request):
 
 	return Response(serializer.data)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def products_list_view(request):
-	# TODO: Multiple category support, request parameter.
 	queryset = Product.objects.select_related("category").all()
-	params = request.query_params
+	data = request.data
 
-	category = params.get("category")
-	category_id = params.get("category_id")
-	min_price = params.get("min_price")
-	max_price = params.get("max_price")
+	category_ids = data.get("category_ids")
+	min_price = data.get("min_price")
+	max_price = data.get("max_price")
+	page_size = data.get("page_size")
+    
+	if page_size is None:
+		page_size = 100
 
-	if category:
-		queryset = queryset.filter(category__name__iexact=category)
-	elif category_id:
-		queryset = queryset.filter(category_id=category_id)
-
+	if category_ids is not None:
+		if not isinstance(category_ids, list):
+			raise ValidationError({"category_ids": "Must be a list of integers."})
+		queryset = queryset.filter(category_id__in=category_ids)
+	
 	if min_price is not None:
 		try:
 			min_price_val = float(min_price)
@@ -125,11 +128,11 @@ def products_list_view(request):
 		queryset = queryset.filter(price__lte=max_price_val)
 
 	paginator = PageNumberPagination()
-	paginator.page_size = 100
+	paginator.page_size = page_size
 	paginator.page_size_query_param = "page_size"
 	paginator.max_page_size = 300
-	page = paginator.paginate_queryset(queryset, request)
 
+	page = paginator.paginate_queryset(queryset, request)
 	serializer = ProductSerializer(page, many=True)
 	return paginator.get_paginated_response(serializer.data)
 
