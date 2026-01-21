@@ -108,7 +108,7 @@ def update_user_view(request, user_id):
 	except AppUser.DoesNotExist:
 		raise NotFound("User not found")
 
-	if str(request.user.id) != str(user_id) and request.user.role != "super_user":
+	if str(request.user.id) != str(user_id):
 		raise PermissionDenied("You are not allowed to update this user")
 
 	serializer = UpdateAppUserSerializer(data=request.data)
