@@ -100,7 +100,7 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
                         className={`py-2 px-4 outfit-regular text-sm rounded-full flex items-center justify-center gap-2 transition
                             ${loading || !hasEnoughTokens
                                 ? "bg-black text-white cursor-not-allowed"
-                                : "bg-black text-white hover:bg-gray-900"
+                                : "bg-black text-white hover:bg-gray-900 cursor-pointer"
                             }`}
                     >
                         {loading ? (
