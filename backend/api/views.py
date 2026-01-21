@@ -334,8 +334,10 @@ def image_generation_view(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def list_generations(request,user_id):
+def list_generations(request):
 	try:
+		serializer = AppUserSerializer(request.user)
+		user_id = serializer.data['id']
 		user = AppUser.objects.get(id=user_id)
 	except AppUser.DoesNotExist:
 		raise NotFound("User not found")
