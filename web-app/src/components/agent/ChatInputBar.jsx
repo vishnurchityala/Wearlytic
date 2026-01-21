@@ -91,7 +91,7 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         disabled={loading}
-                        className="flex-1 bg-transparent text-gray-700 outline-none text-sm mx-3 outfit-regular disabled:opacity-60"
+                        className="flex-1 bg-transparent text-gray-700 outline-none text-xs md:text-sm mx-3 outfit-regular disabled:opacity-60"
                     />
 
                     <button
