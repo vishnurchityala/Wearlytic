@@ -45,8 +45,6 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
                 input_products: selectedProducts,
             };
 
-            console.log(payload);
-
             const genRes = await fetch(
                 "https://wearlytic-zbas.onrender.com/api/image_generations/",
                 {
