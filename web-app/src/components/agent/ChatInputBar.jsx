@@ -1,19 +1,87 @@
 import { useState } from "react";
+import { useAuth } from "../../auth/AuthProvider";
 
-function ChatInputBar({ setImageGenerations,setLoading }) {
+function ChatInputBar({ setImageGenerations, selectedProducts }) {
     const [value, setValue] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [hasEnoughTokens, setHasEnoughTokens] = useState(true);
 
-    const handleSubmit = (e) => {
+    const { token } = useAuth();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         const trimmed = value.trim();
-        if (!trimmed) return;
-        if (onSubmit) onSubmit(trimmed);
-        setValue("");
+        if (!trimmed || loading) return;
+
+        setLoading(true);
+
+        try {
+            const meRes = await fetch(
+                "https://wearlytic-zbas.onrender.com/api/users/me",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!meRes.ok) {
+                throw new Error("Failed to fetch user data");
+            }
+
+            const me = await meRes.json();
+
+            if (me.tokens < 5) {
+                setHasEnoughTokens(false);
+                setLoading(false);
+                return;
+            }
+
+            setHasEnoughTokens(true);
+
+            const payload = {
+                custom_prompt: trimmed,
+                input_products: selectedProducts,
+            };
+
+            console.log(payload);
+
+            const genRes = await fetch(
+                "https://wearlytic-zbas.onrender.com/api/image_generations/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            if (!genRes.ok) {
+                throw new Error("Image generation request failed");
+            }
+
+            const result = await genRes.json();
+
+            if ("status" in result) {
+                console.error("Generation failed:", result);
+                return;
+            }
+
+            setImageGenerations((prev) => [...prev, result]);
+            setValue("");
+        } catch (err) {
+            console.error("Image generation error:", err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <form 
-            onSubmit={handleSubmit} 
+        <form
+            onSubmit={handleSubmit}
             className="w-full px-2 md:px-6 py-4 flex items-center justify-center bg-white"
         >
             <div className="w-full max-w-5xl relative">
@@ -21,19 +89,41 @@ function ChatInputBar({ setImageGenerations,setLoading }) {
 
                     <input
                         type="text"
-                        placeholder="Custom Prompt for Try Out  (Prompt Well for Results)"
+                        placeholder="Custom Prompt for Try Out (Prompt Well for Results)"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
-                        className="flex-1 bg-transparent text-gray-700 outline-none text-sm mx-3 outfit-regular"
+                        disabled={loading}
+                        className="flex-1 bg-transparent text-gray-700 outline-none text-sm mx-3 outfit-regular disabled:opacity-60"
                     />
 
                     <button
                         type="submit"
-                        className="py-2 px-3 outfit-regular text-sm rounded-full flex items-center justify-center bg-black text-white cursor-pointer"
+                        disabled={loading || !hasEnoughTokens}
+                        className={`py-2 px-4 outfit-regular text-sm rounded-full flex items-center justify-center gap-2 transition
+                            ${loading || !hasEnoughTokens
+                                ? "bg-black text-white cursor-not-allowed"
+                                : "bg-black text-white hover:bg-gray-900"
+                            }`}
                     >
-                        Generate <span className="px-1 text-lg">↑</span>
+                        {loading ? (
+                            <>
+                                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                Generating
+                            </>
+                        ) : (
+                            <>
+                                Generate <span className="text-lg">↑</span>
+                            </>
+                        )}
                     </button>
+
                 </div>
+
+                {!hasEnoughTokens && (
+                    <p className="text-xs text-red-600 mt-2 px-3">
+                        You need at least 5 tokens to generate an image.
+                    </p>
+                )}
             </div>
         </form>
     );

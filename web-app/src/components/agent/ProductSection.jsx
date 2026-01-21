@@ -22,9 +22,9 @@ function ProductSection({products,loading,selectedProducts,setSelectedProducts,n
         <div className="w-full rounded-xl border-2 border-gray-300 overflow-y-scroll outfit-regular max-h-150 sm:max-h-full sm:h-fit">
             <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="w-full ms-auto px-1 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
+                className="w-full ms-auto px-4 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
             >
-                 <span className="text-center ms-2 my-auto text-sm">
+                 <span className="text-center my-auto text-sm">
                     Clothes <FontAwesomeIcon icon={faShirt}/>
                 </span>
                 <FontAwesomeIcon icon={collapsed ? faChevronDown : faChevronUp} />
@@ -32,7 +32,7 @@ function ProductSection({products,loading,selectedProducts,setSelectedProducts,n
 
             {!collapsed && (
                 <>
-                    <div className="flex ms-4 gap-2">
+                    <div className="flex ms-4 gap-2 mt-1">
                         {prevPage !== null &&
                             <button
                                 type="button"

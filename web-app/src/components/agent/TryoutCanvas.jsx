@@ -1,10 +1,10 @@
 import { ImageGenerationCard } from "./ImageGenerationCard";
 
-function TryoutCanvas({ imageGenerations = ['','','',''] }) {
+function TryoutCanvas({ imageGenerations }) {
     return (
         <div
             className="
-				w-full h-auto md:h-full
+				w-full h-full
 				max-h-[65vh] md:max-h-none
 				overflow-auto
                 rounded-xl border border-gray-200
@@ -22,7 +22,7 @@ function TryoutCanvas({ imageGenerations = ['','','',''] }) {
 					<div className="flex flex-wrap justify-center items-start gap-3 content-start">
 						{imageGenerations.map((item, index) => (
 							<ImageGenerationCard
-								key={item?.id ?? index}
+								key={item.id}
 								imageGeneration={item}
 							/>
 						))}
