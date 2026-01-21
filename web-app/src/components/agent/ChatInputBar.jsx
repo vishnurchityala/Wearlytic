@@ -110,7 +110,7 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
                             </>
                         ) : (
                             <>
-                                Generate <span className="text-lg">↑</span>
+                                Generate
                             </>
                         )}
                     </button>
