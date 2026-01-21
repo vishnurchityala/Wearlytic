@@ -56,7 +56,7 @@ def create_user_view(request):
 	validated = serializer.validated_data
 	app_user_id = validated["supabase_uid"]
 	role = "user"
-	tokens = 50
+	tokens = 100
 	default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
 	uploaded_image_url = ""
 	try:
@@ -321,7 +321,7 @@ def image_generation_view(request):
 		image_generation_task.status = "completed"
 		image_generation_task.save()
 		if user.role == "user":
-			user.tokens = user.tokens - 5
+			user.tokens = user.tokens - 50
 			user.save()
 		serializer = ImageGenerationSerializer(image_generation)
 		return Response(serializer.data)
