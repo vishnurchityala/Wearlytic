@@ -1,4 +1,5 @@
 import { Navbar } from "../components/general/Navbar";
+import { PastImageGenerationSection } from "../components/general/PastImageGenerationSection";
 import ProfileDetailsForm from "../components/general/ProfileDetailsForm";
 import ProfileImageForm from "../components/general/ProfileImageForm";
 
@@ -18,6 +19,7 @@ function UserPage() {
                     </div>
                 </div>
             </section>
+            <PastImageGenerationSection/>
         </div>
     );
 }
