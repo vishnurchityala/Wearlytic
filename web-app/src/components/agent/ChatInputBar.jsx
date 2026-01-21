@@ -32,7 +32,7 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
 
             const me = await meRes.json();
 
-            if (me.tokens < 5) {
+            if (me.tokens < 50) {
                 setHasEnoughTokens(false);
                 setLoading(false);
                 return;
