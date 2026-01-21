@@ -8,13 +8,15 @@ from .views import (
     me_view,
     update_user_view,
     update_user_base_image_view,
-    image_generation_view
+    image_generation_view,
+    list_generations
 )
 
 urlpatterns = [
 	path('users/create/', create_user_view, name='users_create'),
 	path('users/me/', me_view, name='users_me'),
     path('users/<uuid:user_id>/base_image/', update_user_base_image_view, name='users_update_base_image'),
+    path('users/<uuid:user_id>/generations/', list_generations, name='list_generations'),
     path('users/<uuid:user_id>/', update_user_view, name='users_update'),
 	path('products/', products_list_view, name='list_products'),
 	path('categories/', categories_list_view, name='list_categories'),

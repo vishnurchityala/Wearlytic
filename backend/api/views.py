@@ -139,7 +139,7 @@ def update_user_base_image_view(request, user_id):
 	except AppUser.DoesNotExist:
 		raise NotFound("User not found")
 
-	if str(request.user.id) != str(user_id) and request.user.role != "super_user":
+	if str(request.user.id) != str(user_id):
 		raise PermissionDenied("You are not allowed to update this user")
 
 	image_bytes = None
@@ -331,3 +331,19 @@ def image_generation_view(request):
 	
 	serializer = ImageGenerationTaskSerializer(image_generation_task)
 	return Response(serializer.data,status=status.HTTP_417_EXPECTATION_FAILED)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_generations(request,user_id):
+	try:
+		user = AppUser.objects.get(id=user_id)
+	except AppUser.DoesNotExist:
+		raise NotFound("User not found")
+	
+	if str(user_id) != str(user.id):
+		return Response(status=status.HTTP_401_UNAUTHORIZED)
+	
+	generations = ImageGeneration.objects.filter(creator=user)
+	serializer = ImageGenerationSerializer(generations,many=True)
+
+	return Response(serializer.data,status=status.HTTP_200_OK)
