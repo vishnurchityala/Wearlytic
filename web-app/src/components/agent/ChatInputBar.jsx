@@ -97,7 +97,7 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
                     <button
                         type="submit"
                         disabled={loading || !hasEnoughTokens}
-                        className={`py-2 px-4 outfit-regular text-sm rounded-full flex items-center justify-center gap-2 transition
+                        className={`py-2 px-4 outfit-regular text-xs md:text-sm rounded-full flex items-center justify-center gap-2 transition
                             ${loading || !hasEnoughTokens
                                 ? "bg-black text-white cursor-not-allowed"
                                 : "bg-black text-white hover:bg-gray-900 cursor-pointer"
@@ -119,7 +119,7 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
 
                 {!hasEnoughTokens && (
                     <p className="text-xs text-red-600 mt-2 px-3">
-                        You need at least 5 tokens to generate an image.
+                        You need at least 50 tokens to generate an image.
                     </p>
                 )}
             </div>
