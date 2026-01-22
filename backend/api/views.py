@@ -277,6 +277,8 @@ def image_generation_view(request):
 
 	try:
 		user = AppUser.objects.get(id=user_id)
+		if user.role == "user":
+			return Response({"result":"Only Super Users are Allowed to use this feature."},)
 		if user.tokens == 0:
 			return Response({"result":"No Enough Tokens"},)
 		info_prompt = user.info_prompt
