@@ -1,6 +1,11 @@
 # Dependency directories
 node_modules/
 jspm_packages/
+.agents/
+.agent/
+.cursor/
+.gemini/
+
 
 # Log files
 *.log
@@ -51,3 +56,5 @@ web-app/api_products_data.csv
 web-app/categories_data.csv
 web-app/product_warehouse.json
 web-app/trial.py
+backend/generated_output.jpg
+backend/trial.py

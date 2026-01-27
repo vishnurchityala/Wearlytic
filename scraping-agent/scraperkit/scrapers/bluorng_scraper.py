@@ -161,7 +161,7 @@ class BluOrngScraper(BaseScraper):
                 scraped_datetime=datetime.now(timezone.utc),
                 processed_datetime=datetime.now(timezone.utc),
                 page_index=0,
-                page_content=body_content
+                page_content="DUMMY_PAGE_CONTENT"
             )
             return product
         except Exception as e:

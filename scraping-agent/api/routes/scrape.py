@@ -5,7 +5,7 @@ from api.celery_worker import scrape_product_task, scrape_listing_task
 from api.db import JobsManager
 from api.security import verify_token
 
-router = APIRouter(prefix="/api/scrapingagent/scrape")
+router = APIRouter(prefix="/api/scrapingagent/scrape",redirect_slashes=False)
 job_manager = JobsManager()
 
 @router.post("/",status_code=status.HTTP_200_OK, dependencies=[Depends(verify_token)])

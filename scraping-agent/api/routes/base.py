@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
 
-router = APIRouter(prefix="")
+router = APIRouter(prefix="",redirect_slashes=False)
 
 @router.get("/", summary="Root redirect")
 def index():
@@ -14,8 +14,8 @@ def api_index():
     return {
         "message": "Base URL Endpoint",
         "endpoints": {
-            "POST /api/scrape/": "Start a new scraping task",
-            r"GET /api/scrape/{task_id}/status": "Check the status of a scraping task",
-            r"GET /api/scraper/{task_id}/result": "Fetch the result of a scraping task",
+            r"POST /api/scrape/": "Start a new scraping task",
+            r"GET /api/scrape/{task_id}/status/": "Check the status of a scraping task",
+            r"GET /api/scraper/{task_id}/result/": "Fetch the result of a scraping task",
         },
     }

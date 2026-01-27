@@ -9,13 +9,6 @@ cache = ScraperLRUCache(max_size=17)
 
 
 def extract_domain(url):
-    if isinstance(url, bytes):
-        url = url.decode('utf-8', errors='ignore')
-
-    url = re.sub(r'[^\x20-\x7E]', '', url)
-
-    if not url.startswith(('http://', 'https://')):
-        url = 'http://' + url
 
     parsed = urlparse(url)
     host = parsed.netloc or parsed.path
@@ -54,3 +47,5 @@ def get_driver_path():
         return "./scraperkit/drivers/chromedriver-mac-x64/chromedriver"
     elif platform == 'win64':
         return "./scraperkit/drivers/chromedriver-win64/chromedriver.exe"
+    elif platform == 'linux64':
+        return "./scraperkit/drivers/chromedriver-linux64/chromedriver"
