@@ -48,7 +48,8 @@ class BluOrngScraper(BaseScraper):
                 for product_card in product_cards:
                     product_link = product_card.find("a")['href']
                     product_link = self.base_url + product_link[1:]
-                    product_links.append(product_link)
+                    if product_link not in product_links:
+                        product_links.append(product_link)
             except Exception as e:
                 raise DataParsingException(f"Error parsing product card from {listings_page_url}")
             
@@ -98,12 +99,17 @@ class BluOrngScraper(BaseScraper):
 
     def _extract_sizes(self, soup: BeautifulSoup) -> list:
         try:
-            sizes_div = soup.find("fieldset",attrs={"class":"js product-form__input"})
-            sizes_components = sizes_div.find_all("input",attrs={"name":"Size"})
+            sizes_components = soup.find_all("input", attrs={"name": "Size"})
+            if not sizes_components:
+                sizes_div = soup.find("fieldset", attrs={"class": "js product-form__input"})
+                if sizes_div:
+                    sizes_components = sizes_div.find_all("input")
+
             sizes = []
             for size_component in sizes_components:
-                size = size_component["value"]
-                sizes.append(size)
+                size = size_component.get("value", "").strip()
+                if size and size not in sizes:
+                    sizes.append(size)
             return sizes
         except Exception:
             raise DataComponentNotFoundException("Sizes Data Component Not Found for BluOrng")
@@ -142,6 +148,7 @@ class BluOrngScraper(BaseScraper):
             page_content = self.get_page_content(product_page_url)
             soup = BeautifulSoup(page_content, "html.parser")
             body_content = soup.body.prettify()
+            scraped_at = datetime.now(timezone.utc)
             
             product = Product(
                 id=self._extract_id(soup),
@@ -158,10 +165,10 @@ class BluOrngScraper(BaseScraper):
                 rating=self._extract_rating(soup),
                 review_count=self._extract_review_count(soup),
                 processed=False,
-                scraped_datetime=datetime.now(timezone.utc),
-                processed_datetime=datetime.now(timezone.utc),
+                scraped_datetime=scraped_at,
+                processed_datetime=scraped_at,
                 page_index=0,
-                page_content="DUMMY_PAGE_CONTENT"
+                page_content=body_content
             )
             return product
         except Exception as e:

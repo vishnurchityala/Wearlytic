@@ -1,9 +1,12 @@
-import time
 from bs4 import BeautifulSoup
 from scraperkit.base.base_scraper import BaseScraper
 from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.models.product import Product
-from scraperkit.exceptions import DataComponentNotFoundException, DataParsingException
+from scraperkit.exceptions import (
+    ContentNotLoadedException,
+    DataComponentNotFoundException,
+    DataParsingException,
+)
 from datetime import datetime, timezone
 
 class MyntraScraper(BaseScraper):
@@ -11,7 +14,7 @@ class MyntraScraper(BaseScraper):
     MyntraScraper extracts structured product data from Myntra by parsing listing and product pages.
     It extends BaseScraper and returns results as Product objects.
     """
-    def __init__(self, headers=None):
+    def __init__(self, headers=None, content_loader=None):
         super().__init__("https://www.myntra.com/", headers=headers)
         self.id_prefix = "mynt_"
         self.headers = headers or {
@@ -26,14 +29,20 @@ class MyntraScraper(BaseScraper):
             "Sec-Fetch-Site": "none",
             "Sec-Fetch-User": "?1"
         }
-        self.content_loader = SeleniumContentLoader(headers=self.headers, timeout=30)
+        self.content_loader = content_loader or SeleniumContentLoader(
+            headers=self.headers,
+            timeout=30,
+        )
 
     def get_page_content(self, page_url: str) -> str | None:
         try:
             return self.content_loader.load_content(page_url)
         except Exception as e:
-            print(f"Error fetching page content from Myntra: {e}")
-            return None
+            if isinstance(e, ContentNotLoadedException):
+                raise
+            raise ContentNotLoadedException(
+                f"Error fetching page content from Myntra: {e}"
+            )
 
     def get_pagination_details(self, page_url: str) -> dict:
         page_content = self.get_page_content(page_url)
@@ -200,11 +209,19 @@ class MyntraScraper(BaseScraper):
             if not ratings_count:
                 return 0
             
-            review_text = ratings_count.text.strip().split()[0].replace(',', '')
+            review_text = ratings_count.text.strip().split()[0].replace(',', '').lower()
             if not review_text:
                 raise DataParsingException("Review count text is empty")
-            
-            review_count = int(review_text)
+
+            multiplier = 1
+            if review_text.endswith('k'):
+                multiplier = 1000
+                review_text = review_text[:-1]
+            elif review_text.endswith('m'):
+                multiplier = 1000000
+                review_text = review_text[:-1]
+
+            review_count = int(float(review_text) * multiplier)
             if review_count >= 0:
                 return review_count
             else:
@@ -370,11 +387,13 @@ class MyntraScraper(BaseScraper):
         try:
             page_content = self.get_page_content(product_page_url)
             if not page_content:
-                print(f"Failed to retrieve content for product page: {product_page_url}")
-                return {}
+                raise ContentNotLoadedException(
+                    f"Failed to retrieve content for product page: {product_page_url}"
+                )
 
             soup = BeautifulSoup(page_content, 'html.parser')
-            body_content = soup.body.prettify()
+            body_content = soup.body.prettify() if soup.body else page_content
+            scraped_at = datetime.now(timezone.utc)
 
             product_data = {
                 'id': self._extract_id(soup),
@@ -391,16 +410,26 @@ class MyntraScraper(BaseScraper):
                 'image_url': self._extract_image_url(soup),
                 'url': product_page_url,
                 'processed': False,
-                'scraped_datetime': datetime.now(timezone.utc).timestamp(),
-                'processed_datetime': datetime.now(timezone.utc).timestamp(),
+                'scraped_datetime': scraped_at,
+                'processed_datetime': scraped_at,
                 'page_content': body_content
             }
 
             return Product(**product_data)
 
         except Exception as e:
-            print(f"Error fetching product details: {e}")
-            return {}
+            if isinstance(
+                e,
+                (
+                    DataComponentNotFoundException,
+                    DataParsingException,
+                    ContentNotLoadedException,
+                ),
+            ):
+                raise
+            raise DataParsingException(
+                f"Error extracting product details from {product_page_url}: {str(e)}"
+            )
 
     def close(self):
         if self.content_loader:

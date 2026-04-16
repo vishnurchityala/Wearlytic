@@ -11,13 +11,12 @@ class RequestContentLoader(BaseContentLoader):
             response = requests.get(page_url, headers=self.headers, timeout=self.timeout)
             response.raise_for_status()
             return response.text
+        except requests.exceptions.Timeout as e:
+            raise TimeoutException(f"Timeout while loading page: {page_url}. Error: {str(e)}")
         except (requests.exceptions.InvalidURL,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.MissingSchema) as e:
             raise BadURLException(f"Bad URL provided or server not reachable: {page_url}. Error: {str(e)}")
-
-        except requests.exceptions.Timeout as e:
-            raise TimeoutException(f"Timeout while loading page: {page_url}. Error: {str(e)}")
 
         except requests.exceptions.HTTPError as e:
             raise ContentNotLoadedException(f"HTTP error {response.status_code} while loading page: {page_url}. Error: {str(e)}")

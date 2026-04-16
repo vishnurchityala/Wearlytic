@@ -2,8 +2,12 @@ from bs4 import BeautifulSoup
 from scraperkit.base import BaseScraper
 from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.models import Product
-from scraperkit.exceptions import DataComponentNotFoundException, DataParsingException
-from datetime import datetime,timezone
+from scraperkit.exceptions import (
+    ContentNotLoadedException,
+    DataComponentNotFoundException,
+    DataParsingException,
+)
+from datetime import datetime, timezone
 
 class AmazonScraper(BaseScraper):
     """
@@ -349,9 +353,14 @@ class AmazonScraper(BaseScraper):
                 product_page_url = product_page_url.split('?')[0]
                 
             page_content = self.get_page_content(product_page_url)
+            if not page_content:
+                raise ContentNotLoadedException(
+                    f"Failed to load product page content from {product_page_url}"
+                )
 
             soup = BeautifulSoup(page_content, 'html.parser')
-            body_content = soup.body.prettify()
+            body_content = soup.body.prettify() if soup.body else page_content
+            scraped_at = datetime.now(timezone.utc)
             
             return Product(
                 id=self._extract_id(soup),
@@ -368,14 +377,24 @@ class AmazonScraper(BaseScraper):
                 rating=self._extract_rating(soup),
                 review_count=self._extract_review_count(soup),
                 processed=False,
-                scraped_datetime=datetime.now(timezone.utc).timestamp(),
-                processed_datetime=datetime.now(timezone.utc).timestamp(),
+                scraped_datetime=scraped_at,
+                processed_datetime=scraped_at,
                 page_content=body_content
             )
 
         except Exception as e:
-            print(f"Error fetching product details: {e}")
-            return {}
+            if isinstance(
+                e,
+                (
+                    DataComponentNotFoundException,
+                    DataParsingException,
+                    ContentNotLoadedException,
+                ),
+            ):
+                raise
+            raise DataParsingException(
+                f"Error extracting product details from {product_page_url}: {str(e)}"
+            )
 
     def close(self):
         if self.content_loader:

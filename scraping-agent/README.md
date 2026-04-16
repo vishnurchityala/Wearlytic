@@ -41,6 +41,16 @@ uvicorn main:app --reload
 celery -A celery_worker worker --loglevel=info -Q scrape_medium
 ```
 
+## Testing
+
+```bash
+make test-scraperkit
+```
+
+- `make test-scraperkit` runs the full suite for `base`, `loaders`, `utils`, and every scraper in `scraperkit/scrapers/`.
+- Scraper tests hit the real supported websites and validate listing extraction, product extraction, and API-model compatibility.
+- Real scraper runs require network access and a valid `PLATFORM` in `.env` so Selenium-based loaders can find the bundled ChromeDriver.
+
 ## License
 
 See [LICENSE](../LICENSE)

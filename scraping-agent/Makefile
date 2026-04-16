@@ -1,11 +1,17 @@
-.PHONY: all run stop clean setup start-redis stop-redis start-mongo stop-mongo start-celery-workers kill-celery-workers delete-cache
+.PHONY: all run stop clean setup setup-dev start-redis stop-redis start-mongo stop-mongo start-celery-workers kill-celery-workers delete-cache test-scraperkit
 
 # ========== ScrapingAgent Service ==========
 APP_MODULE = main:app
 PORT = 8080
 RELOAD = --reload
+VENV_DIR ?= venv
+PYTHON_FOR_VENV ?= python3
+PYTHON_BIN ?= $(VENV_DIR)/bin/python
+PIP_BIN ?= $(VENV_DIR)/bin/pip
+VENV_STAMP = $(VENV_DIR)/.deps-installed
 
 UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD)
+PYTEST_CMD = PYTHONDONTWRITEBYTECODE=1 $(PYTHON_BIN) -m pytest
 
 all: run
 
@@ -77,6 +83,19 @@ setup:
 	@echo "<========== Installing Dependencies ===========>"
 	pip install -r requirements.txt
 	@echo "<========== Dependencies Installed ===========>"
+
+setup-dev: $(VENV_STAMP)
+
+$(VENV_STAMP): requirements.txt requirements-dev.txt
+	@echo "<========== Installing Development Dependencies ===========>"
+	$(PYTHON_FOR_VENV) -m venv $(VENV_DIR)
+	$(PIP_BIN) install -r requirements.txt -r requirements-dev.txt
+	@touch $(VENV_STAMP)
+	@echo "<========== Development Dependencies Installed ===========>"
+
+test-scraperkit: setup-dev
+	@echo "<========== Running ScraperKit Test Suite ===========>"
+	@$(PYTEST_CMD)
 
 clean:
 	@echo "<========== Cleaning up ScrapingAgent Project ===========>"
