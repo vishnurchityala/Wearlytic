@@ -8,6 +8,7 @@ class DummyScraper(BaseScraper):
     def __init__(self, source_name):
         super().__init__(f"https://{source_name}.example/")
         self.source_name = source_name
+        self.close_calls = 0
 
     def get_page_content(self, page_url):
         return page_url
@@ -20,6 +21,10 @@ class DummyScraper(BaseScraper):
 
     def get_product_details(self, product_page_url):
         return {}
+
+    def close(self):
+        self.close_calls += 1
+        super().close()
 
 
 @pytest.mark.unit
@@ -50,3 +55,19 @@ def test_cache_evicts_oldest_scraper_when_max_size_is_exceeded():
     assert cache.get("amazon") is None
     assert cache.get("myntra") is myntra
     assert cache.get("bluorng") is bluorng
+
+
+@pytest.mark.unit
+def test_cache_closes_evicted_scraper_when_max_size_is_exceeded():
+    cache = ScraperLRUCache(max_size=2)
+    amazon = DummyScraper("amazon")
+    myntra = DummyScraper("myntra")
+    bluorng = DummyScraper("bluorng")
+
+    cache.insert("amazon", amazon)
+    cache.insert("myntra", myntra)
+    cache.insert("bluorng", bluorng)
+
+    assert amazon.close_calls == 1
+    assert myntra.close_calls == 0
+    assert bluorng.close_calls == 0

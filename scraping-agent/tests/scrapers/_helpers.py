@@ -1,29 +1,10 @@
 from datetime import datetime, timezone
 
-import pytest
-
 from api.models.job import JobResult
 from api.models.listing import Listing, ListingItem
 from api.models.product import Product as ApiProduct
-from scraperkit import SCRAPER_URL_MAP
 from scraperkit.models import Product as ScraperProduct
 from tests.scrapers.scrape_artifact_logger import ScrapeArtifactLogger
-
-
-DEFAULT_LISTING_URLS = {
-    "amazon": "https://www.amazon.in/s?k=men+t-shirts",
-    "myntra": "https://www.myntra.com/mens-tshirts",
-    "bluorng": "https://bluorng.com/collections/polos",
-    "jaywalking": "https://www.jaywalking.in/collections/t-shirt",
-    "thesouledstore": "https://www.thesouledstore.com/men-classic-tshirts",
-}
-
-
-SCRAPER_CASES = [
-    (source_name, scraper_cls, DEFAULT_LISTING_URLS[source_name])
-    for source_name, scraper_cls in SCRAPER_URL_MAP.items()
-    if source_name in DEFAULT_LISTING_URLS
-]
 
 
 def assert_valid_pagination_payload(pagination):
@@ -72,13 +53,7 @@ def assert_valid_product_payload(product):
         assert all(color.strip() for color in product.colors)
 
 
-@pytest.mark.integration
-@pytest.mark.parametrize(
-    ("source_name", "scraper_cls", "listing_url"),
-    SCRAPER_CASES,
-    ids=[case[0] for case in SCRAPER_CASES],
-)
-def test_scrapers_extract_listing_and_product_data_from_real_websites(
+def run_live_scraper_case(
     request,
     scraper_test_artifact_root,
     source_name,
@@ -124,6 +99,7 @@ def test_scrapers_extract_listing_and_product_data_from_real_websites(
     assert listings
     assert all(url.startswith("http") for url in listings)
     assert len(listings) == len(set(listings))
+
     assert_valid_product_payload(product)
 
     listing_payload = Listing(

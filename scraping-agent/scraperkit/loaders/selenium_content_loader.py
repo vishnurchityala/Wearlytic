@@ -7,9 +7,13 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 from scraperkit.base.base_content_loader import BaseContentLoader
-from scraperkit.exceptions import BadURLException, TimeoutException, DriverNotInitializedException
+from scraperkit.exceptions import (
+    BadURLException,
+    ContentNotLoadedException,
+    TimeoutException,
+    DriverNotInitializedException,
+)
 from scraperkit.utils import get_driver_path
 
 class SeleniumContentLoader(BaseContentLoader):
@@ -95,13 +99,19 @@ class SeleniumContentLoader(BaseContentLoader):
             return page_source
 
         except SeleniumTimeoutException as e:
-            raise TimeoutException(f"Timeout while loading page: {page_url}. Error: {str(e)}")
+            raise TimeoutException(
+                f"Timeout while loading page: {page_url}. Error: {str(e)}"
+            ) from e
 
         except WebDriverException as e:
-            raise BadURLException(f"Bad URL or navigation error: {page_url}. Error: {str(e)}")
+            raise BadURLException(
+                f"Bad URL or navigation error: {page_url}. Error: {str(e)}"
+            ) from e
 
         except Exception as e:
-            raise e
+            raise ContentNotLoadedException(
+                f"Unexpected error while loading page: {page_url}. Error: {str(e)}"
+            ) from e
 
     def close(self):
         if self.driver:

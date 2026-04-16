@@ -163,6 +163,7 @@ class ScraperLRUCache:
             return
 
         source_website = oldest_global.source_website
+        scraper = oldest_global.scraper
         logger.info(f"Evicting oldest scraper from source='{source_website}'")
 
         # Remove from global DLL
@@ -193,6 +194,14 @@ class ScraperLRUCache:
             logger.debug(f"Removed empty local DLL for source='{source_website}' after eviction")
         else:
             self.source_dll_map[source_website] = (local_head, local_tail)
+
+        try:
+            scraper.close()
+            logger.debug(f"Closed scraper resources for evicted source='{source_website}'")
+        except Exception:
+            logger.exception(
+                f"Failed to close scraper resources for evicted source='{source_website}'"
+            )
 
         logger.info(f"Eviction complete. Global count={self.global_count}")
         self._log_cache_state()
