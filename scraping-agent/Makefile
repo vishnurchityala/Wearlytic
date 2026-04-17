@@ -9,6 +9,7 @@ PYTHON_FOR_VENV ?= python3
 PYTHON_BIN ?= $(VENV_DIR)/bin/python
 PIP_BIN ?= $(VENV_DIR)/bin/pip
 VENV_STAMP = $(VENV_DIR)/.deps-installed
+TEST_SNAPSHOT_DIR ?= tests/artifacts/scraper_runs
 
 UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD)
 PYTEST_CMD = PYTHONDONTWRITEBYTECODE=1 $(PYTHON_BIN) -m pytest
@@ -51,8 +52,7 @@ stop: kill-celery-workers stop-mongo stop-redis
 	else \
 		echo "No Uvicorn PID file found. Is the app running?"; \
 	fi
-	@echo "Deleting PyCache Files......"
-	find . -type d -name '__pycache__' -exec rm -r {} +
+	@$(MAKE) delete-cache
 	@echo "<========== Stopped ScrapingAgent Service ===========>"
 
 stop-redis:
@@ -99,10 +99,12 @@ test-scraperkit: setup-dev
 
 clean:
 	@echo "<========== Cleaning up ScrapingAgent Project ===========>"
-	rm -rf __pycache__ .uvicorn_pid
+	rm -rf .uvicorn_pid
+	@$(MAKE) delete-cache
 	@echo "<========== Cleanup Complete ===========>"
 
 delete-cache:
-	@echo "<========== Deleting PyCache Files ===========>"
-	find . -type d -name '__pycache__' -exec rm -r {} +
-	@echo "<========== PyCache Deleted ===========>"
+	@echo "<========== Deleting Test Cache And Snapshots ===========>"
+	find . -type d -name '__pycache__' -exec rm -rf {} +
+	rm -rf .pytest_cache $(TEST_SNAPSHOT_DIR)
+	@echo "<========== Test Cache And Snapshots Deleted ===========>"
