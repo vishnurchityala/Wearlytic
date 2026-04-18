@@ -20,12 +20,22 @@ class AmazonScraper(BaseScraper):
         self.id_prefix = "amzn_"
         self.content_loader = content_loader or SeleniumContentLoader(headers=headers)
         self._asin_pattern = re.compile(r"/dp/([A-Z0-9]{10})(?:[/?]|$)", re.IGNORECASE)
+        self._current_listing_url = None
 
     def get_page_content(self, page_url: str) -> str | None:
         return self.content_loader.load_content(page_url)
 
-    def get_pagination_details(self, page_url: str) -> dict:
+    def _get_listing_page_content(self, page_url: str) -> str | None:
+        if page_url == self._current_listing_url and self.current_page_content:
+            return self.current_page_content
+
         page_content = self.get_page_content(page_url)
+        self._current_listing_url = page_url
+        self.current_page_content = page_content
+        return page_content
+
+    def get_pagination_details(self, page_url: str) -> dict:
+        page_content = self._get_listing_page_content(page_url)
         if not page_content:
             return {
                 'current_page': None,
@@ -66,12 +76,7 @@ class AmazonScraper(BaseScraper):
             raise e
         
     def get_product_listings(self, listings_page_url: str, page: int = 1) -> list[str]:
-        if page > 1:
-            url = f"{listings_page_url}&page={page}" if '?' in listings_page_url else f"{listings_page_url}?page={page}"
-        else:
-            url = listings_page_url
-
-        page_content = self.get_page_content(url)
+        page_content = self._get_listing_page_content(listings_page_url)
         if not page_content:
             return []
 
@@ -82,7 +87,11 @@ class AmazonScraper(BaseScraper):
         search_results_root = soup.select_one('[data-component-type="s-search-results"]') or soup
 
         # Limit listing extraction to actual search result cards instead of every anchor on the page.
-        for result_card in search_results_root.select('[data-component-type="s-search-result"]'):
+        result_cards = search_results_root.select(
+            '[data-component-type="s-search-result"], [role="listitem"][data-asin], .s-result-item.s-asin[data-asin]'
+        )
+
+        for result_card in result_cards:
             product_url = self._extract_canonical_listing_url(result_card)
             if not product_url or product_url in seen_urls:
                 continue
@@ -175,7 +184,6 @@ class AmazonScraper(BaseScraper):
                 raise DataParsingException("Price text is empty")
 
             try:
-                # OLD Code --> price = int(price_text.replace(",", ""))
                 price = float(price_text.replace(",", ""))
                 
             except ValueError:

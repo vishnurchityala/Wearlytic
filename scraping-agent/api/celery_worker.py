@@ -203,10 +203,7 @@ def _run_listing_job(
             logger.info(f"Scraping page {page_count + 1} | url={current_url}")
 
             pagination = scraper.get_pagination_details(current_url)
-            listings = scraper.get_product_listings(
-                current_url,
-                pagination.get("current_page")
-            )
+            listings = scraper.get_product_listings(current_url)
 
             if not listings:
                 logger.warning(f"No listings found | url={current_url}")

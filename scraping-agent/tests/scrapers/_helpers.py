@@ -24,6 +24,13 @@ def assert_valid_pagination_payload(pagination):
         assert pagination["next_page_url"].startswith("http")
 
 
+def assert_valid_listings_payload(listings):
+    assert isinstance(listings, list)
+    assert listings
+    assert all(url.startswith("http") for url in listings)
+    assert len(listings) == len(set(listings))
+
+
 def assert_valid_product_payload(product):
     assert isinstance(product, ScraperProduct)
     assert product.id.strip()
@@ -56,30 +63,28 @@ def assert_valid_product_payload(product):
 def run_live_scraper_case(
     request,
     scraper_test_artifact_root,
-    source_name,
-    scraper_cls,
-    listing_url,
+    scraper_case,
 ):
-    scraper = scraper_cls()
+    scraper = scraper_case.scraper_cls()
     artifact_logger = ScrapeArtifactLogger(
         artifact_root=scraper_test_artifact_root,
-        source_name=source_name,
-        scraper_name=scraper_cls.__name__,
+        source_name=scraper_case.source_name,
+        scraper_name=scraper_case.scraper_cls.__name__,
         test_nodeid=request.node.nodeid,
-        listing_url=listing_url,
+        listing_url=scraper_case.listing_url,
     )
     artifact_logger.attach_to_scraper(scraper)
     current_stage = "scraper_initialization"
 
     try:
         current_stage = "pagination"
-        pagination = scraper.get_pagination_details(listing_url)
+        pagination = scraper.get_pagination_details(scraper_case.listing_url)
         artifact_logger.record_pagination(pagination)
 
         current_stage = "listing_extraction"
-        listings = scraper.get_product_listings(listing_url)
+        listings = scraper.get_product_listings(scraper_case.listing_url)
         artifact_logger.record_listings(listings)
-        assert listings, f"{source_name} returned no product listings for {listing_url}"
+        assert_valid_listings_payload(listings)
 
         current_stage = "product_extraction"
         product_url = listings[0]
@@ -95,11 +100,6 @@ def run_live_scraper_case(
             artifact_logger.finalize(status="completed")
 
     assert_valid_pagination_payload(pagination)
-    assert isinstance(listings, list)
-    assert listings
-    assert all(url.startswith("http") for url in listings)
-    assert len(listings) == len(set(listings))
-
     assert_valid_product_payload(product)
 
     listing_payload = Listing(
@@ -109,14 +109,14 @@ def run_live_scraper_case(
         ]
     )
     product_payload = JobResult(
-        job_id=f"{source_name}-product-live",
+        job_id=f"{scraper_case.source_name}-product-live",
         result=product.model_dump(mode="json"),
         status="completed",
         completed_at=datetime.now(timezone.utc),
         error_message=None,
     )
     listing_result = JobResult(
-        job_id=f"{source_name}-listing-live",
+        job_id=f"{scraper_case.source_name}-listing-live",
         result=listing_payload.model_dump(mode="json"),
         status="completed",
         completed_at=datetime.now(timezone.utc),
