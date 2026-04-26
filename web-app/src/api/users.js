@@ -1,7 +1,9 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+import { apiFetch } from "./env";
+
+export { API_BASE_URL, apiFetch, apiUrl } from "./env";
 
 export async function getCurrentUserProfile(token) {
-    const response = await fetch(`${API_BASE_URL}/users/me`, {
+    const response = await apiFetch("/users/me", {
         headers: {
             "Authorization": token ? `Bearer ${token}` : undefined
         }
@@ -12,4 +14,3 @@ export async function getCurrentUserProfile(token) {
     }
     return await response.json();
 }
-

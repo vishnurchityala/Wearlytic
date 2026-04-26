@@ -20,7 +20,7 @@ function TryoutCanvas({ imageGenerations }) {
             ) : (
 				<div className="min-h-full min-w-full flex items-center justify-center">
 					<div className="flex flex-wrap justify-center items-start gap-3 content-start">
-						{imageGenerations.map((item, index) => (
+						{imageGenerations.map((item) => (
 							<ImageGenerationCard
 								key={item.id}
 								imageGeneration={item}

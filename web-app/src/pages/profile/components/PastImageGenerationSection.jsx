@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../auth/AuthProvider";
+import { apiFetch } from "@/api/env";
+import { useAuth } from "@/auth/AuthContext";
 import { PastImageGenerations } from "./PastImageGenerations";
 
 function PastImageGenerationSection() {
@@ -12,8 +13,8 @@ function PastImageGenerationSection() {
 
         const fetchGenerations = async () => {
             try {
-                const res = await fetch(
-                    "https://wearlytic-zbas.onrender.com/api/users/me/generations/",
+                const res = await apiFetch(
+                    "/api/users/me/generations/",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

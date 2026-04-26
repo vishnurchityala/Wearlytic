@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown,faChevronUp,faShirt,faArrowRight,faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import ProductList from "./ProductList";
 
-function ProductSection({products,loading,selectedProducts,setSelectedProducts,nextPage,prevPage,setNextPage,setPrevPage,onFetchPage}){
+function ProductSection({products,loading,selectedProducts,setSelectedProducts,nextPage,prevPage,onFetchPage}){
     const [collapsed, setCollapsed] = useState(false);
     const combinedProducts = useMemo(() => {
         const pageIds = new Set(products.map(p => p.id));

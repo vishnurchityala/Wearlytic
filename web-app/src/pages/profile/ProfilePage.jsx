@@ -1,9 +1,9 @@
-import { Navbar } from "../components/general/Navbar";
-import { PastImageGenerationSection } from "../components/general/PastImageGenerationSection";
-import ProfileDetailsForm from "../components/general/ProfileDetailsForm";
-import ProfileImageForm from "../components/general/ProfileImageForm";
+import { Navbar } from "@/layout/Navbar";
+import { PastImageGenerationSection } from "./components/PastImageGenerationSection";
+import ProfileDetailsForm from "./components/ProfileDetailsForm";
+import ProfileImageForm from "./components/ProfileImageForm";
 
-function UserPage() {
+function ProfilePage() {
     return (
         <div className="min-h-screen">
             <Navbar />
@@ -19,9 +19,9 @@ function UserPage() {
                     </div>
                 </div>
             </section>
-            <PastImageGenerationSection/>
+            <PastImageGenerationSection />
         </div>
     );
 }
 
-export default UserPage;
+export default ProfilePage;

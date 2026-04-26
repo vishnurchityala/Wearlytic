@@ -2,7 +2,6 @@ import { PastImageGenerationCard } from "./PastImageGenerationCard";
 
 function PastImageGenerations({ pastImageGenerations }) {
     if (!pastImageGenerations || pastImageGenerations.length === 0) {
-        console.log(pastImageGenerations);
         return null;
     }
 

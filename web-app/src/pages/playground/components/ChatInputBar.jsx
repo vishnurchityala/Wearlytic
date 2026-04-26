@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "../../auth/AuthProvider";
+import { apiFetch } from "@/api/env";
+import { useAuth } from "@/auth/AuthContext";
 
 function ChatInputBar({ setImageGenerations, selectedProducts }) {
     const [value, setValue] = useState("");
@@ -17,8 +18,8 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
         setLoading(true);
 
         try {
-            const meRes = await fetch(
-                "https://wearlytic-zbas.onrender.com/api/users/me",
+            const meRes = await apiFetch(
+                "/api/users/me",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -45,8 +46,8 @@ function ChatInputBar({ setImageGenerations, selectedProducts }) {
                 input_products: selectedProducts,
             };
 
-            const genRes = await fetch(
-                "https://wearlytic-zbas.onrender.com/api/image_generations/",
+            const genRes = await apiFetch(
+                "/api/image_generations/",
                 {
                     method: "POST",
                     headers: {

@@ -1,7 +1,8 @@
 import FilterSection from "./FilterSection";
 import ProductSection from "./ProductSection";
 import { useState,useEffect } from "react";
-import { useAuth } from "../../auth/AuthProvider";
+import { apiFetch } from "@/api/env";
+import { useAuth } from "@/auth/AuthContext";
 
 function ClothesSection({ categories, selectedProducts,setSelectedProducts,loading }) {
   const { token } = useAuth();
@@ -16,20 +17,9 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
 
   async function fetchByUrl(url){
     if (!url) return;
-    const ensureHttps = (inputUrl) => {
-      try {
-        const u = new URL(inputUrl, window.location.origin);
-        if (u.protocol === "http:") u.protocol = "https:";
-        return u.toString();
-      } catch {
-        if (inputUrl.startsWith("//")) return `https:${inputUrl}`;
-        return inputUrl.replace(/^http:/, "https:");
-      }
-    };
-    const safeUrl = ensureHttps(url);
     setProductLoading(true);
     try{
-      const response = await fetch(safeUrl, {
+      const response = await apiFetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -50,6 +40,8 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
   }
 
   useEffect(()=>{
+    if (!token) return;
+
     async function fetchProducts() {
       setProductLoading(true);
       try{
@@ -71,7 +63,7 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
         if (pageSize !== undefined) {
             params.append("page_size", pageSize);
         }
-        const response = await fetch(`https://wearlytic-zbas.onrender.com/api/products/?${params.toString()}`, {
+        const response = await apiFetch(`/api/products/?${params.toString()}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -92,7 +84,7 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
       setProductLoading(false);
     }
     fetchProducts();
-  },[categoriesSelected,minPrice,maxPrice,pageSize]);
+  },[categoriesSelected,minPrice,maxPrice,pageSize,token]);
 
   if (loading) {
         return (
@@ -121,8 +113,6 @@ function ClothesSection({ categories, selectedProducts,setSelectedProducts,loadi
         setSelectedProducts={setSelectedProducts} 
         nextPage={nextPage} 
         prevPage={prevPage}
-        setNextPage={setNextPage}
-        setPrevPage={setPrevPage}
         onFetchPage={fetchByUrl}
       />
     </div>

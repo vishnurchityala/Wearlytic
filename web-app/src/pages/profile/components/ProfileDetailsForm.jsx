@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { getCurrentUserProfile, API_BASE_URL } from "../../api/users";
-import { useAuth } from "../../auth/AuthProvider";
+import { apiFetch } from "@/api/env";
+import { getCurrentUserProfile } from "@/api/users";
+import { useAuth } from "@/auth/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFloppyDisk, faUser, faCoins } from "@fortawesome/free-solid-svg-icons";
 
@@ -56,7 +57,7 @@ function ProfileDetailsForm() {
             return;
         }
 
-        await fetch(`${API_BASE_URL}/users/${user.id}/`, {
+        await apiFetch(`/users/${user.id}/`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",

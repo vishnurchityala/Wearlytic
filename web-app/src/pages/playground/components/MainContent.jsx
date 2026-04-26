@@ -2,7 +2,8 @@ import { ClothesSection } from "./ClothesSection";
 import { PlaygroundSection } from "./PlaygroundSection";
 import { Group, Separator, Panel } from "react-resizable-panels";
 import { useEffect, useState } from "react";
-import { useAuth } from "../../auth/AuthProvider";
+import { apiFetch } from "@/api/env";
+import { useAuth } from "@/auth/AuthContext";
 
 function MainContent() {
   const { token } = useAuth();
@@ -11,10 +12,12 @@ function MainContent() {
   const [loading,setLoading] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
+
     async function fetchCategories() {
       setLoading(true);
       try{
-        const response = await fetch("https://wearlytic-zbas.onrender.com/api/categories", {
+        const response = await apiFetch("/api/categories", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -33,9 +36,7 @@ function MainContent() {
       setLoading(false);
     }
     fetchCategories();
-  }, []);
-
-  const [generations, setGenerations] = useState([]);
+  }, [token]);
 
   return (
     <div className="border-t-2 border-gray-300 h-[91%] flex flex-col min-h-0">

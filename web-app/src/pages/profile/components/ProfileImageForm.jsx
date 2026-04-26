@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { API_BASE_URL, getCurrentUserProfile } from "../../api/users";
-import { useAuth } from "../../auth/AuthProvider";
+import { apiFetch } from "@/api/env";
+import { getCurrentUserProfile } from "@/api/users";
+import { useAuth } from "@/auth/AuthContext";
 import { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
@@ -23,7 +24,9 @@ function ProfileImageForm() {
                 if (data?.base_image_path) {
                     setPreview(data.base_image_path);
                 }
-            } catch {}
+            } catch (err) {
+                console.error("Failed to load profile image:", err);
+            }
         }
         loadExistingImage();
 			return () => {
@@ -47,7 +50,7 @@ function ProfileImageForm() {
         formData.append("image", image);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/users/${user.id}/base_image/`, {
+            const res = await apiFetch(`/users/${user.id}/base_image/`, {
                 method: "PATCH",
                 body: formData,
                 headers: {
@@ -65,7 +68,9 @@ function ProfileImageForm() {
                 if (data?.base_image_path) {
                     setPreview(data.base_image_path);
                 }
-            } catch {}
+            } catch (err) {
+                console.error("Failed to refresh profile image:", err);
+            }
             setImage(null);
         } catch (err) {
             setError(err.message || "Failed to upload image");

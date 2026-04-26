@@ -1,6 +1,6 @@
 import { faUser, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useAuth } from "../../auth/AuthProvider";
+import { useAuth } from "@/auth/AuthContext";
 
 function LoginButton() {
   const { user, loginWithGoogle, logout, loading } = useAuth();
