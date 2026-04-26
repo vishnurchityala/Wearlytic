@@ -58,3 +58,4 @@ web-app/product_warehouse.json
 web-app/trial.py
 backend/generated_output.jpg
 backend/trial.py
+data-ingestor/celerybeat-schedule.db

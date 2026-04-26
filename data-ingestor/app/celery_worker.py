@@ -51,6 +51,10 @@ headers = {
     "Content-Type": "application/json"
 }
 
+def build_scraping_agent_url(path: str) -> str:
+    base = (SCRAPING_AGENT_ENDPOINT or "").rstrip("/")
+    return f"{base}/{path.lstrip('/')}"
+
 MAXIMUM_BATCH_SIZE = int(os.getenv('MAXIMUM_BATCH_SIZE'))
 MAXIMUM_BATCHES_TO_PROCESS = int(os.getenv('MAXIMUM_BATCHES_TO_PROCESS'))
 
@@ -117,7 +121,7 @@ def start_scraping_listing():
                 "type_page": "listing"
             }
             logger.info(f"Calling Scraping Agent for URL: {listing['url']}")
-            response = requests.post(SCRAPING_AGENT_ENDPOINT + '/scrape', json=payload, headers=headers)
+            response = requests.post(build_scraping_agent_url("scrape/"), json=payload, headers=headers)
             if response.status_code == 200:
                 job_id = response.json().get('job_id')
                 logger.info(f"Scraping job created for {listing['url']}, job_id: {job_id}")
@@ -215,12 +219,12 @@ def scrape_batch():
 
                 payload = {
                     "webpage_url": product_url,
-                    "priority": "high",
+                    "priority": "low",
                     "type_page": "product"
                 }
 
                 response = requests.post(
-                    f"{SCRAPING_AGENT_ENDPOINT}/scrape",
+                    build_scraping_agent_url("scrape/"),
                     json=payload,
                     headers=headers,
                     timeout=20
@@ -264,7 +268,7 @@ def fetch_results():
         entity_id = status['entity_id']
 
         try:
-            fetch_url = f"{SCRAPING_AGENT_ENDPOINT}/scrape/{job_id}/status/"
+            fetch_url = build_scraping_agent_url(f"scrape/{job_id}/status/")
             logger.info(f"Fetching Status for Job-ID : {job_id}")
 
             status_response = requests.get(fetch_url, headers=headers).json()
@@ -275,7 +279,7 @@ def fetch_results():
 
             if job_status == 'completed':
                 try:
-                    fetch_result_url = f"{SCRAPING_AGENT_ENDPOINT}/scrape/{job_id}/result/"
+                    fetch_result_url = build_scraping_agent_url(f"scrape/{job_id}/result/")
                     result_response = requests.get(fetch_result_url, headers=headers).json()
 
                     if entity_type == 'listing':
@@ -360,7 +364,7 @@ def fetch_results():
                                 scraped_datetime=result_response['result']['scraped_datetime'],
                                 processed_datetime=None,
                                 page_index=product_url_doc.get("page_index", 0),
-                                page_content=result_response['result'].get('page_content', "")
+                                page_content=result_response['result'].get('page_content', "DEFAULT_PAGE_CONTENT")
                             )
                             try:
                                 product_manager.create_product(product=product)
