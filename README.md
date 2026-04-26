@@ -1,10 +1,11 @@
 <p align="center">
-  <img src="web-app/public/WEARLYTIC-LOGO-2026.png" alt="Wearlytic logo" width="320" />
+  <img src="web-app/public/WEARLYTIC-LOGO-2026.png" alt="Wearlytic Logo" width="280" />
 </p>
 
-# Wearlytic
+<p align="center">
+  An AI-powered fashion intelligence platform for product discovery, data ingestion, trend analysis, and personalized outfit generation.
+</p>
 
-Wearlytic is a monorepo for fashion product discovery, scraping, ingestion, and AI-assisted outfit generation.
 
 ## Services
 
