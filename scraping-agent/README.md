@@ -1,44 +1,69 @@
-
 # Scraping Agent
 
-This folder contains a modular web scraping service for product and listing data, built with FastAPI, Celery, and custom scrapers.
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Celery](https://img.shields.io/badge/Celery-37814a)
+![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white)
+![Selenium](https://img.shields.io/badge/Selenium-43b02a?logo=selenium&logoColor=white)
 
-## Main Components
+The scraping agent runs website-specific listing and product scrapers for Wearlytic.
 
-- **main.py**: FastAPI app entry point.
-- **api/**: API endpoints, models, and database logic.
-  - `routes/`: Listing, product, and status endpoints.
-  - `models/`: Data models for jobs, products, and listings.
-- **celery_worker/**: Celery background task definitions.
-- **scraperkit/**: Modular scraping framework (base classes, scrapers, loaders, exceptions, etc.).
-- **requirements.txt**: Python dependencies.
-- **Dockerfile**: Container setup for deployment.
-- **Makefile**: Commands to run, stop, and manage the service.
+## Responsibility
 
-## How It Works
+- Accept scrape job requests from internal services.
+- Queue product and listing scrape tasks with Celery.
+- Run site-specific scrapers from `scraperkit/scrapers/`.
+- Store scrape job metadata and results.
+- Expose status and result endpoints for asynchronous jobs.
 
-1. Start the FastAPI server (`main.py`).
-2. Start Celery workers for background scraping jobs.
-3. Use API endpoints to start scraping jobs, check status, and get results.
-4. Scrapers in `scraperkit/scrapers/` handle different websites.
+## Supported Scrapers
 
-## API Endpoints (see `api/routes/`)
+Current scraper implementations live in `scraperkit/scrapers/` and include:
 
-- **POST `/api/scrape`**: Start a scraping job
-- **GET `/api/scrape/{task_id}/status/`**: Get status of a scraping job
-- **GET `/api/scrape/{task_id}/result/`**: Get results of a scraping job
+- Amazon
+- BluOrng
+- Jaywalking
+- Myntra
+- The Souled Store
 
-## Extending
-
-- Add new scrapers in `scraperkit/scrapers/`
-- Add new API routes in `api/routes/`
-- Update models in `api/models/`
-
-## Quick Start
+## Local Development
 
 ```bash
-uvicorn main:app --reload
-celery -A celery_worker worker --loglevel=info -Q scrape_medium
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8080
+```
+
+Start a Celery worker for scraping jobs:
+
+```bash
+celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_medium --loglevel=info --concurrency=5
+```
+
+Default local URL: `http://localhost:8080`
+
+## API
+
+Routes are mounted under `/api/scrapingagent/scrape`.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/api/scrapingagent/scrape/` | Start a scrape job. |
+| `GET` | `/api/scrapingagent/scrape/{task_id}/status/` | Fetch job status. |
+| `GET` | `/api/scrapingagent/scrape/{task_id}/result/` | Fetch job result. |
+
+## Environment
+
+```bash
+MONGO_URI=
+MONGO_DBNAME=
+API_ACCESS_TOKEN=
+RUN_TYPE_LOCAL=
+UPSTASH_REDIS_HOST=
+UPSTASH_REDIS_PORT=
+UPSTASH_REDIS_PASSWORD=
+PLATFORM=
 ```
 
 ## Testing
@@ -47,10 +72,15 @@ celery -A celery_worker worker --loglevel=info -Q scrape_medium
 make test-scraperkit
 ```
 
-- `make test-scraperkit` runs the full suite for `base`, `loaders`, `utils`, and every scraper in `scraperkit/scrapers/`.
-- Scraper tests hit the real supported websites and validate listing extraction, product extraction, and API-model compatibility.
-- Real scraper runs require network access and a valid `PLATFORM` in `.env` so Selenium-based loaders can find the bundled ChromeDriver.
+Scraper tests may hit real websites and may require network access plus a valid `PLATFORM` setting for Selenium-based loaders.
 
-## License
+## Contribution Scope
 
-See [LICENSE](../LICENSE)
+External pull requests are accepted only for adding or improving website scrapers.
+
+For scraper PRs:
+
+1. Add or update scraper code under `scraperkit/scrapers/`.
+2. Follow the existing base scraper contracts and product/listing model shapes.
+3. Add or update tests under `tests/scrapers/`.
+4. Run `make test-scraperkit` or document why it could not be run.
