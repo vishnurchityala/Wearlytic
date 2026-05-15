@@ -30,14 +30,8 @@ product_manager = ProductManager()
 """
 Celery Queue Configuration.
 """
-UPSTASH_REDIS_HOST = os.getenv("UPSTASH_REDIS_HOST")
-UPSTASH_REDIS_PORT = os.getenv("UPSTASH_REDIS_PORT")
-UPSTASH_REDIS_PASSWORD = os.getenv("UPSTASH_REDIS_PASSWORD")
-RUN_TYPE_LOCAL = os.getenv("RUN_TYPE_LOCAL")
-if RUN_TYPE_LOCAL == 'YES':
-    connection_link ="redis://localhost:6379/0"
-else:
-    connection_link = f"rediss://:{UPSTASH_REDIS_PASSWORD}@{UPSTASH_REDIS_HOST}:{UPSTASH_REDIS_PORT}?ssl_cert_reqs=none"
+DEFAULT_REDIS_URL = "redis://localhost:6379/0"
+connection_link = os.getenv("REDIS_URL", "").strip() or DEFAULT_REDIS_URL
 app = Celery(
     "dataingestor",
     broker=connection_link,

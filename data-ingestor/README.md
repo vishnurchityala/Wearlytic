@@ -53,10 +53,12 @@ ADMIN_USERNAME=
 ADMIN_PASSWORD=
 MAXIMUM_BATCH_SIZE=
 MAXIMUM_BATCHES_TO_PROCESS=
-UPSTASH_REDIS_HOST=
-UPSTASH_REDIS_PORT=
-UPSTASH_REDIS_PASSWORD=
+REDIS_URL=
 ```
+
+`REDIS_URL` is optional. If it is empty or unset, Celery uses local Redis at
+`redis://localhost:6379/0`. For Docker Compose, use `redis://redis:6379/0`.
+For Upstash, put the complete `rediss://...` connection URL in `REDIS_URL`.
 
 The DB modules also use collection-name environment variables for sources, listings, batches, statuses, product URLs, and products.
 

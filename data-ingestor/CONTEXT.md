@@ -129,7 +129,7 @@ File: `app/celery_worker.py`
 Important facts:
 
 - Defines the Celery application instance.
-- Configures broker based on `RUN_TYPE_LOCAL`.
+- Configures the Celery broker from `REDIS_URL`, falling back to local Redis.
 - Registers all scheduled tasks.
 - Contains all orchestration logic that talks to the Scraping Agent.
 
@@ -659,7 +659,7 @@ This repo contains a `.env` file with real-looking credentials/tokens. Do not co
 | --- | --- |
 | `SCRAPING_AGENT_API_URL` | Base URL for external Scraping Agent. |
 | `SCRAPING_AGENT_TOKEN` | Bearer token for Scraping Agent. |
-| `RUN_TYPE_LOCAL` | Controls Redis broker selection. `YES` means local Redis. |
+| `REDIS_URL` | Optional Celery broker URL. Falls back to `redis://localhost:6379/0` when unset. |
 | `MAXIMUM_BATCH_SIZE` | Max URLs per batch. Parsed at import time. |
 | `MAXIMUM_BATCHES_TO_PROCESS` | Number of batches to scrape per run. Parsed at import time. |
 | `ADMIN_USERNAME` | Login username for admin UI. |
@@ -672,10 +672,6 @@ This repo contains a `.env` file with real-looking credentials/tokens. Do not co
 | `STATUS_COLLECTION_NAME` | Status collection name. |
 | `BATCHES_COLLECTION_NAME` | Batch collection name. |
 | `PRODUCTS_COLLECTION_NAME` | Product collection name. |
-| `UPSTASH_REDIS_HOST` | Remote Redis host when not local. |
-| `UPSTASH_REDIS_PORT` | Remote Redis port when not local. |
-| `UPSTASH_REDIS_PASSWORD` | Remote Redis password when not local. |
-
 ### Env Behavior Notes
 
 - `load_dotenv()` is called in many modules at import time.
@@ -686,7 +682,7 @@ This repo contains a `.env` file with real-looking credentials/tokens. Do not co
 
 The checked-in `.env` currently indicates:
 
-- local Redis mode via `RUN_TYPE_LOCAL=YES`,
+- local Redis fallback when `REDIS_URL` is unset,
 - but Mongo URI points to a hosted Atlas cluster, not obviously local MongoDB.
 
 This matters because:

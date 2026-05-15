@@ -13,7 +13,7 @@ test-scraping-agent:
 		&& echo "<=========== ScrapingAgent Service is Started ===========>" \
 		|| (echo "<=========== ScrapingAgent is NOT running! =========>" && exit 1)
 
-run: start-redis start-mongo start-celery-beats
+run: start-redis start-celery-beats
 	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
@@ -53,7 +53,7 @@ kill-celery-workers:
 	fi
 	@echo "<========== Celery Processes Stopped ===========>"
 
-stop: kill-celery-workers stop-redis stop-mongo 
+stop: kill-celery-workers stop-redis 
 	@echo "<========== Stopping Data Ingestor Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \
