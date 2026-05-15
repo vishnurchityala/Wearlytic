@@ -16,7 +16,7 @@ PYTEST_CMD = PYTHONDONTWRITEBYTECODE=1 $(PYTHON_BIN) -m pytest
 
 all: run
 
-run: start-redis start-mongo start-celery-workers
+run: start-redis start-celery-workers
 	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@$(UVICORN_CMD) & \
@@ -41,7 +41,7 @@ start-celery-workers:
 	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_high --loglevel=info --concurrency=10 & echo $$! > .celery_worker_high_pid
 	@echo "<========== Celery Workers Started ===========>"
 
-stop: kill-celery-workers stop-mongo stop-redis
+stop: kill-celery-workers stop-redis
 	@echo "<========== Stopping ScrapingAgent Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \

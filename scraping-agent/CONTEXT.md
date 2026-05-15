@@ -263,13 +263,9 @@ All Celery code is in `api/celery_worker.py`.
 
 Environment behavior:
 
-- if `RUN_TYPE_LOCAL == 'YES'`
-  - broker is `redis://localhost:6379/0`
-- else
-  - broker is Upstash Redis over TLS using:
-    - `UPSTASH_REDIS_HOST`
-    - `UPSTASH_REDIS_PORT`
-    - `UPSTASH_REDIS_PASSWORD`
+- reads `REDIS_URL` from the environment
+- if `REDIS_URL` is unset or blank, broker falls back to `redis://localhost:6379/0`
+- Docker, Upstash, and other Redis providers should be configured by setting the full connection URL in `REDIS_URL`
 
 #### Celery configuration
 
@@ -1015,14 +1011,8 @@ Required or practically important environment variables:
   - MongoDB connection string
 - `MONGO_DBNAME`
   - Mongo database name
-- `RUN_TYPE_LOCAL`
-  - if `YES`, use local Redis broker
-- `UPSTASH_REDIS_HOST`
-  - used when not local
-- `UPSTASH_REDIS_PORT`
-  - used when not local
-- `UPSTASH_REDIS_PASSWORD`
-  - used when not local
+- `REDIS_URL`
+  - optional Celery broker URL; falls back to `redis://localhost:6379/0` when unset
 - `PLATFORM`
   - determines which bundled ChromeDriver path to use
 

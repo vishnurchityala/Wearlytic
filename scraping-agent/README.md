@@ -59,12 +59,13 @@ Routes are mounted under `/api/scrapingagent/scrape`.
 MONGO_URI=
 MONGO_DBNAME=
 API_ACCESS_TOKEN=
-RUN_TYPE_LOCAL=
-UPSTASH_REDIS_HOST=
-UPSTASH_REDIS_PORT=
-UPSTASH_REDIS_PASSWORD=
+REDIS_URL=
 PLATFORM=
 ```
+
+`REDIS_URL` is optional. If it is empty or unset, Celery uses local Redis at
+`redis://localhost:6379/0`. For Docker Compose, use `redis://redis:6379/0`.
+For Upstash, put the complete `rediss://...` connection URL in `REDIS_URL`.
 
 ## Testing
 
