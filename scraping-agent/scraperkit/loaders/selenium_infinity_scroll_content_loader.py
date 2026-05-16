@@ -44,15 +44,9 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
     def _init_driver(self):
         chrome_options = Options()
-        remote_debugger_address = os.getenv("SELENIUM_REMOTE_DEBUGGER_ADDRESS")
         chrome_bin = os.getenv("CHROME_BIN")
 
-        if remote_debugger_address:
-            chrome_options.add_experimental_option(
-                "debuggerAddress",
-                remote_debugger_address,
-            )
-        elif chrome_bin:
+        if chrome_bin:
             chrome_options.binary_location = chrome_bin
 
         if 'User-Agent' in self.headers:
@@ -64,9 +58,9 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option("useAutomationExtension", False)
 
-        if self.headless and not remote_debugger_address:
+        if self.headless:
             chrome_options.add_argument("--headless=new")
-        
+
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
@@ -74,9 +68,12 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
         self.service = Service(get_driver_path())
         self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
 
-        self.driver.execute_script(
-            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-        )
+        try:
+            self.driver.execute_script(
+                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+            )
+        except WebDriverException:
+            pass
 
     def load_content(self, page_url):
         try:
