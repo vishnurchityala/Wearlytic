@@ -1,6 +1,8 @@
 FROM python:3.11-slim-bookworm
 
-ENV PIP_NO_CACHE_DIR=1 \
+ENV CHROME_BIN=/usr/bin/chromium \
+    PIP_NO_CACHE_DIR=1 \
+    PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium \
     PLATFORM=linux64 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -10,6 +12,12 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash \
+        chromium \
+        libdbus-1-3 \
+        libglib2.0-0 \
+        libnspr4 \
+        libnss3 \
+        libxcb1 \
         redis-server \
         redis-tools \
     && rm -rf /var/lib/apt/lists/*

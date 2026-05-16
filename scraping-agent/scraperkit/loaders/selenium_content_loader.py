@@ -43,15 +43,9 @@ class SeleniumContentLoader(BaseContentLoader):
 
     def _init_driver(self):
         chrome_options = Options()
-        remote_debugger_address = os.getenv("SELENIUM_REMOTE_DEBUGGER_ADDRESS")
         chrome_bin = os.getenv("CHROME_BIN")
 
-        if remote_debugger_address:
-            chrome_options.add_experimental_option(
-                "debuggerAddress",
-                remote_debugger_address,
-            )
-        elif chrome_bin:
+        if chrome_bin:
             chrome_options.binary_location = chrome_bin
 
         for key, value in self.headers.items():
@@ -61,7 +55,7 @@ class SeleniumContentLoader(BaseContentLoader):
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option("useAutomationExtension", False)
 
-        if self.headless and not remote_debugger_address:
+        if self.headless:
             chrome_options.add_argument("--headless=new")
 
         chrome_options.add_argument("--disable-gpu")
@@ -80,15 +74,18 @@ class SeleniumContentLoader(BaseContentLoader):
         self.service = Service(get_driver_path())
         self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
 
-        self.driver.execute_script(
-            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-        )
-        self.driver.execute_script(
-            "Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]})"
-        )
-        self.driver.execute_script(
-            "Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']})"
-        )
+        try:
+            self.driver.execute_script(
+                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+            )
+            self.driver.execute_script(
+                "Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]})"
+            )
+            self.driver.execute_script(
+                "Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']})"
+            )
+        except WebDriverException:
+            pass
 
     def load_content(self, page_url):
         try:

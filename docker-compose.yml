@@ -38,10 +38,11 @@ services:
     env_file:
       - ./scraping-agent/.env
     environment:
+      CHROME_BIN: /usr/bin/chromium
       PLATFORM: linux64
+      PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: /usr/bin/chromium
       PORT: "8080"
       REDIS_URL: redis://127.0.0.1:6379/0
-      SELENIUM_REMOTE_DEBUGGER_ADDRESS: host.docker.internal:9222
     ports:
       - "8080:8080"
     shm_size: 1gb
