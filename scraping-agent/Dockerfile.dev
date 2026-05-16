@@ -1,0 +1,26 @@
+FROM python:3.11-slim-bookworm
+
+ENV PIP_NO_CACHE_DIR=1 \
+    PLATFORM=linux64 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        redis-server \
+        redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt ./
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+COPY . .
+RUN chmod +x scraperkit/drivers/chromedriver-linux64/chromedriver
+
+EXPOSE 8080
+
+CMD ["bash", "./docker/start-dev.sh"]
