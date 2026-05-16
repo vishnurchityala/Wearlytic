@@ -40,6 +40,36 @@ External pull requests are currently accepted only for adding or improving websi
 
 Do not open unsolicited PRs for `web-app`, `backend`, or `data-ingestor` unless maintainers explicitly request them.
 
+## Commit Message Standard
+
+Use this format for commit messages:
+
+```bash
+git commit -m "<annotation>: <short descriptive title>" -m "<brief description of what changed and why>"
+```
+
+Allowed annotations:
+
+- `feat`: new feature or capability
+- `fix`: bug fix
+- `refactor`: code restructuring without intended behavior change
+- `docs`: documentation-only change
+- `test`: tests only
+- `build`: build system, Docker, packaging, or tooling changes
+- `ci`: CI/CD workflow changes
+- `config`: environment, settings, or configuration changes
+- `deps`: dependency changes
+- `chore`: maintenance that does not affect runtime behavior
+- `style`: formatting or lint-only changes
+- `perf`: performance improvement
+- `api`: API contract, route, serializer, or request/response changes
+- `db`: database model, query, seed, or migration changes
+- `queue`: Celery, queue, worker, or background job changes
+- `auth`: authentication or authorization changes
+- `ui`: frontend interface or visual changes
+- `security`: security fix or hardening
+- `revert`: revert a previous commit
+
 ## Secrets
 
 Do not commit `.env` files, service-role keys, database URLs, OAuth secrets, API tokens, or generated local runtime state.

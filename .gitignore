@@ -59,3 +59,4 @@ web-app/trial.py
 backend/generated_output.jpg
 backend/trial.py
 data-ingestor/celerybeat-schedule.db
+docker-build-log-2026-05-17.txt

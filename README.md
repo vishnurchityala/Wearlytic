@@ -29,6 +29,16 @@ Before opening a scraper PR:
 
 Pull requests for `web-app/`, `backend/`, or `data-ingestor/` are not accepted unless maintainers explicitly request them.
 
+## Commit Messages
+
+Use this format:
+
+```bash
+git commit -m "<annotation>: <short descriptive title>" -m "<brief description of what changed and why>"
+```
+
+Allowed annotations: `feat`, `fix`, `refactor`, `docs`, `test`, `build`, `ci`, `config`, `deps`, `chore`, `style`, `perf`, `api`, `db`, `queue`, `auth`, `ui`, `security`, `revert`.
+
 ## License
 
 Wearlytic is released under the [Apache License 2.0](LICENSE).
