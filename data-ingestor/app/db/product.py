@@ -1,9 +1,9 @@
 import os
 import logging
 from typing import List, Optional
-from pymongo import MongoClient
 from dotenv import load_dotenv
 from app.models import Product
+from app.utils import get_db
 
 load_dotenv()
 
@@ -16,15 +16,12 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("MONGO_DBNAME")
 PRODUCTS_COLLECTION_NAME = os.getenv("PRODUCTS_COLLECTION_NAME", "data_ingestor_products")
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-
-
 class ProductManager:
     """CRUD manager for Products"""
 
     def __init__(self):
-        self.collection = db[PRODUCTS_COLLECTION_NAME]
+        self.db = get_db()
+        self.collection = self.db[PRODUCTS_COLLECTION_NAME]
 
     def create_product(self, product: Product) -> None:
         """Insert a new product into the collection"""

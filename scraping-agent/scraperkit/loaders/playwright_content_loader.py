@@ -1,3 +1,5 @@
+import os
+
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
 from scraperkit.exceptions import BadURLException, ContentNotLoadedException, TimeoutException as ScraperTimeoutException
 from scraperkit.base import BaseContentLoader
@@ -14,7 +16,11 @@ class PlaywrightContentLoader(BaseContentLoader):
 
     def _init_browser(self):
         self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch(headless=self.headless)
+        executable_path = os.getenv("PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH")
+        launch_options = {"headless": self.headless}
+        if executable_path:
+            launch_options["executable_path"] = executable_path
+        self.browser = self.playwright.chromium.launch(**launch_options)
         context = self.browser.new_context(
             user_agent=self.headers.get("User-Agent"),
             locale=self.headers.get("Accept-Language"),

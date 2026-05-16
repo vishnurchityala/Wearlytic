@@ -1,9 +1,8 @@
 import os
 import logging
 from dotenv import load_dotenv
-from pymongo import MongoClient
-from app.models import Source
-from app.models import Listing
+from app.models import Source, Listing
+from app.utils import get_db
 
 load_dotenv()
 
@@ -16,15 +15,13 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("MONGO_DBNAME")
 SOURCES_COLLECTION_NAME = os.getenv("SOURCES_COLLECTION_NAME")
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-
 
 class SourceManager:
     """CRUD manager for Data Ingestor Source"""
 
     def __init__(self):
-        self.collection = db[SOURCES_COLLECTION_NAME]
+        self.db = get_db()
+        self.collection = self.db[SOURCES_COLLECTION_NAME]
     
     def create_source(self, source: Source) -> None:
         try:

@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 from scraperkit.exceptions import BadURLException
@@ -6,11 +7,15 @@ from .scraper_lru_cache import ScraperLRUCache
 
 cache = ScraperLRUCache(max_size=17)
 
+
 def extract_domain(url):
-    parsed_url = urlparse(url)
-    host = parsed_url.netloc or parsed_url.path
+
+    parsed = urlparse(url)
+    host = parsed.netloc or parsed.path
+
     if host.startswith("www."):
         host = host[4:]
+
     parts = host.split('.')
     if len(parts) >= 2:
         return parts[-2]
@@ -42,3 +47,5 @@ def get_driver_path():
         return "./scraperkit/drivers/chromedriver-mac-x64/chromedriver"
     elif platform == 'win64':
         return "./scraperkit/drivers/chromedriver-win64/chromedriver.exe"
+    elif platform == 'linux64':
+        return "./scraperkit/drivers/chromedriver-linux64/chromedriver"

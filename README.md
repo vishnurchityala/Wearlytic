@@ -1,89 +1,44 @@
-# Wearlytic - AI-Powered Clothing Brand Analytics
+<p align="center">
+  <img src="web-app/public/WEARLYTIC-LOGO-2026.png" alt="Wearlytic Logo" width="280" />
+</p>
 
-**Wearlytic** is an AI-driven web intelligence platform designed to collect, analyze, and visualize clothing brand data from various e-commerce platforms. It helps businesses track competitor strategies, identify market trends, and optimize product positioning through advanced data analytics.
+<p align="center">
+  An AI-powered fashion intelligence platform for product discovery, data ingestion, trend analysis, and personalized outfit generation.
+</p>
 
-## Project Structure
 
-The project is organized into several key components:
+## Services
 
-### 1. Backend Service (`/backend`)
-- Flask-based REST API service
-- MongoDB database integration for product data storage
-- Provides paginated product search and filtering capabilities
-- Deployed on Vercel for scalability
-- Features:
-  - Advanced search filtering by description, brand, category
-  - Price range filtering
-  - Pagination support
-  - MongoDB Atlas integration
+| Service | Tech | Responsibility | Local README |
+| --- | --- | --- | --- |
+| `web-app/` | ![React](https://img.shields.io/badge/React-20232a?logo=react&logoColor=61dafb) ![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-06b6d4?logo=tailwindcss&logoColor=white) | React + Vite web app for authentication, product browsing, user profile management, and image-generation workflows. | [web-app/README.md](web-app/README.md) |
+| `backend/` | ![Django](https://img.shields.io/badge/Django-092e20?logo=django&logoColor=white) ![DRF](https://img.shields.io/badge/DRF-a30000) ![Supabase](https://img.shields.io/badge/Supabase-3fcf8e?logo=supabase&logoColor=white) | Django REST API for users, products, categories, Supabase JWT authentication, storage integration, and image generation. | [backend/README.md](backend/README.md) |
+| `scraping-agent/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![Celery](https://img.shields.io/badge/Celery-37814a) ![Selenium](https://img.shields.io/badge/Selenium-43b02a?logo=selenium&logoColor=white) | FastAPI + Celery service that runs website-specific product and listing scrapers. | [scraping-agent/README.md](scraping-agent/README.md) |
+| `data-ingestor/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white) | FastAPI + Celery orchestration service for sources, listings, scrape batches, job status, and product warehouse ingestion. | [data-ingestor/README.md](data-ingestor/README.md) |
 
-### 2. Scraping Agent (`/scraping_agent`)
-- Data ingestion component
-- Concurrent web scraping capabilities
-- Extracts product information from e-commerce platforms
-- Features:
-  - Automated data extraction
-  - Product detail collection (pricing, availability, reviews)
-  - Design attribute analysis
-  - Concurrent request handling
+## Contribution Policy
 
-### 3. Frontend Application (`/frontend`)
-- Interactive dashboards and visualizations
-- User-friendly interface for data exploration
-- Features:
-  - Real-time data visualization
-  - Interactive product filtering
-  - Trend analysis displays
-  - Competitive analysis tools
+This project currently accepts external pull requests only for adding or improving website scrapers in `scraping-agent/`.
 
-### 4. Data Transformer (`/data-transformer`)
-- Data processing and transformation pipeline
-- Prepares raw scraped data for analysis
-- Features:
-  - Data cleaning and normalization
-  - Feature extraction
-  - Data enrichment
-  - Format standardization
+Before opening a scraper PR:
 
-## Key Features
-- **Automated Data Collection** – Intelligent scraping of product details including pricing, availability, reviews, and design attributes
-- **AI-Powered Analytics** – Advanced analysis of clothing categories, pricing trends, and customer preferences
-- **Competitive Intelligence** – Comprehensive brand comparison based on pricing strategies, product demand, and customer sentiment
-- **Trend Prediction** – Machine learning models to identify emerging fashion trends and forecast product viability
-- **Interactive Visualization** – Dynamic dashboards for data-driven decision making
+1. Add the scraper implementation under `scraping-agent/scraperkit/scrapers/`.
+2. Follow the existing scraper contracts and model shapes.
+3. Add or update scraper tests under `scraping-agent/tests/`.
+4. Run the relevant scraping-agent checks documented in [scraping-agent/README.md](scraping-agent/README.md).
 
-## Use Cases
-- Market research for fashion brands and retailers
-- Competitive analysis and pricing strategy optimization
-- Product development and customer preference analysis
-- Trend identification and forecasting
-- Inventory and pricing optimization
+Pull requests for `web-app/`, `backend/`, or `data-ingestor/` are not accepted unless maintainers explicitly request them.
 
-## Getting Started
+## Commit Messages
 
-### Prerequisites
-- Python 3.7 or higher
-- Node.js and npm
-- MongoDB Atlas account
-- Vercel account (for backend deployment)
+Use this format:
 
-### Installation
-1. Clone the repository
-2. Set up each component following their respective README files
-3. Configure environment variables
-4. Start the services:
-   - Backend: `cd backend && python app.py`
-   - Frontend: `cd frontend && npm start`
+```bash
+git commit -m "<annotation>: <short descriptive title>" -m "<brief description of what changed and why>"
+```
 
-## Development Status
-> ![warning](https://img.shields.io/badge/⚠️%20WARNING-red)
-> This project was in prototype phase until now. We are currently building a scalable scraping agent with API exposure capabilities.
-
-> ![progress](https://img.shields.io/badge/⏳%20IN%20PROGRESS-blue)
-> The scraping agent is currently being enhanced for better concurrent request handling and data extraction capabilities.
-
-## Contributing
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to the appropriate branches.
+Allowed annotations: `feat`, `fix`, `refactor`, `docs`, `test`, `build`, `ci`, `config`, `deps`, `chore`, `style`, `perf`, `api`, `db`, `queue`, `auth`, `ui`, `security`, `revert`.
 
 ## License
-This project is licensed under the terms specified in the LICENSE file.
+
+Wearlytic is released under the [Apache License 2.0](LICENSE).

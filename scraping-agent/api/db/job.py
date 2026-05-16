@@ -38,7 +38,10 @@ class JobsManager:
     def update_job(self, job_id: str, updates: dict):
         try:
             logging.info(f"Updating Job with Job ID: {job_id}")
-            return self.collection.update_one({"job_id": job_id}, {"$set": updates})
+            result = self.collection.update_one({"job_id": job_id}, {"$set": updates})
+            if result.matched_count == 0:
+                raise LookupError(f"Job {job_id} not found for update")
+            return result
         except Exception as e:
             logging.error(f"Failed to update Job {job_id}: {e}")
             raise

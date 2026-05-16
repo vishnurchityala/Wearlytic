@@ -1,8 +1,9 @@
 import os
 import logging
 from dotenv import load_dotenv
-from pymongo import MongoClient
 from app.models import Status
+from app.utils import get_db
+
 
 load_dotenv()
 
@@ -15,14 +16,12 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("MONGO_DBNAME")
 STATUS_COLLECTION_NAME = os.getenv("STATUS_COLLECTION_NAME")
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-
 class StatusManager:
     """CRUD manager for Data Ingestor Status"""
 
     def __init__(self):
-        self.collection = db[STATUS_COLLECTION_NAME]
+        self.db = get_db()
+        self.collection = self.db[STATUS_COLLECTION_NAME]
 
     def create_status(self, status: Status) -> None:
         try:

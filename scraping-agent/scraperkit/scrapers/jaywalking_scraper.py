@@ -2,8 +2,13 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from scraperkit.base import BaseScraper
 from scraperkit.loaders import SeleniumContentLoader
-from scraperkit.exceptions import ContentNotLoadedException, DataComponentNotFoundException, DataParsingException
+from scraperkit.exceptions import (
+    ContentNotLoadedException,
+    DataComponentNotFoundException,
+    DataParsingException,
+)
 from scraperkit.models import Product
+
 
 class JayWalkingScraper(BaseScraper):
     """
@@ -11,124 +16,190 @@ class JayWalkingScraper(BaseScraper):
     It extends BaseScraper and returns results as Product objects.
     """
 
-    def __init__(self, base_url=None, headers = None, content_loader=None):
+    def __init__(self, base_url=None, headers=None, content_loader=None):
         super().__init__("https://www.jaywalking.in/", headers=headers or {})
         self.id_prefix = "jywlkng_"
-        self.content_loader = content_loader or SeleniumContentLoader()     
+        self.content_loader = content_loader or SeleniumContentLoader()
 
     def get_page_content(self, page_url):
         try:
             return self.content_loader.load_content(page_url=page_url)
-        except Exception:
-            raise ContentNotLoadedException(f"Failed to Load Page Content of Page URL : {page_url}")
+        except Exception as e:
+            if isinstance(e, ContentNotLoadedException):
+                raise
+            raise ContentNotLoadedException(
+                f"Failed to load page content for page URL: {page_url}: {str(e)}"
+            ) from e
 
     def get_pagination_details(self, page_url):
-        
-        page_content = self.get_page_content(page_url=page_url)
-        
-        soup = BeautifulSoup(page_content,"html.parser")
-        
-        pagination_div = soup.find("div",attrs={"class":"pagination pagination--"})
-        
-        if pagination_div == None:
+        try:
+            page_content = self.get_page_content(page_url=page_url)
+            soup = BeautifulSoup(page_content, "html.parser")
+            pagination_div = soup.find("div", attrs={"class": "pagination pagination--"})
+
+            if pagination_div is None:
+                return {
+                    'current_page': page_url,
+                    'total_pages': 1,
+                    'next_page_url': None
+                }
+
+            next_tag = pagination_div.find("a", attrs={"class": "next"})
+            if next_tag and next_tag.get("href"):
+                next_page_url = self.base_url.rstrip("/") + next_tag["href"].split("&")[0]
+            else:
+                next_page_url = None
+
+            page_links = pagination_div.find_all("a", attrs={"class": "page"})
+            if not page_links:
+                raise DataComponentNotFoundException(
+                    "Failed to find pagination page links in JayWalking."
+                )
+
+            total_pages = int(page_links[-1].text)
+
             return {
                 'current_page': page_url,
-                'total_pages': 1,
-                'next_page_url': None
-            }
-        
-        next_tag = pagination_div.find("a", attrs={"class": "next"})
-        if next_tag and next_tag.get("href"):
-            next_page_url = self.base_url.rstrip("/") + next_tag["href"].split("&")[0]
-        else:
-            next_page_url = None
-        total_pages = int(pagination_div.find_all("a",attrs={"class":"page"})[-1].text)
-
-        return {
-                'current_page': page_url,
                 'total_pages': total_pages,
-                'next_page_url' : next_page_url
+                'next_page_url': next_page_url
             }
-        
+        except Exception as e:
+            if isinstance(e, (ContentNotLoadedException, DataComponentNotFoundException)):
+                raise
+            raise DataParsingException(
+                f"Failed to parse pagination details in JayWalking for {page_url}: {str(e)}"
+            ) from e
+
     def get_product_listings(self, listings_page_url, page = 1):
-        page_content = self.get_page_content(listings_page_url)
-        soup = BeautifulSoup(page_content,"html.parser")
         try:
+            page_content = self.get_page_content(listings_page_url)
+            soup = BeautifulSoup(page_content, "html.parser")
             product_links = []
-            product_link_eles = soup.find_all("a",attrs={"class":"product-item__special-link"})
+            product_link_eles = soup.find_all("a", attrs={"class": "product-item__special-link"})
+
             for product_link in product_link_eles:
-                if ("gift-card" not in product_link["href"]):
-                    product_links.append(self.base_url[:-1]+product_link["href"])
+                href = product_link.get("href")
+                if not href or "gift-card" in href:
+                    continue
+                product_links.append(self.base_url[:-1] + href)
+
             return product_links
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Product Listings in JayWalking.")
+        except Exception as e:
+            if isinstance(e, ContentNotLoadedException):
+                raise
+            raise DataParsingException(
+                f"Failed to parse product listings in JayWalking for {listings_page_url}: {str(e)}"
+            ) from e
 
     def _extract_title(self, soup: BeautifulSoup) -> str:
         try:
-            return soup.find("h1",attrs={"class":"product-title"}).text
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Product Title in JayWalking.")
+            title_element = soup.find("h1", attrs={"class": "product-title"})
+            if not title_element:
+                raise DataComponentNotFoundException(
+                    "Failed to find data component for product title in JayWalking."
+                )
+
+            title = title_element.get_text(strip=True)
+            if not title:
+                raise DataParsingException("Failed to parse product title in JayWalking.")
+
+            return title
+        except Exception as e:
+            if isinstance(e, (DataComponentNotFoundException, DataParsingException)):
+                raise
+            raise DataParsingException(
+                f"Failed to parse data for product title in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_id(self, soup: BeautifulSoup) -> str:
         try:
             title = self._extract_title(soup)
-            id = self.id_prefix + "_".join(title.lower().split()[:-1])
-            return id
-        
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Product ID in JayWalking.")
+            title_parts = title.lower().split()
+            product_id = self.id_prefix + "_".join(title_parts[:-1])
+
+            if not product_id or product_id == self.id_prefix:
+                raise DataParsingException("Failed to parse product ID in JayWalking.")
+
+            return product_id
+        except Exception as e:
+            if isinstance(e, (DataComponentNotFoundException, DataParsingException)):
+                raise
+            raise DataParsingException(
+                f"Failed to parse data for product ID in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_category(self, soup: BeautifulSoup) -> str:
         return "Dummy String"
 
     def _extract_price(self, soup: BeautifulSoup) -> float:
         try:
-            price = soup.find("span",attrs={"class":"product-price"})
-            if price == None:
-                raise DataComponentNotFoundException("Failed to find Data Component for Price in JayWalking.")
-            price = float(price.text.split()[-1].replace(',',''))
-            return price
+            price = soup.find("span", attrs={"class": "product-price"})
+            if price is None:
+                raise DataComponentNotFoundException(
+                    "Failed to find data component for price in JayWalking."
+                )
+
+            return float(price.text.split()[-1].replace(",", ""))
         except DataComponentNotFoundException as e:
             raise e
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Price in JayWalking.")
+        except Exception as e:
+            raise DataParsingException(
+                f"Failed to parse data for price in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_sizes(self, soup: BeautifulSoup) -> list:
         try:
-            sizes_labels = soup.find_all("label",attrs={"class":"product-variant__label"})
-            if sizes_labels == None:
-                raise DataComponentNotFoundException("Failed to Find Data Component for Sizes in JayWalking.")
+            sizes_labels = soup.find_all("label", attrs={"class": "product-variant__label"})
+            if not sizes_labels:
+                raise DataComponentNotFoundException(
+                    "Failed to find data component for sizes in JayWalking."
+                )
+
             sizes = []
             for size_label in sizes_labels:
-                sizes.append(size_label.text)
+                size_text = size_label.get_text(strip=True)
+                if size_text:
+                    sizes.append(size_text)
+
             return sizes
         except DataComponentNotFoundException as e:
             raise e
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Sizes in JayWalking.")
+        except Exception as e:
+            raise DataParsingException(
+                f"Failed to parse data for sizes in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_description(self, soup: BeautifulSoup) -> str:
         try:
             description_container = soup.find("div", class_="rte")
             if not description_container:
-                raise DataComponentNotFoundException("Failed to Find Data Component for Description in JayWalking.")
-            
+                raise DataComponentNotFoundException(
+                    "Failed to find data component for description in JayWalking."
+                )
+
             size_chart_table = description_container.find("table")
             if size_chart_table:
                 size_chart_table.decompose()
-            
-            size_chart_heading = description_container.find(string=lambda text: text and "SIZE CHART" in text.upper())
+
+            size_chart_heading = description_container.find(
+                string=lambda text: text and "SIZE CHART" in text.upper()
+            )
             if size_chart_heading:
                 size_chart_heading.parent.decompose()
-            
+
             description_text = description_container.get_text(separator=" ", strip=True)
-            
+            if not description_text:
+                raise DataParsingException(
+                    "Failed to parse data for description in JayWalking."
+                )
+
             return description_text.lower().capitalize()
-        
         except DataComponentNotFoundException as e:
             raise e
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Description in JayWalking.")
+        except Exception as e:
+            raise DataParsingException(
+                f"Failed to parse data for description in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_material(self, soup: BeautifulSoup) -> str:
         try:
@@ -171,21 +242,34 @@ class JayWalkingScraper(BaseScraper):
 
         except DataComponentNotFoundException as e:
             raise e
-        except Exception:
+        except Exception as e:
             raise DataParsingException(
-                "Failed to Parse Data for Material in JayWalking."
-            )
+                f"Failed to parse data for material in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_image_url(self, soup: BeautifulSoup) -> list:
         try:
-            img = soup.find_all("div",attrs={"class":"product-gallery-item"})[0].find("img")
-            if img == None:
-                raise DataComponentNotFoundException("Failed to Find Data Component for Image in JayWalking.")
-            return "https:"+img["src"]
+            product_gallery_items = soup.find_all(
+                "div", attrs={"class": "product-gallery-item"}
+            )
+            if not product_gallery_items:
+                raise DataComponentNotFoundException(
+                    "Failed to find data component for image in JayWalking."
+                )
+
+            img = product_gallery_items[0].find("img")
+            if img is None or not img.get("src"):
+                raise DataComponentNotFoundException(
+                    "Failed to find image source in JayWalking."
+                )
+
+            return "https:" + img["src"]
         except DataComponentNotFoundException as e:
             raise e
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Image in JayWalking.")
+        except Exception as e:
+            raise DataParsingException(
+                f"Failed to parse data for image in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_gender(self, soup: BeautifulSoup) -> str:
         try:
@@ -196,8 +280,10 @@ class JayWalkingScraper(BaseScraper):
                 return "Woman"
         except DataComponentNotFoundException as e:
             raise e
-        except Exception:
-            raise DataParsingException("Failed to Parse Data for Gender in JayWalking.")
+        except Exception as e:
+            raise DataParsingException(
+                f"Failed to parse data for gender in JayWalking: {str(e)}"
+            ) from e
 
     def _extract_colors(self, soup: BeautifulSoup) -> list:
         return []
@@ -211,9 +297,9 @@ class JayWalkingScraper(BaseScraper):
     def get_product_details(self, product_page_url):
         try:
             page_content = self.get_page_content(product_page_url)
-            soup = BeautifulSoup(page_content,"html.parser")
-            body_content = soup.body.prettify()
-            category = product_page_url.split("/collections/")[1].split("/")[0].capitalize()  
+            soup = BeautifulSoup(page_content, "html.parser")
+            body_content = soup.body.prettify() if soup.body else page_content
+            category = product_page_url.split("/collections/")[1].split("/")[0].capitalize()
             product = Product(
                 id=self._extract_id(soup),
                 title=self._extract_title(soup),
@@ -236,9 +322,18 @@ class JayWalkingScraper(BaseScraper):
             )
             return product
         except Exception as e:
-            if isinstance(e, (DataComponentNotFoundException, DataParsingException, ContentNotLoadedException)):
+            if isinstance(
+                e,
+                (
+                    DataComponentNotFoundException,
+                    DataParsingException,
+                    ContentNotLoadedException,
+                ),
+            ):
                 raise
-            raise DataParsingException(f"Error extracting product details from {product_page_url}: {str(e)}")
+            raise DataParsingException(
+                f"Error extracting product details from {product_page_url}: {str(e)}"
+            ) from e
 
     def close(self):
         if self.content_loader:

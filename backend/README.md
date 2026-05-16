@@ -1,133 +1,63 @@
-# Flask Products API with MongoDB
+# Backend
 
-A Flask REST API that provides paginated product search functionality using MongoDB as the database.
+![Django](https://img.shields.io/badge/Django-092e20?logo=django&logoColor=white)
+![Django REST Framework](https://img.shields.io/badge/DRF-a30000)
+![Supabase](https://img.shields.io/badge/Supabase-3fcf8e?logo=supabase&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169e1?logo=postgresql&logoColor=white)
 
-## Prerequisites
+The backend is the Django REST API for Wearlytic.
 
-1. MongoDB Atlas account with a cluster
-2. Python 3.7 or higher
-3. Vercel account (for deployment)
+## Responsibility
 
-## Setup
+- Manage app users linked to Supabase identities.
+- Serve authenticated product and category APIs.
+- Store and update user profile/base-image metadata.
+- Validate Supabase JWTs for protected endpoints.
+- Store generated image assets through Supabase Storage.
+- Trigger Gemini-powered product/outfit image generation.
 
-1. Create a virtual environment (recommended):
+## Local Development
+
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-2. Install dependencies:
-```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
-3. Configure MongoDB:
-   - Update the `MONGODB_URI` in `.env` file with your MongoDB Atlas connection string
-   - Make sure your Atlas cluster's IP whitelist includes your application's IP address
+Default local URL: `http://localhost:8000`
 
-4. Run the application locally:
+## Commands
+
 ```bash
-python app.py
+python manage.py migrate
+python manage.py runserver
+python manage.py test
 ```
 
-The API will be available at `http://localhost:5000`
+## Environment
 
-## Deployment to Vercel
+The API falls back to SQLite when Postgres settings are not provided.
 
-1. Install Vercel CLI:
+Common variables:
+
 ```bash
-npm install -g vercel
+DATABASE_URL=
+SUPABASE_DB_HOST=
+SUPABASE_DB_NAME=
+SUPABASE_DB_USER=
+SUPABASE_DB_PASSWORD=
+SUPABASE_DB_PORT=
+SUPABASE_DB_SSLMODE=
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_BUCKET=
+SUPABASE_PROJECT_ID=
+SUPABASE_JWT_SECRET=
+GEMINI_API_KEY=
 ```
 
-2. Login to Vercel:
-```bash
-vercel login
-```
+## Contribution Scope
 
-3. Set up environment variables in Vercel:
-```bash
-vercel env add MONGODB_URI
-```
-Enter your MongoDB Atlas connection string when prompted.
-
-4. Deploy to Vercel:
-```bash
-vercel
-```
-
-5. For subsequent deployments:
-```bash
-vercel --prod
-```
-
-The API will be available at your Vercel deployment URL.
-
-## Database Schema
-
-The API expects a MongoDB database named `products_db` with a collection named `products`. Each product document should have the following structure:
-
-```json
-{
-    "description": "Product description",
-    "product_url": "URL to product page",
-    "source": "Source website",
-    "product_name": "Product name",
-    "image_url": "URL to product image",
-    "category": "Product category",
-    "price": "₹Price in INR",
-    "colors": ["Color options"],
-    "brand": "Brand name",
-    "material": "Material type",
-    "timestamp": 1234567890.12345
-}
-```
-
-## API Endpoints
-
-### GET /api/products
-
-Returns a paginated list of products with advanced search filtering.
-
-#### Query Parameters:
-- `search` (optional): Search term to filter products by description or brand name
-- `category` (optional): Filter by specific category
-- `brand` (optional): Filter by specific brand
-- `min_price` (optional): Minimum price filter (e.g., "₹500")
-- `max_price` (optional): Maximum price filter (e.g., "₹2000")
-- `page` (optional): Page number (default: 1)
-- `per_page` (optional): Number of items per page (default: 5)
-
-#### Example Response:
-```json
-{
-    "products": [
-        {
-            "description": "Product description",
-            "product_url": "https://example.com/product",
-            "source": "myntra.com",
-            "product_name": "Product Name",
-            "image_url": "https://example.com/image.jpg",
-            "category": "Category",
-            "price": "₹999",
-            "colors": [],
-            "brand": "Brand Name",
-            "material": "Material Type",
-            "timestamp": 1234567890.12345
-        }
-    ],
-    "pagination": {
-        "total": 100,
-        "page": 1,
-        "per_page": 5,
-        "total_pages": 20
-    }
-}
-```
-
-#### Example Usage:
-- Search in description and brand: `GET /api/products?search=cotton`
-- Filter by category: `GET /api/products?category=tshirts`
-- Filter by brand: `GET /api/products?brand=MANGO`
-- Price range: `GET /api/products?min_price=₹500&max_price=₹2000`
-- Combined filters: `GET /api/products?category=jeans&brand=jack&min_price=₹1000&max_price=₹3000`
-- Pagination: `GET /api/products?page=2&per_page=10` 
+External pull requests are not currently accepted for this service unless maintainers explicitly request them. Wearlytic currently accepts external PRs only for adding or improving website scrapers in [`../scraping-agent`](../scraping-agent/README.md).

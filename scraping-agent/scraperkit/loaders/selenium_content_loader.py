@@ -1,3 +1,4 @@
+import os
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -7,9 +8,13 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 from scraperkit.base.base_content_loader import BaseContentLoader
-from scraperkit.exceptions import BadURLException, TimeoutException, DriverNotInitializedException
+from scraperkit.exceptions import (
+    BadURLException,
+    ContentNotLoadedException,
+    TimeoutException,
+    DriverNotInitializedException,
+)
 from scraperkit.utils import get_driver_path
 
 class SeleniumContentLoader(BaseContentLoader):
@@ -38,6 +43,16 @@ class SeleniumContentLoader(BaseContentLoader):
 
     def _init_driver(self):
         chrome_options = Options()
+        remote_debugger_address = os.getenv("SELENIUM_REMOTE_DEBUGGER_ADDRESS")
+        chrome_bin = os.getenv("CHROME_BIN")
+
+        if remote_debugger_address:
+            chrome_options.add_experimental_option(
+                "debuggerAddress",
+                remote_debugger_address,
+            )
+        elif chrome_bin:
+            chrome_options.binary_location = chrome_bin
 
         for key, value in self.headers.items():
             chrome_options.add_argument(f"--{key.lower()}={value}")
@@ -46,7 +61,7 @@ class SeleniumContentLoader(BaseContentLoader):
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option("useAutomationExtension", False)
 
-        if self.headless:
+        if self.headless and not remote_debugger_address:
             chrome_options.add_argument("--headless=new")
 
         chrome_options.add_argument("--disable-gpu")
@@ -95,13 +110,19 @@ class SeleniumContentLoader(BaseContentLoader):
             return page_source
 
         except SeleniumTimeoutException as e:
-            raise TimeoutException(f"Timeout while loading page: {page_url}. Error: {str(e)}")
+            raise TimeoutException(
+                f"Timeout while loading page: {page_url}. Error: {str(e)}"
+            ) from e
 
         except WebDriverException as e:
-            raise BadURLException(f"Bad URL or navigation error: {page_url}. Error: {str(e)}")
+            raise BadURLException(
+                f"Bad URL or navigation error: {page_url}. Error: {str(e)}"
+            ) from e
 
         except Exception as e:
-            raise e
+            raise ContentNotLoadedException(
+                f"Unexpected error while loading page: {page_url}. Error: {str(e)}"
+            ) from e
 
     def close(self):
         if self.driver:

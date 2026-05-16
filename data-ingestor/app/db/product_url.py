@@ -1,9 +1,8 @@
 import os
 import logging
 from dotenv import load_dotenv
-from pymongo import MongoClient
 from app.models import ProductUrl
-
+from app.utils import get_db
 load_dotenv()
 
 logging.basicConfig(
@@ -15,14 +14,12 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("MONGO_DBNAME")
 PRODUCT_URLS_COLLECTION_NAME = os.getenv("PRODUCT_URLS_COLLECTION_NAME")
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-
 class ProductUrlManager:
     """CRUD manager for Data Ingestor Product URLs"""
 
     def __init__(self):
-        self.collection = db[PRODUCT_URLS_COLLECTION_NAME]
+        self.db = get_db()
+        self.collection = self.db[PRODUCT_URLS_COLLECTION_NAME]
 
     def create_product_url(self, product_url: ProductUrl) -> None:
         try:

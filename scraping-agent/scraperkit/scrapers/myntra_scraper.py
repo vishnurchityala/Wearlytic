@@ -1,9 +1,13 @@
-import time
 from bs4 import BeautifulSoup
+import re
 from scraperkit.base.base_scraper import BaseScraper
 from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.models.product import Product
-from scraperkit.exceptions import DataComponentNotFoundException, DataParsingException
+from scraperkit.exceptions import (
+    ContentNotLoadedException,
+    DataComponentNotFoundException,
+    DataParsingException,
+)
 from datetime import datetime, timezone
 
 class MyntraScraper(BaseScraper):
@@ -11,7 +15,7 @@ class MyntraScraper(BaseScraper):
     MyntraScraper extracts structured product data from Myntra by parsing listing and product pages.
     It extends BaseScraper and returns results as Product objects.
     """
-    def __init__(self, headers=None):
+    def __init__(self, headers=None, content_loader=None):
         super().__init__("https://www.myntra.com/", headers=headers)
         self.id_prefix = "mynt_"
         self.headers = headers or {
@@ -26,73 +30,107 @@ class MyntraScraper(BaseScraper):
             "Sec-Fetch-Site": "none",
             "Sec-Fetch-User": "?1"
         }
-        self.content_loader = SeleniumContentLoader(headers=self.headers, timeout=30)
+        self.content_loader = content_loader or SeleniumContentLoader(
+            headers=self.headers,
+            timeout=30,
+        )
 
     def get_page_content(self, page_url: str) -> str | None:
         try:
             return self.content_loader.load_content(page_url)
         except Exception as e:
-            print(f"Error fetching page content from Myntra: {e}")
-            return None
+            if isinstance(e, ContentNotLoadedException):
+                raise
+            raise ContentNotLoadedException(
+                f"Error fetching page content from Myntra: {e}"
+            )
 
-    def get_pagination_details(self, page_url: str) -> dict:
+    def _get_listing_page_content(self, page_url: str) -> str:
         page_content = self.get_page_content(page_url)
         if not page_content:
-            return {
-                'current_page': None,
-                'total_pages': None,
-                'next_page_url': None
-            }
+            raise ContentNotLoadedException(
+                f"Failed to retrieve listing page content from Myntra: {page_url}"
+            )
 
+        return page_content
+
+    def _extract_listing_count(self, soup: BeautifulSoup) -> int | None:
+        title_count = soup.find("span", {"class": "title-count"})
+        if not title_count:
+            return None
+
+        count_text = title_count.get_text(" ", strip=True)
+        match = re.search(r"(\d[\d,]*)", count_text)
+        if not match:
+            return None
+
+        return int(match.group(1).replace(",", ""))
+
+    def _resolve_listing_page_url(self, soup: BeautifulSoup) -> str | None:
+        canonical = soup.find("link", {"rel": "canonical"})
+        if canonical and canonical.get("href"):
+            return canonical["href"]
+
+        meta_url = soup.find("meta", {"property": "og:url"})
+        if meta_url and meta_url.get("content"):
+            return meta_url["content"]
+
+        return None
+
+    def get_pagination_details(self, page_url: str) -> dict:
+        page_content = self._get_listing_page_content(page_url)
         soup = BeautifulSoup(page_content, 'html.parser')
         pagination_info = {
-            'current_page': None,
-            'total_pages': None,
+            'current_page': 1,
+            'total_pages': 1,
             'next_page_url': None
         }
 
         try:
             pagination_meta = soup.find('li', {'class': 'pagination-paginationMeta'})
-            if pagination_meta:
-                meta_text = pagination_meta.text.strip()
-                if 'Page' in meta_text and 'of' in meta_text:
-                    parts = meta_text.split()
-                    if len(parts) >= 4:
-                        current_page = int(parts[1])
-                        total_pages = int(parts[3])
-                        pagination_info['current_page'] = current_page
-                        pagination_info['total_pages'] = total_pages
-                        
-                        canonical = soup.find('link', {'rel': 'canonical'})
-                        current_url = ""
-                        if canonical and 'href' in canonical.attrs:
-                            current_url = canonical['href']
-                        else:
-                            meta_url = soup.find('meta', {'property': 'og:url'})
-                            if meta_url and 'content' in meta_url.attrs:
-                                current_url = meta_url['content']
-                                
-                        if current_url and current_page < total_pages:
-                            if 'p=' in current_url:
-                                next_url = current_url.replace(f'p={current_page}', f'p={current_page + 1}')
-                            else:
-                                next_url = f"{current_url}{'&' if '?' in current_url else '?'}p={current_page + 1}"
-                            pagination_info['next_page_url'] = next_url
+            if not pagination_meta:
+                return pagination_info
+
+            meta_text = pagination_meta.get_text(" ", strip=True)
+            match = re.search(r"Page\s+(\d+)\s+of\s+(\d+)", meta_text)
+            if not match:
+                raise DataParsingException(
+                    f"Unexpected Myntra pagination format: {meta_text}"
+                )
+
+            current_page = int(match.group(1))
+            total_pages = int(match.group(2))
+            if current_page < 1 or total_pages < current_page:
+                raise DataParsingException(
+                    f"Invalid Myntra pagination values: current={current_page}, total={total_pages}"
+                )
+
+            pagination_info['current_page'] = current_page
+            pagination_info['total_pages'] = total_pages
+
+            if current_page < total_pages:
+                current_url = self._resolve_listing_page_url(soup)
+                if not current_url:
+                    raise DataParsingException(
+                        "Unable to resolve current Myntra listing URL for pagination"
+                    )
+
+                if 'p=' in current_url:
+                    next_url = current_url.replace(f'p={current_page}', f'p={current_page + 1}')
+                else:
+                    next_url = f"{current_url}{'&' if '?' in current_url else '?'}p={current_page + 1}"
+                pagination_info['next_page_url'] = next_url
+
             return pagination_info
         except Exception as e:
-            print(f"Error extracting pagination details: {e}")
-            return pagination_info
+            if isinstance(e, (ContentNotLoadedException, DataParsingException)):
+                raise
+            raise DataParsingException(
+                f"Error extracting Myntra pagination details from {page_url}: {e}"
+            ) from e
 
     def get_product_listings(self, listings_page_url: str, page: int = 1) -> list[str]:
-        if page > 1:
-            url = f"{listings_page_url}{'&' if '?' in listings_page_url else '?'}p={page}"
-        else:
-            url = listings_page_url
-
-        page_content = self.get_page_content(url)
-        if not page_content:
-            print(f"Failed to retrieve content for page {page}")
-            return []
+        page_content = self._get_listing_page_content(listings_page_url)
 
         return self._extract_product_listings(page_content, page)
 
@@ -101,7 +139,15 @@ class MyntraScraper(BaseScraper):
             soup = BeautifulSoup(page_content, 'html.parser')
             product_links = []
             product_items = soup.find_all('li', class_='product-base')
-            
+            listing_count = self._extract_listing_count(soup)
+
+            if not product_items:
+                if listing_count == 0:
+                    return []
+                raise DataComponentNotFoundException(
+                    "No Myntra product cards found on listing page"
+                )
+
             for item in product_items:
                 a_tag = item.find('a', href=True)
                 if a_tag:
@@ -109,12 +155,21 @@ class MyntraScraper(BaseScraper):
                     full_url = href if href.startswith('http') else f'https://www.myntra.com/{href.lstrip("/")}'
                     if full_url not in product_links:
                         product_links.append(full_url)
-                        
-            print(f"Found {len(product_links)} unique product links on page {page}")
+
+            if not product_links:
+                if listing_count == 0:
+                    return []
+                raise DataParsingException(
+                    f"Found Myntra product cards on page {page} but extracted no product links"
+                )
+
             return product_links
         except Exception as e:
-            print(f"Error extracting product listings: {e}")
-            return []
+            if isinstance(e, (ContentNotLoadedException, DataComponentNotFoundException, DataParsingException)):
+                raise
+            raise DataParsingException(
+                f"Error extracting Myntra product listings on page {page}: {e}"
+            ) from e
 
     def _extract_id(self, soup: BeautifulSoup) -> str:
         try:
@@ -200,11 +255,19 @@ class MyntraScraper(BaseScraper):
             if not ratings_count:
                 return 0
             
-            review_text = ratings_count.text.strip().split()[0].replace(',', '')
+            review_text = ratings_count.text.strip().split()[0].replace(',', '').lower()
             if not review_text:
                 raise DataParsingException("Review count text is empty")
-            
-            review_count = int(review_text)
+
+            multiplier = 1
+            if review_text.endswith('k'):
+                multiplier = 1000
+                review_text = review_text[:-1]
+            elif review_text.endswith('m'):
+                multiplier = 1000000
+                review_text = review_text[:-1]
+
+            review_count = int(float(review_text) * multiplier)
             if review_count >= 0:
                 return review_count
             else:
@@ -370,11 +433,13 @@ class MyntraScraper(BaseScraper):
         try:
             page_content = self.get_page_content(product_page_url)
             if not page_content:
-                print(f"Failed to retrieve content for product page: {product_page_url}")
-                return {}
+                raise ContentNotLoadedException(
+                    f"Failed to retrieve content for product page: {product_page_url}"
+                )
 
             soup = BeautifulSoup(page_content, 'html.parser')
-            body_content = soup.body.prettify()
+            body_content = soup.body.prettify() if soup.body else page_content
+            scraped_at = datetime.now(timezone.utc)
 
             product_data = {
                 'id': self._extract_id(soup),
@@ -391,16 +456,26 @@ class MyntraScraper(BaseScraper):
                 'image_url': self._extract_image_url(soup),
                 'url': product_page_url,
                 'processed': False,
-                'scraped_datetime': datetime.now(timezone.utc).timestamp(),
-                'processed_datetime': datetime.now(timezone.utc).timestamp(),
+                'scraped_datetime': scraped_at,
+                'processed_datetime': scraped_at,
                 'page_content': body_content
             }
 
             return Product(**product_data)
 
         except Exception as e:
-            print(f"Error fetching product details: {e}")
-            return {}
+            if isinstance(
+                e,
+                (
+                    DataComponentNotFoundException,
+                    DataParsingException,
+                    ContentNotLoadedException,
+                ),
+            ):
+                raise
+            raise DataParsingException(
+                f"Error extracting product details from {product_page_url}: {str(e)}"
+            )
 
     def close(self):
         if self.content_loader:

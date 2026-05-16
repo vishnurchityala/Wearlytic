@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=BBH+Bartle&family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+
+.anton-regular {
+  font-family: 'Anton', sans-serif;
+}
+
+.outfit-regular {
+  font-family: "Outfit", sans-serif;
+}
+
+.bbh-bartle-regular {
+  font-family: "BBH Bartle", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}

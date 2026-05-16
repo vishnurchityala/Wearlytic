@@ -1,15 +1,22 @@
-.PHONY: all run stop clean setup start-redis stop-redis start-mongo stop-mongo start-celery-workers kill-celery-workers delete-cache
+.PHONY: all run stop clean setup setup-dev start-redis stop-redis start-mongo stop-mongo start-celery-workers kill-celery-workers delete-cache test-scraperkit
 
 # ========== ScrapingAgent Service ==========
 APP_MODULE = main:app
 PORT = 8080
 RELOAD = --reload
+VENV_DIR ?= venv
+PYTHON_FOR_VENV ?= python3
+PYTHON_BIN ?= $(VENV_DIR)/bin/python
+PIP_BIN ?= $(VENV_DIR)/bin/pip
+VENV_STAMP = $(VENV_DIR)/.deps-installed
+TEST_SNAPSHOT_DIR ?= tests/artifacts/scraper_runs
 
 UVICORN_CMD = PYTHONDONTWRITEBYTECODE=1 python -m uvicorn $(APP_MODULE) --host 0.0.0.0 --port $(PORT) $(RELOAD)
+PYTEST_CMD = PYTHONDONTWRITEBYTECODE=1 $(PYTHON_BIN) -m pytest
 
 all: run
 
-run: start-redis start-mongo start-celery-workers
+run: start-redis start-celery-workers
 	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@$(UVICORN_CMD) & \
@@ -34,7 +41,7 @@ start-celery-workers:
 	celery -A api.celery_worker.celery_app worker -Q scraping_agent_scrape_high --loglevel=info --concurrency=10 & echo $$! > .celery_worker_high_pid
 	@echo "<========== Celery Workers Started ===========>"
 
-stop: kill-celery-workers stop-mongo stop-redis
+stop: kill-celery-workers stop-redis
 	@echo "<========== Stopping ScrapingAgent Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \
@@ -45,8 +52,7 @@ stop: kill-celery-workers stop-mongo stop-redis
 	else \
 		echo "No Uvicorn PID file found. Is the app running?"; \
 	fi
-	@echo "Deleting PyCache Files......"
-	find . -type d -name '__pycache__' -exec rm -r {} +
+	@$(MAKE) delete-cache
 	@echo "<========== Stopped ScrapingAgent Service ===========>"
 
 stop-redis:
@@ -78,12 +84,27 @@ setup:
 	pip install -r requirements.txt
 	@echo "<========== Dependencies Installed ===========>"
 
+setup-dev: $(VENV_STAMP)
+
+$(VENV_STAMP): requirements.txt requirements-dev.txt
+	@echo "<========== Installing Development Dependencies ===========>"
+	$(PYTHON_FOR_VENV) -m venv $(VENV_DIR)
+	$(PIP_BIN) install -r requirements.txt -r requirements-dev.txt
+	@touch $(VENV_STAMP)
+	@echo "<========== Development Dependencies Installed ===========>"
+
+test-scraperkit: setup-dev
+	@echo "<========== Running ScraperKit Test Suite ===========>"
+	@$(PYTEST_CMD)
+
 clean:
 	@echo "<========== Cleaning up ScrapingAgent Project ===========>"
-	rm -rf __pycache__ .uvicorn_pid
+	rm -rf .uvicorn_pid
+	@$(MAKE) delete-cache
 	@echo "<========== Cleanup Complete ===========>"
 
 delete-cache:
-	@echo "<========== Deleting PyCache Files ===========>"
-	find . -type d -name '__pycache__' -exec rm -r {} +
-	@echo "<========== PyCache Deleted ===========>"
+	@echo "<========== Deleting Test Cache And Snapshots ===========>"
+	find . -type d -name '__pycache__' -exec rm -rf {} +
+	rm -rf .pytest_cache $(TEST_SNAPSHOT_DIR)
+	@echo "<========== Test Cache And Snapshots Deleted ===========>"

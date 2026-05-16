@@ -1,47 +1,67 @@
 # Data Ingestor
 
-![Warning](https://img.shields.io/badge/warning-debugging--phase-red)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Celery](https://img.shields.io/badge/Celery-37814a)
+![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white)
 
-## Main Components
+The data ingestor orchestrates Wearlytic's scraping and product warehouse pipeline.
 
-- **main.py**: FastAPI app entry point.
-- **app/**: Core application logic and structure.
-  - `routes/`: API endpoints for dashboard, ingestion, listings, sources, and security.
-  - `models/`: Data models for batches, listings, products, sources, and status.
-  - `db/`: Database operations and data access layer.
-- **celery_worker.py**: Celery background task definitions for data processing.
-- **requirements.txt**: Python dependencies.
-- **Makefile**: Commands to run, stop, and manage the service.
+## Responsibility
 
-###  Architecture Overview
+- Manage source and listing definitions.
+- Trigger listing and product scrape jobs through the scraping agent.
+- Track asynchronous scrape job statuses.
+- Create product URL batches for downstream product-page scraping.
+- Store ingested product records in MongoDB.
+- Serve the internal admin dashboard for ingestion operations.
 
-The Data Ingestor microservice is designed as an **automated data scraping and warehousing system**.  
+## Local Development
 
-- **MongoDB Data Warehouse**  
-  Stores all relevant collections:
-  - **Sources**: Metadata about each data source.
-  - **Listings**: URLs and configurations for scraping.
-  - **Batches**: Organized groups of scraping tasks.
-  - **IngestedData**: Scraped product details stored for analysis.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8081
+```
 
-- **Worker Pool (Celery Workers)**  
-  Executes scraping and data processing tasks asynchronously. Workers process jobs from the message queue, enabling scalability and fault tolerance.
+Start worker and scheduler processes when running the full pipeline:
 
-- **Scraping Agent**  
-  A dedicated REST API service that fetches and parses product listings from source URLs. It communicates with the worker pool through defined scrape and status endpoints.
+```bash
+celery -A app.celery_worker worker -Q data_ingestor_queue -P solo -c 1 --loglevel=info
+celery -A app.celery_worker beat --loglevel=info
+```
 
-- **Redis (Message Queue)**  
-  Acts as a broker for distributing tasks to Celery workers and tracking job status.
+Default local URL: `http://localhost:8081`
 
-- **Automated Processes (Celery Beat Schedule)**  
-  Key scheduled jobs include:
-  - **Update Status**: Periodically checks the status of scraping jobs.
-  - **Ingest Data**: Processes and stores newly scraped data.
-  - **Create Batches**: Groups listings into batches for efficient scraping.
-  - **Scrape Listings**: Triggers scraping for defined listing URLs.
-  - **Scrape Batches**: Processes entire batches of listings.
+## Make Targets
 
-This architecture ensures the system is **scalable, automated, and maintainable**, allowing admins to focus solely on defining sources and listings while the microservice handles all scraping, processing, and storage tasks.
+```bash
+make run
+make stop
+make test-scraping-agent
+```
 
+## Environment
 
-![Data Ingestor Architecture](static/image.png)
+```bash
+SCRAPING_AGENT_API_URL=
+SCRAPING_AGENT_TOKEN=
+MONGO_URI=
+MONGO_DBNAME=
+ADMIN_USERNAME=
+ADMIN_PASSWORD=
+MAXIMUM_BATCH_SIZE=
+MAXIMUM_BATCHES_TO_PROCESS=
+REDIS_URL=
+```
+
+`REDIS_URL` is optional. If it is empty or unset, Celery uses local Redis at
+`redis://localhost:6379/0`. For Docker Compose, use `redis://redis:6379/0`.
+For Upstash, put the complete `rediss://...` connection URL in `REDIS_URL`.
+
+The DB modules also use collection-name environment variables for sources, listings, batches, statuses, product URLs, and products.
+
+## Contribution Scope
+
+External pull requests are not currently accepted for this service unless maintainers explicitly request them. Wearlytic currently accepts external PRs only for adding or improving website scrapers in [`../scraping-agent`](../scraping-agent/README.md).

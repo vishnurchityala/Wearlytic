@@ -13,7 +13,7 @@ test-scraping-agent:
 		&& echo "<=========== ScrapingAgent Service is Started ===========>" \
 		|| (echo "<=========== ScrapingAgent is NOT running! =========>" && exit 1)
 
-run: start-redis start-mongo start-celery-beats
+run: start-redis start-celery-beats
 	@echo "<========== Starting Data Ingestor Service ===========>"
 	@echo "Starting Uvicorn app: $(APP_MODULE) on 0.0.0.0:$(PORT) $(RELOAD)"
 	@{ \
@@ -26,7 +26,7 @@ run: start-redis start-mongo start-celery-beats
 start-celery-beats:
 	@echo "<========== Starting Celery Beats and Workers ==========>"
 	@echo "<---------- Starting Celery Worker ---------->"; \
-	celery -A app.celery_worker worker -Q data_ingestor_queue --loglevel=info & echo $$! > .celery_worker_pid; \
+	celery -A app.celery_worker worker -Q data_ingestor_queue -P solo -c 1 -n data_ingestor@%h --loglevel=info & echo $$! > .celery_worker_pid; \
 	echo "Celery Worker started with PID $$(cat .celery_worker_pid)"; \
 	echo "<---------- Starting Celery Beat ---------->"; \
 	celery -A app.celery_worker beat --loglevel=info & echo $$! > .celery_beat_pid; \
@@ -53,7 +53,7 @@ kill-celery-workers:
 	fi
 	@echo "<========== Celery Processes Stopped ===========>"
 
-stop: kill-celery-workers stop-redis stop-mongo 
+stop: kill-celery-workers stop-redis 
 	@echo "<========== Stopping Data Ingestor Service ===========>"
 	@if [ -f .uvicorn_pid ]; then \
 		PID=$$(cat .uvicorn_pid); \

@@ -1,7 +1,6 @@
-import bs4
 from bs4 import BeautifulSoup
 from scraperkit.base import BaseScraper
-from scraperkit.loaders import SeleniumInfinityScrollContentLoader, SeleniumContentLoader
+from scraperkit.loaders import SeleniumInfinityScrollContentLoader
 from scraperkit.models.product import Product
 from scraperkit.exceptions import (
     DataComponentNotFoundException,
@@ -152,7 +151,7 @@ class SouledStoreScraper(BaseScraper):
                     urls.append(src)
         return urls[0]
 
-    def _extract_gender(self, soup: BeautifulSoup) -> str:
+    def _extract_gender(self, soup: BeautifulSoup) -> str | None:
         active_cat = soup.find('li', class_='activeCat')
         if active_cat:
             a_tag = active_cat.find('a')
@@ -166,7 +165,26 @@ class SouledStoreScraper(BaseScraper):
                     return 'Sneakers'
                 else:
                     return a_tag.get_text(strip=True).title()
-        raise DataComponentNotFoundException("No gender component found on the page")
+
+        fallback_candidates = []
+        title_tag = soup.find('title')
+        if title_tag and title_tag.get_text(strip=True):
+            fallback_candidates.append(title_tag.get_text(strip=True))
+
+        og_title = soup.find('meta', attrs={'property': 'og:title'})
+        if og_title and og_title.get('content'):
+            fallback_candidates.append(og_title.get('content'))
+
+        for candidate in fallback_candidates:
+            normalized = candidate.lower()
+            if 'men' in normalized:
+                return 'Men'
+            if 'women' in normalized:
+                return 'Women'
+            if 'sneakers' in normalized:
+                return 'Sneakers'
+
+        return None
 
     def _extract_colors(self, soup: BeautifulSoup) -> list:
         return []
@@ -179,21 +197,14 @@ class SouledStoreScraper(BaseScraper):
 
     def get_product_details(self, product_page_url):
         try:
-            loader = SeleniumContentLoader()
-            page_content = loader.load_content(page_url=product_page_url)
+            page_content = self.get_page_content(product_page_url)
             soup = BeautifulSoup(page_content, "html.parser")
-            body_content = soup.body.prettify()
+            body_content = soup.body.prettify() if soup.body else page_content
+            scraped_at = datetime.now(timezone.utc)
             
             title = self._extract_title(soup)
             price = self._extract_price(soup)
             category = self._extract_category(soup)
-            gender = product_page_url
-            if "men" in product_page_url:
-                gender = "men"
-            elif "women" in product_page_url:
-                gender = "women"
-            else:
-                gender = "N/A"
             
             product = Product(
                 id=self._extract_id(soup, title),
@@ -210,8 +221,8 @@ class SouledStoreScraper(BaseScraper):
                 rating=self._extract_rating(soup),
                 review_count=self._extract_review_count(soup),
                 processed=False,
-                scraped_datetime=datetime.now(timezone.utc),
-                processed_datetime=datetime.now(timezone.utc),
+                scraped_datetime=scraped_at,
+                processed_datetime=scraped_at,
                 page_index=0,
                 page_content=body_content
             )

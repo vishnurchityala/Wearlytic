@@ -1,9 +1,14 @@
 from bs4 import BeautifulSoup
+import re
 from scraperkit.base import BaseScraper
 from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.models import Product
-from scraperkit.exceptions import DataComponentNotFoundException, DataParsingException
-from datetime import datetime,timezone
+from scraperkit.exceptions import (
+    ContentNotLoadedException,
+    DataComponentNotFoundException,
+    DataParsingException,
+)
+from datetime import datetime, timezone
 
 class AmazonScraper(BaseScraper):
     """
@@ -14,12 +19,23 @@ class AmazonScraper(BaseScraper):
         super().__init__("https://www.amazon.in/", headers=headers)
         self.id_prefix = "amzn_"
         self.content_loader = content_loader or SeleniumContentLoader(headers=headers)
+        self._asin_pattern = re.compile(r"/dp/([A-Z0-9]{10})(?:[/?]|$)", re.IGNORECASE)
+        self._current_listing_url = None
 
     def get_page_content(self, page_url: str) -> str | None:
         return self.content_loader.load_content(page_url)
 
-    def get_pagination_details(self, page_url: str) -> dict:
+    def _get_listing_page_content(self, page_url: str) -> str | None:
+        if page_url == self._current_listing_url and self.current_page_content:
+            return self.current_page_content
+
         page_content = self.get_page_content(page_url)
+        self._current_listing_url = page_url
+        self.current_page_content = page_content
+        return page_content
+
+    def get_pagination_details(self, page_url: str) -> dict:
+        page_content = self._get_listing_page_content(page_url)
         if not page_content:
             return {
                 'current_page': None,
@@ -60,30 +76,62 @@ class AmazonScraper(BaseScraper):
             raise e
         
     def get_product_listings(self, listings_page_url: str, page: int = 1) -> list[str]:
-        if page > 1:
-            url = f"{listings_page_url}&page={page}" if '?' in listings_page_url else f"{listings_page_url}?page={page}"
-        else:
-            url = listings_page_url
-
-        page_content = self.get_page_content(url)
+        page_content = self._get_listing_page_content(listings_page_url)
         if not page_content:
             return []
 
         soup = BeautifulSoup(page_content, 'html.parser')
         product_links = []
+        seen_urls = set()
 
-        for a_tag in soup.find_all('a', href=True):
-            href = a_tag['href']
-            if '/dp/' in href:
-                asin_start = href.find('/dp/') + 4
-                asin_end = href.find('/', asin_start) if href.find('/', asin_start) > 0 else len(href)
-                asin = href[asin_start:asin_end]
-                product_url = f"https://www.amazon.in/dp/{asin}"
-                if product_url not in product_links:
-                    product_links.append(product_url)
+        search_results_root = soup.select_one('[data-component-type="s-search-results"]') or soup
 
-        print(f"Found {len(product_links)} unique product links on page {page}")
+        # Limit listing extraction to actual search result cards instead of every anchor on the page.
+        result_cards = search_results_root.select(
+            '[data-component-type="s-search-result"], [role="listitem"][data-asin], .s-result-item.s-asin[data-asin]'
+        )
+
+        for result_card in result_cards:
+            product_url = self._extract_canonical_listing_url(result_card)
+            if not product_url or product_url in seen_urls:
+                continue
+
+            seen_urls.add(product_url)
+            product_links.append(product_url)
+
         return product_links
+
+    def _extract_canonical_listing_url(self, result_card) -> str | None:
+        asin = self._normalize_asin(result_card.get("data-asin"))
+        if asin:
+            return f"{self.base_url}dp/{asin}"
+
+        for a_tag in result_card.find_all("a", href=True):
+            asin = self._extract_asin_from_href(a_tag["href"])
+            if asin:
+                return f"{self.base_url}dp/{asin}"
+
+        return None
+
+    def _extract_asin_from_href(self, href: str | None) -> str | None:
+        if not href:
+            return None
+
+        match = self._asin_pattern.search(href)
+        if not match:
+            return None
+
+        return self._normalize_asin(match.group(1))
+
+    def _normalize_asin(self, asin: str | None) -> str | None:
+        if not asin:
+            return None
+
+        normalized = asin.strip().upper()
+        if len(normalized) != 10 or not normalized.isalnum():
+            return None
+
+        return normalized
 
     def _extract_id(self, soup: BeautifulSoup) -> str | None:
         try:
@@ -136,7 +184,6 @@ class AmazonScraper(BaseScraper):
                 raise DataParsingException("Price text is empty")
 
             try:
-                # OLD Code --> price = int(price_text.replace(",", ""))
                 price = float(price_text.replace(",", ""))
                 
             except ValueError:
@@ -349,9 +396,14 @@ class AmazonScraper(BaseScraper):
                 product_page_url = product_page_url.split('?')[0]
                 
             page_content = self.get_page_content(product_page_url)
+            if not page_content:
+                raise ContentNotLoadedException(
+                    f"Failed to load product page content from {product_page_url}"
+                )
 
             soup = BeautifulSoup(page_content, 'html.parser')
-            body_content = soup.body.prettify()
+            body_content = soup.body.prettify() if soup.body else page_content
+            scraped_at = datetime.now(timezone.utc)
             
             return Product(
                 id=self._extract_id(soup),
@@ -368,14 +420,24 @@ class AmazonScraper(BaseScraper):
                 rating=self._extract_rating(soup),
                 review_count=self._extract_review_count(soup),
                 processed=False,
-                scraped_datetime=datetime.now(timezone.utc).timestamp(),
-                processed_datetime=datetime.now(timezone.utc).timestamp(),
+                scraped_datetime=scraped_at,
+                processed_datetime=scraped_at,
                 page_content=body_content
             )
 
         except Exception as e:
-            print(f"Error fetching product details: {e}")
-            return {}
+            if isinstance(
+                e,
+                (
+                    DataComponentNotFoundException,
+                    DataParsingException,
+                    ContentNotLoadedException,
+                ),
+            ):
+                raise
+            raise DataParsingException(
+                f"Error extracting product details from {product_page_url}: {str(e)}"
+            )
 
     def close(self):
         if self.content_loader:

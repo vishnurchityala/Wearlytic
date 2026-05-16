@@ -4,42 +4,32 @@ from datetime import datetime
 
 class Product(BaseModel):
     """
-    Model class representing a Product with the following attributes:
-
-    - Title: Name of the product -- Jockey 2715 Men's Super Combed Cotton Rich Striped Regular Fit Round Neck Half Sleeve T-Shirt
-    - ID: Unique identifier for the product -- amzn_BU3872
-    - Price: Price of the Product -- 899
-    - Category: Category to which the product belongs  -- T-Shirts
-    - Gender: Target gender for the product (e.g., Men, Women, Unisex) -- Men
-    - URL: Direct link to the product page -- https://www.amazon.in/dp/B0D25JKGJP
-    - Image URL: Link to the product image -- https://m.media-amazon.com/images/W/MEDIAX_1215821-T1/images/I/81ritEDTS0L._SX679_.jpg
-    - Colors: Available color options for the product -- [ Red, Blue, Black, White, Yellow ]
-    - Sizes: Available size options for the product -- [ XS, S, M, L, XL, XXL ]
-    - Material: Material composition of the product -- Super Combed Cotton Rich
-    - Description: Detailed description of the product  -- Super combed Cotton Rich fabric. Ribbed round neck to prevent sagging.
-    - Rating: Average customer rating -- 4.2
-    - Review Count: Number of customer reviews -- 10,826
-    - Processed: Whether the product data has been processed using a LLM -- False
-    - Scraped Datetime: Datetime when the product was originally scraped -- 2025-06-01 15:20:50.410901+00:00
-    - Processed Datetime: Datetime when the product was annotated/processed -- 2025-06-01 15:20:50.410901+00:00
-    - Page Index -- 40 This indicates the position in page it was scraped.
-    - Page Content: HTML content of the product page -- <html>...</html>
+    Simplified Product model with only critical fields mandatory:
+    
+    Mandatory:
+    - id, title, price, description, url, image_url
+    
+    Optional:
+    - Everything else has defaults or can be None
     """
-    id: str = Field(...)
-    title: str = Field(...)
-    price: float = Field(...)
-    category: str = Field(...)
-    gender: Optional[str]
-    url: AnyHttpUrl = Field(...)
-    image_url: AnyHttpUrl = Field(...)
-    colors: Optional[List[str]] = Field(default=None)
-    sizes: List[str] = Field(...)
-    material: Optional[str] = Field(default=None)
-    description: str = Field(...)
-    rating: Optional[float] = Field(default=None, ge=0, le=5)
-    review_count: Optional[int] = Field(default=None, ge=0)
-    processed: StrictBool = Field(default=False)
-    scraped_datetime: Optional[datetime]
-    processed_datetime: Optional[datetime]
-    page_index: Optional[int] = 0
-    page_content: str = Field(...)
+    # Mandatory fields
+    id: str = Field(..., description="Unique identifier for the product.")
+    title: str = Field(..., description="Title of the product from the product page.")
+    price: float = Field(..., description="Price of the product.")
+    description: str = Field(..., description="Description of the product from the product page.")
+    url: AnyHttpUrl = Field(..., description="Direct product page URL.")
+    image_url: AnyHttpUrl = Field(..., description="URL of the product image.")
+
+    # Optional fields
+    category: Optional[str] = Field(default=None, description="Category of the product.")
+    gender: Optional[str] = Field(default=None, description="Target gender for the product (e.g., Men, Women, Unisex).")
+    colors: Optional[List[str]] = Field(default=None, description="Available color options for the product.")
+    sizes: Optional[List[str]] = Field(default=None, description="Available size options for the product.")
+    material: Optional[str] = Field(default=None, description="Material composition of the product.")
+    rating: Optional[float] = Field(default=None, ge=0, le=5, description="Average customer rating.")
+    review_count: Optional[int] = Field(default=None, ge=0, description="Number of customer reviews.")
+    processed: StrictBool = Field(default=False, description="Whether the product data has been processed using a LLM.")
+    scraped_datetime: Optional[datetime] = Field(default=None, description="Datetime when the product was originally scraped.")
+    processed_datetime: Optional[datetime] = Field(default=None, description="Datetime when the product was annotated/processed.")
+    page_index: Optional[int] = Field(default=0, description="Position in page where it was scraped.")
+    page_content: Optional[str] = Field(default="DEFAULT_PAGE_CONTENT", description="HTML content of the product page.")
