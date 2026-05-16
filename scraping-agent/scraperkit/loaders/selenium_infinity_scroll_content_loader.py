@@ -1,3 +1,4 @@
+import os
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -43,6 +44,16 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
 
     def _init_driver(self):
         chrome_options = Options()
+        remote_debugger_address = os.getenv("SELENIUM_REMOTE_DEBUGGER_ADDRESS")
+        chrome_bin = os.getenv("CHROME_BIN")
+
+        if remote_debugger_address:
+            chrome_options.add_experimental_option(
+                "debuggerAddress",
+                remote_debugger_address,
+            )
+        elif chrome_bin:
+            chrome_options.binary_location = chrome_bin
 
         if 'User-Agent' in self.headers:
             chrome_options.add_argument(f"user-agent={self.headers['User-Agent']}")
@@ -53,7 +64,7 @@ class SeleniumInfinityScrollContentLoader(BaseContentLoader):
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option("useAutomationExtension", False)
 
-        if self.headless:
+        if self.headless and not remote_debugger_address:
             chrome_options.add_argument("--headless=new")
         
         chrome_options.add_argument("--disable-gpu")

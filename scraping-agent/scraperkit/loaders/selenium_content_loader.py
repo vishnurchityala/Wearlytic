@@ -1,3 +1,4 @@
+import os
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -42,6 +43,16 @@ class SeleniumContentLoader(BaseContentLoader):
 
     def _init_driver(self):
         chrome_options = Options()
+        remote_debugger_address = os.getenv("SELENIUM_REMOTE_DEBUGGER_ADDRESS")
+        chrome_bin = os.getenv("CHROME_BIN")
+
+        if remote_debugger_address:
+            chrome_options.add_experimental_option(
+                "debuggerAddress",
+                remote_debugger_address,
+            )
+        elif chrome_bin:
+            chrome_options.binary_location = chrome_bin
 
         for key, value in self.headers.items():
             chrome_options.add_argument(f"--{key.lower()}={value}")
@@ -50,7 +61,7 @@ class SeleniumContentLoader(BaseContentLoader):
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option("useAutomationExtension", False)
 
-        if self.headless:
+        if self.headless and not remote_debugger_address:
             chrome_options.add_argument("--headless=new")
 
         chrome_options.add_argument("--disable-gpu")

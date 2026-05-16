@@ -103,7 +103,7 @@ class SupabaseJWTAuthentication(BaseAuthentication):
                 default_image_url = "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg"
                 info_prompt = "A man standing with jacket on his hand and his handsome."
                 image_bytes = requests.get(default_image_url).content
-                uploaded_image_url = supabase_bucket_manager.store_bytes(image_bytes,f"/profile/{payload["sub"]}.jpg")
+                uploaded_image_url = supabase_bucket_manager.store_bytes(image_bytes, f"/profile/{payload['sub']}.jpg")
                 app_user_defaults = {
                     "supabase_uid": payload["sub"],
                     "name":name,
