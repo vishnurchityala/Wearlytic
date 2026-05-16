@@ -38,31 +38,17 @@ docker compose down
 - `scraping-agent` runs Redis, three Celery workers, and Uvicorn in one
   container. Its Celery broker is `redis://127.0.0.1:6379/0` inside that
   container. Compose runs this service as `linux/amd64` so Selenium uses the
-  bundled `scraperkit/drivers/chromedriver-linux64/chromedriver`.
+  bundled `scraperkit/drivers/chromedriver-linux64/chromedriver`. The image
+  installs Chromium as the headless browser, but it does not install a separate
+  ChromeDriver package.
 - `data-ingestor` runs Redis, one Celery worker, Celery beat, and Uvicorn in one
   container. It calls the scraping agent through Docker DNS at
   `http://scraping-agent:8080/api/scrapingagent`.
 
 ## Scraping Browser
 
-The local-dev scraping image does not install Chrome, Chromium, or GUI browser
-packages. Before using Selenium-backed scrapers through Docker, start headless
-Chrome on the Mac host with remote debugging enabled:
-
-```bash
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-  --headless=new \
-  --remote-debugging-address=0.0.0.0 \
-  --remote-debugging-port=9222 \
-  --user-data-dir=/tmp/wearlytic-chrome \
-  --no-first-run \
-  --no-default-browser-check
-```
-
-Compose sets `SELENIUM_REMOTE_DEBUGGER_ADDRESS=host.docker.internal:9222`, so
-ChromeDriver inside the scraping container attaches to that host browser. This
-keeps the image small and avoids the slow Chromium download during
-`docker compose build`.
+The local-dev scraping image installs Chromium inside the container and runs it
+headlessly through Selenium. No host Chrome or remote debugging setup is needed.
 
 ## Future Nginx Gateway
 
