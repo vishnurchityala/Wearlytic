@@ -3,9 +3,24 @@
 </p>
 
 <p align="center">
+  <img alt="Active" src="https://img.shields.io/badge/status-active-22c55e?logo=checkmarx&logoColor=white" />
+  <img alt="Commits" src="https://img.shields.io/github/commit-activity/m/vishnurchityala/Wearlytic?label=commits&color=6366f1&logo=github&logoColor=white" />
+  <img alt="License" src="https://img.shields.io/github/license/vishnurchityala/Wearlytic?label=license&color=0ea5e9&logo=apache&logoColor=white" />
+</p>
+
+<p align="center">
   An AI-powered fashion intelligence platform for product discovery, data ingestion, trend analysis, and personalized outfit generation.
 </p>
 
+## Quick Start
+
+```bash
+git clone https://github.com/vishnurchityala/Wearlytic.git
+cd Wearlytic
+docker compose up -d --build
+```
+
+For Docker shutdown, rebuild, and cleanup workflows, see [DOCKER.md](DOCKER.md).
 
 ## Services
 
@@ -20,12 +35,43 @@
 
 This project currently accepts external pull requests only for adding or improving website scrapers in `scraping-agent/`.
 
+Scraper implementations must follow the detailed contract in
+[scraping-agent/README.md](scraping-agent/README.md#scraper-implementation-contract).
+At a minimum, a scraper should look like this:
+
+```python
+from scraperkit.base import BaseScraper
+from scraperkit.models import Product
+
+
+class ExampleScraper(BaseScraper):
+    def __init__(self, headers=None, content_loader=None):
+        super().__init__("https://example.com/", headers=headers or {})
+        self.content_loader = content_loader
+
+    def get_page_content(self, page_url: str) -> str:
+        ...
+
+    def get_pagination_details(self, page_url: str) -> dict:
+        return {"current_page": 1, "total_pages": 1, "next_page_url": None}
+
+    def get_product_listings(self, listings_page_url: str, page: int = 1) -> list[str]:
+        return ["https://example.com/products/example-product"]
+
+    def get_product_details(self, product_page_url: str) -> Product:
+        ...
+```
+
+Then export it, register it in `SCRAPER_URL_MAP`, and add/update scraper tests
+under `scraping-agent/tests/scrapers/`.
+
 Before opening a scraper PR:
 
 1. Add the scraper implementation under `scraping-agent/scraperkit/scrapers/`.
-2. Follow the existing scraper contracts and model shapes.
-3. Add or update scraper tests under `scraping-agent/tests/`.
-4. Run the relevant scraping-agent checks documented in [scraping-agent/README.md](scraping-agent/README.md).
+2. Export and register it in the scraping-agent scraper map.
+3. Follow the scraper implementation contract linked above.
+4. Add or update scraper tests under `scraping-agent/tests/scrapers/`.
+5. Run the relevant scraping-agent checks documented in [scraping-agent/README.md](scraping-agent/README.md).
 
 Pull requests for `web-app/`, `backend/`, or `data-ingestor/` are not accepted unless maintainers explicitly request them.
 

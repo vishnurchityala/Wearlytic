@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Request, Form, status
+from fastapi import APIRouter, Request, Form, status as http_status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
 from dotenv import load_dotenv
@@ -48,12 +48,12 @@ def home(request: Request):
             "Failed": 0
         }
         products_count = product_manager.get_products_count()
-        for status in statuses:
-            if status['status'] == 'completed':
+        for status_doc in statuses:
+            if status_doc['status'] == 'completed':
                 status_bar_graph_data_dict['Completed'] += 1
-            elif status['status'] == 'processing':
+            elif status_doc['status'] == 'processing':
                 status_bar_graph_data_dict['Processing'] += 1
-            elif status['status'] == 'failed':
+            elif status_doc['status'] == 'failed':
                 status_bar_graph_data_dict['Failed'] += 1
         status_bar_chart_data = {
             "labels": list(status_bar_graph_data_dict.keys()),
@@ -83,4 +83,4 @@ def home(request: Request):
                 "products_count": products_count
             }
         )
-    return RedirectResponse("/login", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse("/login", status_code=http_status.HTTP_302_FOUND)
