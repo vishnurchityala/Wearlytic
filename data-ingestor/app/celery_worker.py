@@ -31,6 +31,7 @@ product_manager = ProductManager()
 Celery Queue Configuration.
 """
 DEFAULT_REDIS_URL = "redis://localhost:6379/0"
+PAGE_CONTENT_PLACEHOLDER = "PAGE_BODY_CONTENT"
 connection_link = os.getenv("REDIS_URL", "").strip() or DEFAULT_REDIS_URL
 app = Celery(
     "dataingestor",
@@ -323,8 +324,7 @@ def fetch_results():
                                 updates["review_count"] = result_response['result']['review_count']
                             if result_response['result'].get('scraped_datetime') is not None:
                                 updates["scraped_datetime"] = result_response['result']['scraped_datetime']
-                            if result_response['result'].get('page_content'):
-                                updates["page_content"] = result_response['result']['page_content']
+                            updates["page_content"] = PAGE_CONTENT_PLACEHOLDER
 
                             if updates:
                                 product_manager.update_product(product_id=product_id, changes=updates)
@@ -358,7 +358,7 @@ def fetch_results():
                                 scraped_datetime=result_response['result']['scraped_datetime'],
                                 processed_datetime=None,
                                 page_index=product_url_doc.get("page_index", 0),
-                                page_content=result_response['result'].get('page_content', "DEFAULT_PAGE_CONTENT")
+                                page_content=PAGE_CONTENT_PLACEHOLDER
                             )
                             try:
                                 product_manager.create_product(product=product)

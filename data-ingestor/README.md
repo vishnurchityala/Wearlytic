@@ -62,6 +62,28 @@ For Upstash, put the complete `rediss://...` connection URL in `REDIS_URL`.
 
 The DB modules also use collection-name environment variables for sources, listings, batches, statuses, product URLs, and products.
 
+## Page Content Storage
+
+New product writes store `PAGE_BODY_CONTENT` in `page_content` instead of raw
+HTML to keep MongoDB documents small. Existing documents can be cleaned with a
+one-time MongoDB update:
+
+```bash
+mongosh "$MONGO_URI" --eval '
+const database = process.env.MONGO_DBNAME;
+const products = process.env.PRODUCTS_COLLECTION_NAME || "data_ingestor_products";
+const target = db.getSiblingDB(database);
+target.scraping_agent_job_results.updateMany(
+  {"result.page_content": {$exists: true}},
+  {$set: {"result.page_content": "PAGE_BODY_CONTENT"}}
+);
+target[products].updateMany(
+  {page_content: {$exists: true}},
+  {$set: {page_content: "PAGE_BODY_CONTENT"}}
+);
+'
+```
+
 ## Contribution Scope
 
 External pull requests are not currently accepted for this service unless maintainers explicitly request them. Wearlytic currently accepts external PRs only for adding or improving website scrapers in [`../scraping-agent`](../scraping-agent/README.md).

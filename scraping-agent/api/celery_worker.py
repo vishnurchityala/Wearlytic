@@ -18,6 +18,7 @@ load_dotenv()
 logger = get_task_logger(__name__)
 
 DEFAULT_REDIS_URL = "redis://localhost:6379/0"
+PAGE_CONTENT_PLACEHOLDER = "PAGE_BODY_CONTENT"
 connection_link = os.getenv("REDIS_URL", "").strip() or DEFAULT_REDIS_URL
 celery_app = Celery(
     "scrapingagent",
@@ -88,6 +89,12 @@ def _create_job_result(
             error_message=error_message,
         )
     )
+
+
+def _replace_product_page_content(product_details: dict[str, Any]) -> dict[str, Any]:
+    """Avoid persisting raw product-page HTML in job result documents."""
+    product_details["page_content"] = PAGE_CONTENT_PLACEHOLDER
+    return product_details
 
 
 def _persist_failure_state(
@@ -289,6 +296,7 @@ def _run_product_job(
         product_details = scraper.get_product_details(
             product_page_url=url
         ).model_dump(mode="json")
+        product_details = _replace_product_page_content(product_details)
 
         _create_job_result(
             job_result_manager=job_result_manager,
