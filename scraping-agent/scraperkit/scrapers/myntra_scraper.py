@@ -15,6 +15,9 @@ class MyntraScraper(BaseScraper):
     MyntraScraper extracts structured product data from Myntra by parsing listing and product pages.
     It extends BaseScraper and returns results as Product objects.
     """
+    # Temporary cap to avoid Myntra rate limiting during listing scrapes.
+    MAX_LISTING_PAGES = 10
+
     def __init__(self, headers=None, content_loader=None):
         super().__init__("https://www.myntra.com/", headers=headers)
         self.id_prefix = "mynt_"
@@ -108,7 +111,7 @@ class MyntraScraper(BaseScraper):
             pagination_info['current_page'] = current_page
             pagination_info['total_pages'] = total_pages
 
-            if current_page < total_pages:
+            if current_page < total_pages and current_page < self.MAX_LISTING_PAGES:
                 current_url = self._resolve_listing_page_url(soup)
                 if not current_url:
                     raise DataParsingException(
