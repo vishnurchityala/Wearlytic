@@ -31,6 +31,18 @@ For Docker shutdown, rebuild, and cleanup workflows, see [DOCKER.md](DOCKER.md).
 | `scraping-agent/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![Celery](https://img.shields.io/badge/Celery-37814a) ![Selenium](https://img.shields.io/badge/Selenium-43b02a?logo=selenium&logoColor=white) | FastAPI + Celery service that runs website-specific product and listing scrapers. | [scraping-agent/README.md](scraping-agent/README.md) |
 | `data-ingestor/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white) | FastAPI + Celery orchestration service for sources, listings, scrape batches, job status, and product warehouse ingestion. | [data-ingestor/README.md](data-ingestor/README.md) |
 
+## Architecture Diagrams
+
+Detailed service diagrams are stored in [`assets/`](assets/) and embedded in the
+service docs.
+
+| Area | Diagram |
+| --- | --- |
+| Scraping Agent service | <a href="assets/SCRAPING-AGENT-ARCHITECTURE.png"><img src="assets/SCRAPING-AGENT-ARCHITECTURE.png" alt="Scraping Agent architecture" width="220" /></a> |
+| ScraperKit package | <a href="assets/SCRAPER-KIT-ARCHITECTURE.png"><img src="assets/SCRAPER-KIT-ARCHITECTURE.png" alt="ScraperKit architecture" width="220" /></a> |
+| Scraper runtime cache | <a href="assets/LRU-CACHE-FOR-SCRAPER.png"><img src="assets/LRU-CACHE-FOR-SCRAPER.png" alt="Scraper LRU cache design" width="220" /></a> |
+| Data Ingestor service | <a href="assets/DATA-INGESTOR-ARCHITECTURE.png"><img src="assets/DATA-INGESTOR-ARCHITECTURE.png" alt="Data Ingestor architecture" width="220" /></a> |
+
 ## Contribution Policy
 
 This project currently accepts external pull requests only for adding or improving website scrapers in `scraping-agent/`.

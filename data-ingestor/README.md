@@ -10,6 +10,16 @@ The data ingestor orchestrates Wearlytic's scraping and product warehouse pipeli
 MongoDB stores ingestion workflow state. Scraped product records are written to
 the backend PostgreSQL app tables.
 
+## Architecture
+
+<p align="center">
+  <img src="../assets/DATA-INGESTOR-ARCHITECTURE.png" alt="Data Ingestor architecture" width="900" />
+</p>
+
+The data ingestor coordinates MongoDB workflow state, Celery workers, Redis
+queues, and the external Scraping Agent. Product scrape results are upserted
+into the backend PostgreSQL `api_product` tables after result polling completes.
+
 ## Responsibility
 
 - Manage source and listing definitions.

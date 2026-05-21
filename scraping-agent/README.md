@@ -8,6 +8,16 @@
 
 The scraping agent runs website-specific listing and product scrapers for Wearlytic.
 
+## Architecture
+
+<p align="center">
+  <img src="../assets/SCRAPING-AGENT-ARCHITECTURE.png" alt="Scraping Agent architecture" width="900" />
+</p>
+
+The service accepts FastAPI scrape requests, routes jobs into Redis-backed
+priority queues, runs Celery workers by priority, and stores job metadata and
+results for status/result lookups.
+
 ## Responsibility
 
 - Accept scrape job requests from internal services.
@@ -109,6 +119,17 @@ Registration steps for a new scraper:
 3. Register it in `scraperkit/__init__.py` inside `SCRAPER_URL_MAP`.
 4. Use the domain key returned by `extract_domain(url)`. For example, `https://bluorng.com/...` maps to `bluorng`.
 5. Add a live scraper case in `tests/scrapers/cases.py`.
+
+## Runtime Scraper Cache
+
+<p align="center">
+  <img src="../assets/LRU-CACHE-FOR-SCRAPER.png" alt="Scraper LRU cache design" width="900" />
+</p>
+
+Scraper instances are pooled by source domain through `ScraperLRUCache`.
+`get_scraper_from_url()` checks out a cached scraper when one is available;
+successful Celery tasks reinsert the scraper so later jobs can reuse the same
+loader resources.
 
 ## Local Development
 

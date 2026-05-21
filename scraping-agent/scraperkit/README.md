@@ -2,6 +2,16 @@
 
 A modular web scraping framework designed for fast and easy API usage conversion.
 
+## Architecture
+
+<p align="center">
+  <img src="../../assets/SCRAPER-KIT-ARCHITECTURE.png" alt="ScraperKit architecture" width="900" />
+</p>
+
+The current package implements base classes, content loaders, models,
+exceptions, scraper implementations, and utility helpers. The proxy provider and
+proxy manager boxes in the diagram are not present in the current package tree.
+
 ## Package Classes
 
 ### Base Package (`base/`)
@@ -25,9 +35,18 @@ A modular web scraping framework designed for fast and easy API usage conversion
 ### Models Package (`models/`)
 - `Product`: Product data model
 
+### Utils Package (`utils/`)
+- `extract_domain`: Domain-key helper used by scraper lookup
+- `get_driver_path`: Platform-specific ChromeDriver path resolver
+- `get_scraper_from_url`: Scraper registry/cache lookup helper
+- `ScraperLRUCache`: Source-aware scraper instance cache
+
 ### Scrapers Package (`scrapers/`)
 - `AmazonScraper`: Amazon-specific scraper
+- `BluOrngScraper`: BluOrng-specific scraper
+- `JayWalkingScraper`: Jaywalking-specific scraper
 - `MyntraScraper`: Myntra-specific scraper
+- `SouledStoreScraper`: The Souled Store-specific scraper
 
 ## Sample Usage of Scrapers
 
@@ -91,8 +110,14 @@ scraperkit/
 ├── models/
 │   ├── __init__.py
 │   └── product.py
+├── utils/
+│   ├── __init__.py
+│   └── scraper_lru_cache.py
 └── scrapers/
     ├── __init__.py
     ├── amazon_scraper.py
-    └── myntra_scraper.py
+    ├── bluorng_scraper.py
+    ├── jaywalking_scraper.py
+    ├── myntra_scraper.py
+    └── souled_store_scraper.py
 ```

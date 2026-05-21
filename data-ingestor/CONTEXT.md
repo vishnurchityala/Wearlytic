@@ -66,9 +66,10 @@ Top-level files and directories that matter:
 | `app/utils/__init__.py` | Mongo connection singleton helpers. |
 | `Makefile` | Operational commands for app, worker, beat, Redis, and Mongo lifecycle. |
 | `requirements.txt` | Pinned Python dependencies. |
-| `README.md` | High-level architecture note with diagram. |
+| `../assets/DATA-INGESTOR-ARCHITECTURE.png` | Shared data-ingestor architecture diagram used by README docs. |
+| `README.md` | High-level architecture note and local setup guide. |
 | `test.py` | Ad hoc script that imports Celery tasks and currently calls `fetch_results()` synchronously. |
-| `static/image.png` | README architecture diagram asset. Not served by FastAPI static mount. |
+| `static/image.png` | Legacy local copy of the architecture diagram. Prefer `../assets/DATA-INGESTOR-ARCHITECTURE.png` for docs. |
 | `venv/` | Local virtual environment present in repo folder. Treat as environment state, not source code. |
 
 Notes:
@@ -80,6 +81,8 @@ Notes:
 ## Runtime Architecture
 
 The effective runtime topology is:
+
+![Data Ingestor architecture](../assets/DATA-INGESTOR-ARCHITECTURE.png)
 
 1. Operator logs into the FastAPI admin dashboard.
 2. Operator creates Sources and Listings in MongoDB.
