@@ -15,10 +15,6 @@ __pychache__g
 
 /wearl-2649a-firebase-adminsdk-fbsvc-6cbf6cbf33.json
 
-# Lock files
-package-lock.json
-yarn.lock
-
 # IDE and editor files
 .idea/
 .vscode/

@@ -14,3 +14,13 @@ Upcoming development changes for this service should be listed here.
 
 - [ ] Add OffDuty source support.
 - [ ] Add Rare Rabbit source support.
+
+- [ ] Refactor scraper creation to a config-driven factory pattern.
+  - Replace one specialized scraper class per source with a scraper factory that builds scrapers from source config.
+  - Store each source config in YAML files so selectors, loaders, pagination rules, and extraction rules can be changed without adding a new scraper class.
+  - Preserve existing scraper contracts, `SCRAPER_URL_MAP` behavior, and tests while migrating sources incrementally.
+
+- [ ] Patch Myntra pagination to parse next-page URLs from the current page.
+  - Stop building the next page with static `p=n+1` query parameter typing.
+  - Parse the current listing page and extract the real next page URL so filtered Myntra URLs keep their filter query parameters.
+  - Add a regression test for filtered Myntra listing URLs.
