@@ -21,10 +21,10 @@ kombu==5.5.4
 MarkupSafe==3.0.2
 packaging==25.0
 prompt_toolkit==3.0.52
+psycopg2-binary==2.9.9
 pydantic==2.11.7
 pydantic_core==2.33.2
 pymongo==4.16.0
-psycopg2-binary==2.9.9
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 python-multipart==0.0.20
