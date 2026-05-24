@@ -6,7 +6,7 @@ from celery.schedules import crontab
 from celery.exceptions import Ignore
 from celery.utils.log import get_task_logger
 from app.db import ListingsManager, StatusManager, SourceManager, ProductUrlManager, BatchManager, ProductManager
-from app.models import Status, ProductUrl, Batch, Product
+from app.models import Status, ProductUrl, Batch
 from dotenv import load_dotenv
 import requests
 from datetime import datetime, timezone
@@ -306,66 +306,33 @@ def fetch_results():
                         status_manager.update_status(status_id=status_id, changes={'status': 'completed'})
 
                     elif entity_type == 'product':
-                        product_id = result_response['result']['id']
-                        search_product = product_manager.get_product(product_id=product_id)
+                        product_result = result_response['result']
+                        product_url = product_result.get('url')
+                        if not product_url:
+                            status_manager.update_status(status_id=status_id, changes={'status': 'failed'})
+                            raise ValueError(f"Product scrape result missing URL for job: {job_id}")
 
-                        if search_product:
-                            updates = {}
-                            if result_response['result'].get('price') is not None:
-                                updates["price"] = result_response['result']['price']
-                            if result_response['result'].get('colors'):
-                                updates["colors"] = result_response['result']['colors']
-                            if result_response['result'].get('size'):
-                                updates["size"] = result_response['result']['size']
-                            if result_response['result'].get('rating') is not None:
-                                updates["rating"] = result_response['result']['rating']
-                            if result_response['result'].get('review_count') not in (None, 0):
-                                updates["review_count"] = result_response['result']['review_count']
-                            if result_response['result'].get('scraped_datetime') is not None:
-                                updates["scraped_datetime"] = result_response['result']['scraped_datetime']
-                            if result_response['result'].get('page_content'):
-                                updates["page_content"] = result_response['result']['page_content']
+                        product_url_doc = product_url_manager.get_product_url(entity_id)
+                        if not product_url_doc:
+                            product_url_doc = product_url_manager.get_product_url_by_url(product_url)
+                        if not product_url_doc:
+                            status_manager.update_status(status_id=status_id, changes={'status': 'failed'})
+                            raise ValueError(f"No ProductUrl found for URL: {product_url}")
 
-                            if updates:
-                                product_manager.update_product(product_id=product_id, changes=updates)
-
+                        try:
+                            product_manager.upsert_product(
+                                {
+                                    "title": product_result['title'],
+                                    "price": product_result['price'],
+                                    "url": product_url,
+                                    "image_url": product_result['image_url'],
+                                    "category": product_result.get('category'),
+                                }
+                            )
                             status_manager.update_status(status_id=status_id, changes={'status': 'completed'})
-
-                        else:
-                            product_url_doc = product_url_manager.get_product_url_by_url(
-                                result_response['result']['url']
-                            )
-                            if not product_url_doc:
-                                status_manager.update_status(status_id=status_id, changes={'status': 'failed'})
-                                raise ValueError(f"No ProductUrl found for URL: {result_response['result']['url']}")
-
-                            product = Product(
-                                id=result_response['result']['id'],
-                                url_id=product_url_doc["id"],
-                                title=result_response['result']['title'],
-                                price=float(result_response['result']['price']),
-                                category=result_response['result']['category'],
-                                gender=result_response['result']['gender'],
-                                url=result_response['result']['url'],
-                                image_url=result_response['result']['image_url'],
-                                colors=result_response['result'].get('colors', []),
-                                size=result_response['result'].get('size', []),
-                                material=result_response['result'].get('material', ""),
-                                description=result_response['result'].get('description', ""),
-                                rating=result_response['result'].get('rating'),
-                                review_count=result_response['result'].get('review_count', 0),
-                                processed=False,
-                                scraped_datetime=result_response['result']['scraped_datetime'],
-                                processed_datetime=None,
-                                page_index=product_url_doc.get("page_index", 0),
-                                page_content=result_response['result'].get('page_content', "DEFAULT_PAGE_CONTENT")
-                            )
-                            try:
-                                product_manager.create_product(product=product)
-                                status_manager.update_status(status_id=status_id, changes={'status': 'completed'})
-                            except Exception as e:
-                                logger.error(f"[RESULT PROCESSING] Failed for job {job_id}: {e}")
-                                status_manager.update_status(status_id=status_id, changes={'status': 'failed'})
+                        except Exception as e:
+                            logger.error(f"[RESULT PROCESSING] Failed for job {job_id}: {e}")
+                            status_manager.update_status(status_id=status_id, changes={'status': 'failed'})
 
                 except Exception as e:
                     logger.error(f"[RESULT PROCESSING] Failed for job {job_id}: {e}")

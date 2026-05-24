@@ -91,3 +91,5 @@ Avoid committing local runtime output such as:
 - Root `README.md` should stay short and service-focused.
 - Each service owns its own README, TODO, and CONTEXT files.
 - Put upcoming service work in that service's `TODO.md`.
+- Shared architecture diagrams live in `assets/` and are embedded from the
+  root and service README files.

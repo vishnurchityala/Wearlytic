@@ -54,6 +54,8 @@ These mappings live in `scraperkit/__init__.py`.
    - the original `Job` is updated to `failed`
 8. API status/result endpoints read only from MongoDB, not from Celery state.
 
+![Scraping Agent architecture](../assets/SCRAPING-AGENT-ARCHITECTURE.png)
+
 ### Important architectural split
 
 There are two separate `Product` models:
@@ -492,6 +494,8 @@ Future agents must remember:
 
 ## Scraper Framework
 
+![ScraperKit architecture](../assets/SCRAPER-KIT-ARCHITECTURE.png)
+
 ### `BaseContentLoader`
 
 Defines:
@@ -683,6 +687,8 @@ Important note:
 - If `PLATFORM` is missing or unrecognized, this function returns `None`, which later causes Selenium driver startup failure.
 
 ### `ScraperLRUCache`
+
+![Scraper LRU cache design](../assets/LRU-CACHE-FOR-SCRAPER.png)
 
 This is a custom cache with:
 

@@ -54,6 +54,7 @@ services:
       context: ./data-ingestor
       dockerfile: Dockerfile.dev
     env_file:
+      - ./backend/.env
       - ./data-ingestor/.env
     environment:
       PORT: "8081"

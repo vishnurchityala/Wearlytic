@@ -163,6 +163,10 @@ def test_run_product_job_reinserts_scraper_into_cache_on_success(monkeypatch):
     assert message == "Scrape Product Task completed : https://dummyshop.com/product/1"
     assert job_manager.updates[-1][1]["status"] == "completed"
     assert job_result_manager.results[0].status == "completed"
+    assert (
+        job_result_manager.results[0].result.page_content
+        == celery_worker.PAGE_CONTENT_PLACEHOLDER
+    )
     assert scraper.close_calls == 0
     assert cache.inserted == [("dummyshop", scraper)]
 

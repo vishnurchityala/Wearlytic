@@ -4,8 +4,21 @@
 ![Celery](https://img.shields.io/badge/Celery-37814a)
 ![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169e1?logo=postgresql&logoColor=white)
 
 The data ingestor orchestrates Wearlytic's scraping and product warehouse pipeline.
+MongoDB stores ingestion workflow state. Scraped product records are written to
+the backend PostgreSQL app tables.
+
+## Architecture
+
+<p align="center">
+  <img src="../assets/DATA-INGESTOR-ARCHITECTURE.png" alt="Data Ingestor architecture" width="900" />
+</p>
+
+The data ingestor coordinates MongoDB workflow state, Celery workers, Redis
+queues, and the external Scraping Agent. Product scrape results are upserted
+into the backend PostgreSQL `api_product` tables after result polling completes.
 
 ## Responsibility
 
@@ -13,7 +26,8 @@ The data ingestor orchestrates Wearlytic's scraping and product warehouse pipeli
 - Trigger listing and product scrape jobs through the scraping agent.
 - Track asynchronous scrape job statuses.
 - Create product URL batches for downstream product-page scraping.
-- Store ingested product records in MongoDB.
+- Store ingested product records in PostgreSQL `api_category` and `api_product`
+  tables.
 - Serve the internal admin dashboard for ingestion operations.
 
 ## Local Development
@@ -49,6 +63,7 @@ SCRAPING_AGENT_API_URL=
 SCRAPING_AGENT_TOKEN=
 MONGO_URI=
 MONGO_DBNAME=
+DATABASE_URL=
 ADMIN_USERNAME=
 ADMIN_PASSWORD=
 MAXIMUM_BATCH_SIZE=
@@ -57,10 +72,54 @@ REDIS_URL=
 ```
 
 `REDIS_URL` is optional. If it is empty or unset, Celery uses local Redis at
-`redis://localhost:6379/0`. For Docker Compose, use `redis://redis:6379/0`.
+`redis://localhost:6379/0`. Docker Compose sets
+`redis://127.0.0.1:6379/0` because Redis runs in the same data-ingestor
+container.
 For Upstash, put the complete `rediss://...` connection URL in `REDIS_URL`.
 
-The DB modules also use collection-name environment variables for sources, listings, batches, statuses, product URLs, and products.
+`DATABASE_URL` must point at the same PostgreSQL database used by the backend.
+The backend owns the migrations for app product tables.
+
+The MongoDB modules still use collection-name environment variables for
+sources, listings, batches, statuses, and product URLs. `PRODUCTS_COLLECTION_NAME`
+is retained only for older data cleanup scripts; new product warehouse writes do
+not use MongoDB.
+
+## Product Storage
+
+New product writes store only the migration-safe product shape:
+
+- `title`
+- `price`
+- `url`
+- `image_url`
+- `category_id`
+
+The product URL is the idempotency key. If a scraped URL already exists in
+`api_product`, the ingestor updates the title, price, image URL, and category.
+Missing or blank categories are stored as `Uncategorized`.
+
+Mongo-only fields such as colors, sizes, material, descriptions, ratings,
+review counts, page content, processed state, and scrape timestamps are ignored.
+
+Existing Mongo product documents from older runs can be cleaned with a one-time
+MongoDB update:
+
+```bash
+mongosh "$MONGO_URI" --eval '
+const database = process.env.MONGO_DBNAME;
+const products = process.env.PRODUCTS_COLLECTION_NAME || "data_ingestor_products";
+const target = db.getSiblingDB(database);
+target.scraping_agent_job_results.updateMany(
+  {"result.page_content": {$exists: true}},
+  {$set: {"result.page_content": "PAGE_BODY_CONTENT"}}
+);
+target[products].updateMany(
+  {page_content: {$exists: true}},
+  {$set: {page_content: "PAGE_BODY_CONTENT"}}
+);
+'
+```
 
 ## Contribution Scope
 

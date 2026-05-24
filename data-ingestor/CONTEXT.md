@@ -21,13 +21,14 @@ This file is based on a repository scan performed on `2026-04-18`.
 - schedules and triggers scraping jobs through a separate Scraping Agent service,
 - tracks scrape job state in MongoDB,
 - batches discovered product URLs,
-- ingests completed product payloads into a product warehouse collection,
+- ingests completed product payloads into backend-owned PostgreSQL app tables,
 - exposes a server-rendered admin dashboard for operators.
 
 At runtime, this project depends on:
 
 - FastAPI for HTTP/UI serving,
-- MongoDB for persistence,
+- MongoDB for workflow-state persistence,
+- PostgreSQL for app product storage,
 - Redis or Upstash Redis for Celery broker transport,
 - Celery worker + Celery beat for asynchronous orchestration,
 - an external Scraping Agent REST service for actual scraping.
@@ -38,7 +39,7 @@ This service is:
 
 - an orchestration and ingestion service,
 - a small admin console,
-- a Mongo-backed metadata and product storage layer,
+- a Mongo-backed metadata layer with PostgreSQL product storage,
 - a Celery scheduler/worker host.
 
 This service is not:
@@ -57,7 +58,7 @@ Top-level files and directories that matter:
 | --- | --- |
 | `main.py` | Real FastAPI entrypoint. Defines `app`. |
 | `app/routes/` | Route handlers for login, dashboard, source/listing management, and manual Celery triggers. |
-| `app/db/` | MongoDB CRUD managers. These define collection access patterns and most persistence semantics. |
+| `app/db/` | MongoDB CRUD managers plus the PostgreSQL `ProductManager` for product writes. |
 | `app/models/` | Pydantic models used to validate/create in-memory entities before insertion. |
 | `app/celery_worker.py` | Celery app, task definitions, external Scraping Agent contract usage, beat schedule. |
 | `app/templates/` | Jinja2 HTML templates for login and dashboard. |
@@ -65,9 +66,10 @@ Top-level files and directories that matter:
 | `app/utils/__init__.py` | Mongo connection singleton helpers. |
 | `Makefile` | Operational commands for app, worker, beat, Redis, and Mongo lifecycle. |
 | `requirements.txt` | Pinned Python dependencies. |
-| `README.md` | High-level architecture note with diagram. |
+| `../assets/DATA-INGESTOR-ARCHITECTURE.png` | Shared data-ingestor architecture diagram used by README docs. |
+| `README.md` | High-level architecture note and local setup guide. |
 | `test.py` | Ad hoc script that imports Celery tasks and currently calls `fetch_results()` synchronously. |
-| `static/image.png` | README architecture diagram asset. Not served by FastAPI static mount. |
+| `static/image.png` | Legacy local copy of the architecture diagram. Prefer `../assets/DATA-INGESTOR-ARCHITECTURE.png` for docs. |
 | `venv/` | Local virtual environment present in repo folder. Treat as environment state, not source code. |
 
 Notes:
@@ -80,6 +82,8 @@ Notes:
 
 The effective runtime topology is:
 
+![Data Ingestor architecture](../assets/DATA-INGESTOR-ARCHITECTURE.png)
+
 1. Operator logs into the FastAPI admin dashboard.
 2. Operator creates Sources and Listings in MongoDB.
 3. Celery beat schedules periodic orchestration tasks.
@@ -89,7 +93,7 @@ The effective runtime topology is:
 7. Completed listing jobs produce `ProductUrl` records.
 8. Unbatched `ProductUrl` records are grouped into `Batch` records.
 9. Batch scraping triggers product-page jobs.
-10. Completed product jobs create or partially update `Product` records in the warehouse.
+10. Completed product jobs upsert records into PostgreSQL `api_product` using URL as the idempotency key.
 
 ### Key Moving Parts
 
@@ -97,7 +101,8 @@ The effective runtime topology is:
 | --- | --- |
 | FastAPI app | Serves login page, dashboard, form POST endpoints, and manual trigger endpoints. |
 | Session middleware | Keeps simple cookie-based admin session state. |
-| MongoDB | Stores sources, listings, statuses, product URLs, batches, and products. |
+| MongoDB | Stores sources, listings, statuses, product URLs, and batches. |
+| PostgreSQL | Stores product records in `api_category` and `api_product`. |
 | Celery worker | Executes orchestration tasks and external API calls. |
 | Celery beat | Schedules listing scrape, batch creation, batch scrape, and status polling. |
 | Redis / Upstash | Celery broker transport. |
@@ -298,7 +303,7 @@ Implication:
 
 ## Data Model
 
-The service effectively maintains six Mongo collections.
+The service maintains five Mongo collections plus PostgreSQL app product tables.
 
 ### Collection Mapping
 
@@ -309,7 +314,7 @@ The service effectively maintains six Mongo collections.
 | ProductUrl | `ProductUrlManager` | `PRODUCT_URLS_COLLECTION_NAME` | `data_ingestor_product_urls` |
 | Status | `StatusManager` | `STATUS_COLLECTION_NAME` | `data_ingestor_process_status` |
 | Batch | `BatchManager` | `BATCHES_COLLECTION_NAME` | `data_ingestor_batches` |
-| Product | `ProductManager` | `PRODUCTS_COLLECTION_NAME` | `product_warehouse` |
+| Product | `ProductManager` | `DATABASE_URL` | backend PostgreSQL database |
 
 ### Source
 
@@ -424,7 +429,10 @@ Model fields:
 
 Important behavioral note:
 
-- existing products are updated partially, not fully. The update path only refreshes a subset of fields.
+- new product writes do not use MongoDB.
+- `ProductManager` upserts only `title`, `price`, `url`, `image_url`, and category into `api_product`.
+- missing or blank categories are stored as `Uncategorized`.
+- richer scrape fields remain ignored.
 
 ## End-to-End Workflow
 
@@ -666,12 +674,13 @@ This repo contains a `.env` file with real-looking credentials/tokens. Do not co
 | `ADMIN_PASSWORD` | Login password for admin UI. |
 | `MONGO_URI` | MongoDB connection string. |
 | `MONGO_DBNAME` | Mongo database name. |
+| `DATABASE_URL` | Backend PostgreSQL connection URL for `api_category` and `api_product`. |
 | `SOURCES_COLLECTION_NAME` | Source collection name. |
 | `LISTINGS_COLLECTION_NAME` | Listing collection name. |
 | `PRODUCT_URLS_COLLECTION_NAME` | Product URL collection name. |
 | `STATUS_COLLECTION_NAME` | Status collection name. |
 | `BATCHES_COLLECTION_NAME` | Batch collection name. |
-| `PRODUCTS_COLLECTION_NAME` | Product collection name. |
+| `PRODUCTS_COLLECTION_NAME` | Legacy Mongo product collection name; not used for new product writes. |
 ### Env Behavior Notes
 
 - `load_dotenv()` is called in many modules at import time.
@@ -798,15 +807,16 @@ These are important for future modification work.
 - `BatchManager` sorts on `created_at`, but `Batch` documents are not clearly created with `created_at`.
 - batch selection order may therefore be unstable or dependent on absent fields.
 
-### Product Update Partiality
+### Product Update Scope
 
-- Existing products are only partially refreshed.
-- Fields like `title`, `category`, `gender`, `url`, `image_url`, `material`, and `description` are not refreshed in the update path.
+- Existing app products are refreshed by URL.
+- Only `title`, `price`, `image_url`, and category are updated in `api_product`.
+- Rich scrape fields are intentionally out of scope.
 
 ### ProductUrl Lookup Mismatch
 
-- `ProductUrlManager.get_product_url_by_url()` projects only `id`, but callers later try to access `page_index`.
-- new product inserts may therefore fall back to `page_index = 0` even when the real product URL record had a different rank.
+- `ProductUrlManager.get_product_url_by_url()` projects only `id`.
+- Product writes no longer depend on `page_index`, but future workflow metadata changes should account for this projection.
 
 ### Manager Oddities
 
