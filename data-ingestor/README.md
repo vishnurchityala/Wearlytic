@@ -85,6 +85,21 @@ sources, listings, batches, statuses, and product URLs. `PRODUCTS_COLLECTION_NAM
 is retained only for older data cleanup scripts; new product warehouse writes do
 not use MongoDB.
 
+## Deployment
+
+The data ingestor is deployed by the root
+[`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) workflow. On
+every push to `main`, GitHub Actions connects to the VPS and rebuilds this
+service with the scraping agent:
+
+```bash
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+The workflow expects `VPS_HOST`, `VPS_USER`, and `VPS_PASSWORD` GitHub Actions
+secrets. Deployment logs are written on the VPS to
+`apps/Wearlytic/logs/actions.log`.
+
 ## Product Storage
 
 New product writes store only the migration-safe product shape:

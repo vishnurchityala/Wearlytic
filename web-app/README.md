@@ -43,6 +43,12 @@ VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 ```
 
+## Deployment
+
+The root [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml)
+workflow does not build or deploy the web app. It only rebuilds the
+`scraping-agent` and `data-ingestor` services on the VPS.
+
 ## Contribution Scope
 
 External pull requests are not currently accepted for this service unless maintainers explicitly request them. Wearlytic currently accepts external PRs only for adding or improving website scrapers in [`../scraping-agent`](../scraping-agent/README.md).

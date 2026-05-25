@@ -1048,13 +1048,26 @@ In tests:
 - medium queue with concurrency `5`
 - high queue with concurrency `10`
 
-### Important documentation drift
+### Production deploy
 
-Some checked-in docs are stale:
+The root `.github/workflows/deploy.yml` GitHub Actions workflow deploys this
+service on every push to `main`. It connects to the VPS through Cloudflare
+Access SSH, runs `git pull` in `apps/Wearlytic`, and rebuilds the scraping agent
+with the data ingestor:
 
-- `README.md` mentions a `Dockerfile`, but none is present in tracked files here.
-- `README.md` quick-start Celery command points at `celery_worker` at repo root, but the real Celery app lives in `api/celery_worker.py`.
-- `api/README.md` documents separate listing/product endpoints that do not match the real single `/api/scrapingagent/scrape` endpoint.
+```bash
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+The workflow requires `VPS_HOST`, `VPS_USER`, and `VPS_PASSWORD` repository
+secrets. Deployment output is appended on the VPS to
+`apps/Wearlytic/logs/actions.log`.
+
+### Important route drift
+
+The JSON returned by `GET /api/scrapingagent/` is stale. It advertises
+`/api/scrape/...` and includes a `/api/scraper/{task_id}/result/` typo, while
+the real scrape routes use `/api/scrapingagent/scrape`.
 
 
 ## Known Sharp Edges and Maintenance Risks
@@ -1220,7 +1233,7 @@ Remember:
 
 - routes are token-protected except base redirect/index
 - client code likely expects the current `/api/scrapingagent/scrape` prefix
-- docs are stale, so confirm behavior from code rather than README text
+- the base endpoint response is stale, so confirm route behavior from code
 
 ### If optimizing runtime behavior
 
@@ -1258,7 +1271,7 @@ When asked to change this repo, use this order:
    - creation
    - reuse
    - closure
-6. If changing API behavior, verify whether current docs are stale before trusting them.
+6. If changing API behavior, update the README files and check whether the base endpoint response is stale.
 
 
 ## Best Single Files To Read First
@@ -1289,4 +1302,4 @@ The most important practical truths are:
 - live website markup is the real moving target
 - the cache is a checkout/reinsert pool, not a passive cache
 - job/result persistence is simple and Mongo-centric
-- the checked-in docs are partially stale, so code and tests are more trustworthy than README text
+- the base endpoint description is stale, so code and tests are more trustworthy for route details

@@ -66,6 +66,31 @@ docker image prune -f
 docker builder prune -f
 ```
 
+## Production Deploy Workflow
+
+GitHub Actions deployment is defined in
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). On every push to
+`main`, the workflow connects to the VPS through Cloudflare Access SSH, runs
+`git pull` in `apps/Wearlytic`, and rebuilds the scraping pipeline services:
+
+```bash
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+The workflow uses the repository secrets `VPS_HOST`, `VPS_USER`, and
+`VPS_PASSWORD`. Server-side deployment output is appended to
+`apps/Wearlytic/logs/actions.log`.
+
+To reproduce the deploy manually on the VPS:
+
+```bash
+cd apps/Wearlytic
+git pull
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+The workflow does not rebuild `web-app` or `backend`.
+
 ## Service Notes
 
 - `web-app` runs the Vite dev server and overrides `VITE_API_BASE_URL` to

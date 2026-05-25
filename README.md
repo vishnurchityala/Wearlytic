@@ -4,6 +4,7 @@
 
 <p align="center">
   <img alt="Active" src="https://img.shields.io/badge/status-active-22c55e?logo=checkmarx&logoColor=white" />
+  <img alt="Production Deploy" src="https://img.shields.io/github/actions/workflow/status/vishnurchityala/Wearlytic/deploy.yml?branch=main&label=deploy&logo=githubactions&logoColor=white" />
   <img alt="Commits" src="https://img.shields.io/github/commit-activity/m/vishnurchityala/Wearlytic?label=commits&color=6366f1&logo=github&logoColor=white" />
   <img alt="License" src="https://img.shields.io/github/license/vishnurchityala/Wearlytic?label=license&color=0ea5e9&logo=apache&logoColor=white" />
 </p>
@@ -42,6 +43,27 @@ service docs.
 | ScraperKit package | <a href="assets/SCRAPER-KIT-ARCHITECTURE.png"><img src="assets/SCRAPER-KIT-ARCHITECTURE.png" alt="ScraperKit architecture" width="220" /></a> |
 | Scraper runtime cache | <a href="assets/LRU-CACHE-FOR-SCRAPER.png"><img src="assets/LRU-CACHE-FOR-SCRAPER.png" alt="Scraper LRU cache design" width="220" /></a> |
 | Data Ingestor service | <a href="assets/DATA-INGESTOR-ARCHITECTURE.png"><img src="assets/DATA-INGESTOR-ARCHITECTURE.png" alt="Data Ingestor architecture" width="220" /></a> |
+
+## Production Deployment
+
+Production deployment is automated by [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+The workflow runs on every push to `main`, connects to the VPS through
+Cloudflare Access SSH, pulls the latest code in `apps/Wearlytic`, and rebuilds
+the VPS Docker services that run the scraping pipeline:
+
+```bash
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+Required GitHub Actions secrets:
+
+- `VPS_HOST`
+- `VPS_USER`
+- `VPS_PASSWORD`
+
+Deployment logs are appended on the VPS at `apps/Wearlytic/logs/actions.log`.
+The current workflow deploys only `scraping-agent` and `data-ingestor`; it does
+not build or deploy `web-app` or `backend`.
 
 ## Contribution Policy
 

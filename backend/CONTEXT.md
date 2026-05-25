@@ -454,6 +454,10 @@ Suggested future test coverage:
 
 Check Vercel env vars carefully because import-time Supabase setup means missing variables can fail app boot.
 
+The root `.github/workflows/deploy.yml` GitHub Actions workflow does not deploy
+the backend. That workflow only rebuilds `scraping-agent` and `data-ingestor` on
+the VPS.
+
 ## Known Caveats
 
 - `api/authentication.py` currently contains a nested quote pattern in an f-string around `payload["sub"]`; verify syntax/import before deploying or running tests.

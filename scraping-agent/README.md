@@ -180,6 +180,21 @@ make test-scraperkit
 
 Scraper tests may hit real websites and may require network access plus a valid `PLATFORM` setting for Selenium-based loaders.
 
+## Deployment
+
+The scraping agent is deployed by the root
+[`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) workflow. On
+every push to `main`, GitHub Actions connects to the VPS and rebuilds this
+service with the data ingestor:
+
+```bash
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+The workflow expects `VPS_HOST`, `VPS_USER`, and `VPS_PASSWORD` GitHub Actions
+secrets. Deployment logs are written on the VPS to
+`apps/Wearlytic/logs/actions.log`.
+
 ## Contribution Scope
 
 External pull requests are accepted only for adding or improving website scrapers.
