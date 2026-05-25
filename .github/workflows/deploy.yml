@@ -45,3 +45,13 @@ jobs:
             date >> .log &&
             echo '' >> actions.log
           "
+      
+      #Phase 4: Creating New Docker images
+      - name:
+        run: |
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" \
+          ssh vps "
+            cd apps/Wearlytic &&
+            git pull &&
+            docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+          "
