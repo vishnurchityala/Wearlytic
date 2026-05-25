@@ -1,0 +1,84 @@
+name: Production Deploy (vps.theheadlyn.com)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Phase 1: Setup Cloudflare Tunnel + SSH
+      - name: Setup Cloudflare SSH
+        run: |
+          echo "========== INSTALLING DEPENDENCIES =========="
+
+          sudo apt update
+          sudo apt install -y sshpass
+
+          wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+
+          chmod +x cloudflared-linux-amd64
+
+          sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+
+          mkdir -p ~/.ssh
+
+          echo "
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            StrictHostKeyChecking no
+            ProxyCommand cloudflared access ssh --hostname %h
+          " > ~/.ssh/config
+
+          echo "========== SSH CONFIG READY =========="
+
+      # Phase 2: Verify VPS Connection
+      - name: Verify VPS Connection
+        run: |
+          echo "========== TESTING VPS CONNECTION =========="
+
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" \
+          ssh vps "
+            echo 'Connected Successfully'
+            hostname
+            pwd
+          "
+
+          echo "========== VPS CONNECTION SUCCESS =========="
+
+      # Phase 3: Deploy Latest Code
+      - name: Deploy Latest Code
+        run: |
+          echo "========== STARTING DEPLOYMENT =========="
+
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" \
+          ssh vps "
+
+            cd apps/Wearlytic &&
+
+            mkdir -p logs &&
+
+            echo '========================================' >> logs/actions.log &&
+            echo 'NEW DEPLOYMENT STARTED' >> logs/actions.log &&
+            date >> logs/actions.log &&
+            echo '========================================' >> logs/actions.log &&
+
+            echo 'Pulling latest code...' >> logs/actions.log &&
+            git pull >> logs/actions.log 2>&1 &&
+
+            echo '' >> logs/actions.log &&
+            echo 'Rebuilding docker containers...' >> logs/actions.log &&
+
+            docker compose up -d scraping-agent data-ingestor --build --remove-orphans >> logs/actions.log 2>&1 &&
+
+            echo '' >> logs/actions.log &&
+            echo 'Deployment completed successfully.' >> logs/actions.log &&
+            date >> logs/actions.log &&
+            echo '' >> logs/actions.log
+          "
+
+          echo "========== DEPLOYMENT FINISHED =========="
