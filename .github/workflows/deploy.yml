@@ -38,7 +38,8 @@ jobs:
         run: |
           sshpass -p "${{ secrets.VPS_PASSWORD }}" \
           ssh vps "
-            cd /logs &&
+            pwd
+            cd logs &&
             echo '========== ACTION RUN ==========' >> actions.log &&
             echo 'GitHub Action Triggered' >> actions.log &&
             date >> .log &&
