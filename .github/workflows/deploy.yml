@@ -1,0 +1,47 @@
+name: Trial Deploy Run on VPS (vps.theheadlyn.com)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Phase 1: Setup SSH + Cloudflared
+      - name: Setup SSH and Cloudflared
+        run: |
+          sudo apt update
+          sudo apt install -y sshpass
+          wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared-linux-amd64
+          sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+          mkdir -p ~/.ssh
+          echo "
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            StrictHostKeyChecking no
+            ProxyCommand cloudflared access ssh --hostname %h
+          " > ~/.ssh/config
+
+      # Phase 2: Connect to VPS
+      - name: Connect to VPS
+        run: |
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" \
+          ssh vps "echo Connected to VPS successfully"
+
+      # Phase 3: Log GitHub Action
+      - name: Log Deployment Action
+        run: |
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" \
+          ssh vps "
+            cd /home/vishnu/your-project &&
+            mkdir -p logs &&
+            echo '========== ACTION RUN ==========' >> logs/actions.log &&
+            echo 'GitHub Action Triggered' >> logs/actions.log &&
+            date >> logs/actions.log &&
+            echo '' >> logs/actions.log
+          "
