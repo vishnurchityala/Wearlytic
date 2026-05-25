@@ -232,7 +232,7 @@ Top-level:
 - `vite.config.js`: React plugin, Tailwind plugin, `@` alias to `src`.
 - `eslint.config.js`: ESLint flat config for JS/JSX, React Hooks, React Refresh.
 - `vercel.json`: SPA rewrite.
-- `README.md`: default Vite template text, not project-specific.
+- `README.md`: project-specific setup, commands, environment, and deploy-scope notes.
 
 Source:
 
@@ -297,7 +297,6 @@ Assets/data:
 - `Navbar` uses `<a href>` instead of router links.
 - `Footer` has empty `href` values for some internal links.
 - `SuggestionBox` contact button has no click behavior.
-- `README.md` is still the default React + Vite template documentation.
 
 ## Development Guidance For Agents
 
@@ -313,6 +312,13 @@ Assets/data:
 - Use relative imports inside a page's own `components` folder.
 - Run `npm run lint` after code changes when practical.
 - Run `npm run build` before deployment-facing changes when practical.
+
+## Deployment Notes
+
+The root `.github/workflows/deploy.yml` GitHub Actions workflow does not deploy
+the web app. It only rebuilds `scraping-agent` and `data-ingestor` on the VPS.
+Keep frontend deployment changes aligned with `vercel.json`, Supabase redirect
+settings, and `VITE_API_BASE_URL`.
 
 ## Git/Workspace Notes
 

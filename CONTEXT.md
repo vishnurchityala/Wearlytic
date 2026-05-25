@@ -17,6 +17,20 @@ The active project folders are:
 
 Older or supporting folders may exist, but the root README intentionally points contributors to the four active services above.
 
+## Repository Automation
+
+The production deploy workflow lives at `.github/workflows/deploy.yml`.
+
+- Trigger: every push to `main`.
+- Target: VPS reachable through Cloudflare Access SSH.
+- Required GitHub secrets: `VPS_HOST`, `VPS_USER`, `VPS_PASSWORD`.
+- Remote app path: `apps/Wearlytic`.
+- Remote deploy command: `docker compose up -d scraping-agent data-ingestor --build --remove-orphans`.
+- Remote log file: `apps/Wearlytic/logs/actions.log`.
+
+The workflow deploys only the scraping pipeline services: `scraping-agent` and
+`data-ingestor`. It does not build or deploy `web-app` or `backend`.
+
 ## Runtime Flow
 
 1. `web-app` authenticates users with Supabase and calls the Django backend.
@@ -83,6 +97,7 @@ Avoid committing local runtime output such as:
 - Python virtual environments
 - `__pycache__/`
 - `.pytest_cache/`
+- `logs/`
 - Celery Beat schedule databases
 - local SQLite databases unless intentionally part of a fixture
 

@@ -768,6 +768,21 @@ Current behavior:
 
 Treat this as a manual debugging script, not a real automated test.
 
+### Production Deploy
+
+The root `.github/workflows/deploy.yml` GitHub Actions workflow deploys this
+service on every push to `main`. It connects to the VPS through Cloudflare
+Access SSH, runs `git pull` in `apps/Wearlytic`, and rebuilds the data ingestor
+with the scraping agent:
+
+```bash
+docker compose up -d scraping-agent data-ingestor --build --remove-orphans
+```
+
+The workflow requires `VPS_HOST`, `VPS_USER`, and `VPS_PASSWORD` repository
+secrets. Deployment output is appended on the VPS to
+`apps/Wearlytic/logs/actions.log`.
+
 ## Import-Time Side Effects
 
 This codebase has significant import-time behavior. Be careful when refactoring module boundaries.
@@ -918,8 +933,8 @@ Future agents should not waste time looking for these unless they are added late
 
 - Alembic or migration tooling,
 - pytest suite,
-- Docker setup,
-- CI workflow files in this folder,
+- service-local Docker setup,
+- service-local CI workflow files in this folder,
 - typed settings/config layer,
 - repository pattern beyond the simple Mongo managers,
 - separate service layer for business logic,
