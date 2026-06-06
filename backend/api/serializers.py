@@ -44,6 +44,11 @@ class ProductSerializer(serializers.ModelSerializer):
 		]
 
 
+class CatalogMetadataSerializer(serializers.Serializer):
+    product_count = serializers.IntegerField(min_value=0)
+    last_data_fetched = serializers.DateTimeField(allow_null=True)
+
+
 class UpdateAppUserSerializer(serializers.Serializer):
 	name = serializers.CharField(max_length=255, required=False, allow_blank=True)
 	info_prompt = serializers.CharField(required=False, allow_blank=True)

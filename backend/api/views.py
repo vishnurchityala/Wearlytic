@@ -1,16 +1,19 @@
 import os
 import datetime
 import json
+import logging
 import dotenv
 dotenv.load_dotenv()
 
 from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, BaseParser
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from .utils import generate_ai_product_image
 
@@ -21,12 +24,13 @@ class RawImageParser(BaseParser):
     def parse(self, stream, media_type=None, parser_context=None):
         return stream.read()
 from supabase import create_client
-from .models import AppUser, Product, Category, ImageGenerationTask,ImageGeneration
+from .models import AppUser, Product, Category, CatalogMetadata, ImageGenerationTask,ImageGeneration
 from .serializers import (
 	CreateUserSerializer,
 	AppUserSerializer,
 	ProductSerializer,
 	CategorySerializer,
+	CatalogMetadataSerializer,
 	UpdateAppUserSerializer,
 	ImageGenerationTaskSerializer,
 	ImageGenerationSerializer
@@ -35,6 +39,8 @@ from .serializers import (
 import requests
 
 from .storage import SupabaseBucketManager
+
+logger = logging.getLogger(__name__)
 
 supabase_bucket_manager = SupabaseBucketManager.from_env("image_assets")
 
@@ -251,6 +257,75 @@ def products_list_view(request):
 	return paginator.get_paginated_response(serializer.data)
 
 
+def _catalog_metadata_value(key):
+	try:
+		return CatalogMetadata.objects.get(key=key).value
+	except CatalogMetadata.DoesNotExist:
+		return None
+
+
+def _sync_catalog_metadata():
+	product_count = Product.objects.count()
+	total_products, _created = CatalogMetadata.objects.get_or_create(
+		key="total_products",
+		defaults={"value": product_count},
+	)
+	product_count_changed = total_products.value != product_count
+	if product_count_changed:
+		total_products.value = product_count
+		total_products.save(update_fields=["value", "updated_at"])
+
+	last_fetched, _created = CatalogMetadata.objects.get_or_create(
+		key="last_fetched",
+		defaults={"value": timezone.now().isoformat()},
+	)
+	if product_count_changed or not last_fetched.value:
+		last_fetched.value = timezone.now().isoformat()
+		last_fetched.save(update_fields=["value", "updated_at"])
+
+	return product_count, last_fetched.value
+
+
+def _normalize_product_count(value):
+	if isinstance(value, bool):
+		return None
+	if isinstance(value, int) and value >= 0:
+		return value
+	if isinstance(value, str) and value.isdigit():
+		return int(value)
+	return None
+
+
+def _normalize_last_fetched(value):
+	if not value:
+		return None
+	if isinstance(value, datetime.datetime):
+		last_fetched = value
+	elif isinstance(value, str):
+		last_fetched = parse_datetime(value)
+	else:
+		return None
+
+	if last_fetched is not None and timezone.is_naive(last_fetched):
+		return timezone.make_aware(last_fetched, timezone=datetime.timezone.utc)
+	return last_fetched
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def catalog_metadata_view(request):
+	synced_product_count, synced_last_fetched = _sync_catalog_metadata()
+	product_count = _normalize_product_count(_catalog_metadata_value("total_products"))
+	if product_count is None:
+		product_count = synced_product_count
+
+	serializer = CatalogMetadataSerializer({
+		"product_count": product_count,
+		"last_data_fetched": _normalize_last_fetched(synced_last_fetched),
+	})
+	return Response(serializer.data)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def product_detail_view(request, product_id):
@@ -268,8 +343,11 @@ def product_detail_view(request, product_id):
 def image_generation_view(request):
 	body_data = request.data
 	input_products = body_data.get("input_products", [])
-	product_ids = [product['id'] for product in input_products]
-	custom_prompt = body_data.get("custom_prompt", "")
+	try:
+		product_ids = [product["id"] for product in input_products]
+	except (KeyError, TypeError):
+		raise ValidationError("Each input product must include an id")
+	custom_prompt = body_data.get("custom_prompt", "") or ""
 	user_id = str(request.user.id)
 
 	if not input_products:
@@ -277,10 +355,19 @@ def image_generation_view(request):
 
 	try:
 		user = AppUser.objects.get(id=user_id)
-		if user.role == "user":
-			return Response({"result":"Only Super Users are Allowed to use this feature."},)
-		if user.tokens == 0:
-			return Response({"result":"No Enough Tokens"},)
+		if user.role != "super_user":
+			return Response(
+				{
+					"code": "image_generation_super_user_required",
+					"detail": "Image generation is limited to Super Users. Your credits were not charged.",
+					"required_role": "super_user",
+					"current_role": user.role,
+					"required_credits": 0,
+					"available_credits": user.tokens or 0,
+					"credits_charged": 0,
+				},
+				status=status.HTTP_403_FORBIDDEN,
+			)
 		info_prompt = user.info_prompt
 		response = requests.get(user.base_image_path, timeout=10)
 		response.raise_for_status()
@@ -288,6 +375,13 @@ def image_generation_view(request):
 	except AppUser.DoesNotExist:
 		raise NotFound("User not found")
 	except requests.exceptions.RequestException:
+		logger.exception(
+			"Failed to fetch base image for image generation",
+			extra={
+				"user_id": user_id,
+				"base_image_path": getattr(user, "base_image_path", ""),
+			},
+		)
 		raise ValidationError("Failed to fetch base image")
 	
 	input_images = []
@@ -299,6 +393,14 @@ def image_generation_view(request):
 			response.raise_for_status()
 			input_images.append(response.content)
 		except (KeyError, requests.exceptions.RequestException):
+			logger.exception(
+				"Failed to fetch product image for image generation",
+				extra={
+					"user_id": user_id,
+					"product_id": product.get("id") if isinstance(product, dict) else None,
+					"image_url": product.get("image_url") if isinstance(product, dict) else None,
+				},
+			)
 			raise ValidationError("Invalid or unreachable product image")
 	
 	image_generation_task = ImageGenerationTask.objects.create(
@@ -322,12 +424,17 @@ def image_generation_view(request):
 		)
 		image_generation_task.status = "completed"
 		image_generation_task.save()
-		if user.role == "user":
-			user.tokens = user.tokens - 50
-			user.save()
 		serializer = ImageGenerationSerializer(image_generation)
 		return Response(serializer.data)
-	except Exception as e:
+	except Exception:
+		logger.exception(
+			"Image generation processing failed",
+			extra={
+				"task_id": str(image_generation_task.id),
+				"user_id": str(user.id),
+				"product_count": len(input_products),
+			},
+		)
 		image_generation_task.status = "failed"
 		image_generation_task.save()
 	

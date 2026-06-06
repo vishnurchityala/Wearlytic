@@ -9,6 +9,7 @@ function MainContent() {
   const { token } = useAuth();
   const [categories, setCategories] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [imageGenerations, setImageGenerations] = useState([]);
   const [loading,setLoading] = useState(false);
 
   useEffect(() => {
@@ -40,34 +41,44 @@ function MainContent() {
 
   return (
     <div className="border-t-2 border-gray-300 h-[91%] flex flex-col min-h-0">
-      <div className="flex flex-col md:hidden h-full overflow-y-auto">
-        <div>
-          <ClothesSection
-            categories={categories}
-            selectedProducts={selectedProducts}
-            loading={loading}
-            setSelectedProducts={setSelectedProducts}
-          />
-        </div>
-        <div className="h-full">
-          <PlaygroundSection selectedProducts={selectedProducts}/>
-        </div>
-      </div>
-      <div className="hidden md:flex h-full min-h-0">
-        <Group direction="horizontal" className="h-full w-full">
-          <Panel className="h-full min-h-0" minSize="20%" defaultSize={40}>
+      <div className="flex-1 min-h-0">
+        <div className="flex flex-col md:hidden h-full overflow-y-auto">
+          <div>
             <ClothesSection
               categories={categories}
               selectedProducts={selectedProducts}
               loading={loading}
               setSelectedProducts={setSelectedProducts}
             />
-          </Panel>
-          <Separator className="w-1 bg-gray-300 cursor-col-resize" />
-          <Panel className="h-full min-h-0" minSize="30%" defaultSize={40}>
-            <PlaygroundSection selectedProducts={selectedProducts}/>
-          </Panel>
-        </Group>
+          </div>
+          <div className="h-full">
+            <PlaygroundSection
+              selectedProducts={selectedProducts}
+              imageGenerations={imageGenerations}
+              setImageGenerations={setImageGenerations}
+            />
+          </div>
+        </div>
+        <div className="hidden md:flex h-full min-h-0">
+          <Group direction="horizontal" className="h-full w-full">
+            <Panel className="h-full min-h-0" minSize="20%" defaultSize={40}>
+              <ClothesSection
+                categories={categories}
+                selectedProducts={selectedProducts}
+                loading={loading}
+                setSelectedProducts={setSelectedProducts}
+              />
+            </Panel>
+            <Separator className="w-1 bg-gray-300 cursor-col-resize" />
+            <Panel className="h-full min-h-0" minSize="30%" defaultSize={40}>
+              <PlaygroundSection
+                selectedProducts={selectedProducts}
+                imageGenerations={imageGenerations}
+                setImageGenerations={setImageGenerations}
+              />
+            </Panel>
+          </Group>
+        </div>
       </div>
     </div>
   );

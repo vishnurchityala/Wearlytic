@@ -60,28 +60,26 @@ Fix direction:
 - Fail with route-level errors for missing storage config instead of import-time crashes.
 - Add tests that import URL/views/auth modules with mocked or absent Supabase env.
 
-### 3. Image generation returns success-like responses for authorization and token failures
+## Resolved Bugs
+
+### Image generation returned success-like responses for authorization and token failures
+
+Status: Fixed on 2026-06-06.
 
 Affected files:
 
 - `api/views.py`
-- `api/serializers.py`
+- `api/management/commands/process_image_tasks.py`
 - `../web-app/src/pages/playground/components/ChatInputBar.jsx`
 
-What happens:
+What happened:
 
 - `image_generation_view` returns a normal DRF `Response` without an error status when a user has role `"user"`.
 - The same pattern is used when tokens are exhausted.
 - The frontend treats HTTP 2xx responses as successful unless the response contains a `status` field.
 
-Why this is high priority:
+Resolution:
 
-- Failed image generation can look successful to the client.
-- Invalid payloads can be appended to UI state.
-- Token and role rules become difficult to reason about across backend and frontend.
-
-Fix direction:
-
-- Return explicit `403 Forbidden` for role failures.
-- Return explicit `402`, `403`, or `400` for insufficient tokens depending on the chosen product contract.
-- Standardize error response shapes and update the web app to handle them.
+- Backend now returns explicit `403 Forbidden` for non-super-user generation.
+- Super users bypass credit checks and are not charged credits for image generation.
+- The web app shows inline notifications and does not append failed responses to generated images.

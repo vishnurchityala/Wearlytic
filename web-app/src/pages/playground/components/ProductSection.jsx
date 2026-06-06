@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown,faChevronUp,faShirt,faArrowRight,faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { CatalogMetadataBadges } from "@/components/CatalogMetadataBadges";
 import ProductList from "./ProductList";
 
 function ProductSection({products,loading,selectedProducts,setSelectedProducts,nextPage,prevPage,onFetchPage}){
@@ -24,10 +25,13 @@ function ProductSection({products,loading,selectedProducts,setSelectedProducts,n
                 onClick={() => setCollapsed(!collapsed)}
                 className="w-full ms-auto px-4 py-2 text-left text-sm font-medium flex items-center justify-between cursor-pointer"
             >
-                 <span className="text-center my-auto text-sm">
-                    Clothes <FontAwesomeIcon icon={faShirt}/>
+                <span className="flex min-w-0 flex-1 items-center gap-2">
+                    <span className="shrink-0 text-center my-auto text-sm">
+                        Clothes <FontAwesomeIcon icon={faShirt}/>
+                    </span>
+                    <CatalogMetadataBadges variant="compact" />
                 </span>
-                <FontAwesomeIcon icon={collapsed ? faChevronDown : faChevronUp} />
+                <FontAwesomeIcon icon={collapsed ? faChevronDown : faChevronUp} className="shrink-0" />
             </button>
 
             {!collapsed && (

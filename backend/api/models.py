@@ -65,6 +65,15 @@ class Product(models.Model):
         ]
 
 
+class CatalogMetadata(models.Model):
+    key = models.CharField(max_length=100, unique=True)
+    value = models.JSONField(blank=True, null=True, default=None)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.key}: {self.value}"
+
+
 class ImageGenerationTask(models.Model):
     id = models.UUIDField(
         primary_key=True,
