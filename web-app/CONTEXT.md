@@ -118,6 +118,7 @@ Central API service:
 Backend calls:
 
 - `src/routes/AppRouter.jsx` pings `GET /` every 40 seconds inside `AuthLayout`.
+- `src/components/CatalogMetadataBadges.jsx` calls `GET /api/catalog/metadata/`.
 - `src/pages/playground/components/MainContent.jsx` calls `GET /api/categories`.
 - `src/pages/playground/components/ClothesSection.jsx` calls `GET /api/products/` and paginated `next`/`previous` URLs through `apiFetch()`.
 - `src/pages/playground/components/ChatInputBar.jsx` calls `GET /api/users/me` and `POST /api/image_generations/`.
@@ -159,6 +160,15 @@ Products paginated response:
   ],
   next: string | null,
   previous: string | null
+}
+```
+
+Catalog metadata response:
+
+```js
+{
+  product_count: number,
+  last_data_fetched: string | null
 }
 ```
 
@@ -207,6 +217,7 @@ Landing:
 - `src/pages/landing/LandingPage.jsx`
 - Uses `Navbar`, `HeroBanner`, `InfoCards`, `InfoBanner`, `SuggestionBox`, and `Footer`.
 - Hero promotes virtual try-on and links to `/playground`.
+- `HeroBanner` shows catalog product count and "Last data fetched" badges through `CatalogMetadataBadges`.
 - Public brand/product imagery is served from `public/`.
 
 Playground:
@@ -216,6 +227,7 @@ Playground:
 - Protected route.
 - Desktop layout uses `react-resizable-panels`: clothing browser on the left and try-on canvas on the right.
 - Mobile layout stacks clothes section above playground section.
+- Shows catalog product count and freshness badges above the playground split/stack layout.
 
 Profile:
 
@@ -285,13 +297,13 @@ Assets/data:
 - Auth state is React context through `AuthProvider`.
 - Product selection is local state in `MainContent` and passed into clothes/playground children.
 - Product filters and pagination are local to `ClothesSection`.
-- Generated images from the current session are local to `PlaygroundSection`.
+- Generated images from the current session are owned by `MainContent` and shared across mobile and desktop `PlaygroundSection` layouts.
 - Profile forms fetch their own data using auth token from context.
 
 ## Current Constraints And Known Issues
 
 - Backend path usage is inconsistent: some calls use `/api/...`, while profile helper calls use `/users/...`.
-- `ChatInputBar` disables the generate button when tokens are insufficient, but it only re-checks tokens on submit. A user may need a state reset after getting more tokens.
+- `ChatInputBar` checks role on submit, blocks non-super-user generation in the UI, and shows inline guardrail notifications.
 - `ProfileDetailsForm` does not handle non-OK responses on profile save.
 - `ProfileImageForm` displays "Max 5MB" but does not enforce file size client-side.
 - `Navbar` uses `<a href>` instead of router links.

@@ -1,3 +1,5 @@
+import { CatalogMetadataBadges } from "@/components/CatalogMetadataBadges";
+
 function HeroBanner() {
   return (
     <section className="min-h-[calc(95vh-5rem)] my-4 flex flex-col text-center">
@@ -19,6 +21,8 @@ function HeroBanner() {
         <a href="/playground" className="mt-6 px-7 py-3 text-lg text-white bg-black rounded-full outfit-regular font-medium">
           Get Started <span className="px-1 font-bold">→</span>
         </a>
+
+        <CatalogMetadataBadges variant="hero" className="mt-5" />
       </div>
 
       <div className="flex flex-col items-center gap-3">

@@ -10,14 +10,21 @@ the source of detailed implementation notes:
 
 ## Planned Changes
 
+### Image Generation Guardrails
+
+- [x] Restrict image generation processing to super users.
+  - Owner: `backend`, `web-app`
+  - Backend rejects non-super-user generation with an explicit guardrail response.
+  - Web app shows guardrail notifications before submitting generation requests.
+
 ### Catalog Stats and Freshness
 
-- [ ] Add backend catalog metadata support for product stats.
+- [x] Add backend catalog metadata support for product stats.
   - Owner: `backend`
   - Add `CatalogMetadata` rows for `total_products` and `last_fetched`.
   - Expose a normalized API response with `product_count` and `last_data_fetched`.
 
-- [ ] Show catalog stats and freshness badges in the web app.
+- [x] Show catalog stats and freshness badges in the web app.
   - Owner: `web-app`
   - Display product count on the landing page and playground page.
   - Show a "Last data fetched" badge from backend catalog metadata.
@@ -39,7 +46,7 @@ the source of detailed implementation notes:
 
 ### Web App State Reliability
 
-- [ ] Unify playground image generation state across mobile and desktop layouts.
+- [x] Unify playground image generation state across mobile and desktop layouts.
   - Owner: `web-app`
   - Use a single state owner or context so generated images persist when switching viewport layouts.
 
