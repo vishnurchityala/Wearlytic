@@ -39,8 +39,5 @@ the source of detailed implementation notes:
   - Owner: `scraping-agent`
   - Switch BluOrng from the infinity-scroll loader to a simple page loader and follow parsed next-page URLs.
 
-- [ ] Add OffDuty source support.
-  - Owner: `scraping-agent`
-
 - [ ] Add Rare Rabbit source support.
   - Owner: `scraping-agent`

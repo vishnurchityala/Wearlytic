@@ -37,4 +37,9 @@ SCRAPER_TEST_CASES = (
         scraper_cls=SCRAPER_URL_MAP["thesouledstore"],
         listing_url="https://www.thesouledstore.com/men-classic-tshirts",
     ),
+    ScraperCase(
+        source_name="offduty",
+        scraper_cls=SCRAPER_URL_MAP["offduty"],
+        listing_url="https://offduty.in/collections/collection-men",
+    ),
 )
