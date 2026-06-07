@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
+from urllib.parse import parse_qs, urljoin, urlparse
 from scraperkit.base import BaseScraper
-from scraperkit.loaders import SeleniumInfinityScrollContentLoader
+from scraperkit.loaders import SeleniumContentLoader
 from scraperkit.exceptions import ContentNotLoadedException, DataComponentNotFoundException, DataParsingException
 from scraperkit.models import Product
 
@@ -14,30 +15,146 @@ class BluOrngScraper(BaseScraper):
     def __init__(self,headers=None,content_loader=None):
         super().__init__("https://bluorng.com/", headers=headers or {})
         self.id_prefix = "bluorng_"
-        self.content_loader = content_loader or SeleniumInfinityScrollContentLoader(
-            max_scrolls= 30,
-            target_class_name= "f-marquee",
-            scroll_delay=6,
-            headless=True           
-        )
+        self.content_loader = content_loader or SeleniumContentLoader(headers=headers)
+        self._current_listing_url = None
     
     def get_page_content(self, page_url):
         try:
             content = self.content_loader.load_content(page_url=page_url)
             return content
-        except Exception:
-            raise ContentNotLoadedException(f"Error while loading page content of page url: {page_url}")
+        except Exception as e:
+            if isinstance(e, ContentNotLoadedException):
+                raise
+            raise ContentNotLoadedException(
+                f"Error while loading page content of page url: {page_url}"
+            ) from e
+
+    def _get_listing_page_content(self, page_url):
+        if page_url == self._current_listing_url and self.current_page_content:
+            return self.current_page_content
+
+        page_content = self.get_page_content(page_url)
+        if not page_content:
+            raise ContentNotLoadedException(
+                f"Failed to retrieve listing page content from BluOrng: {page_url}"
+            )
+
+        self._current_listing_url = page_url
+        self.current_page_content = page_content
+        return page_content
     
     def get_pagination_details(self, page_url):
+        page_content = self._get_listing_page_content(page_url)
+        soup = BeautifulSoup(page_content, "html.parser")
+        current_page = self._extract_current_page_number(page_url)
+        pagination_links = self._extract_pagination_links(soup)
+
         return {
-                'current_page': page_url,
-                'total_pages': 1,
-                'next_page_url': None
+                'current_page': current_page,
+                'total_pages': self._extract_total_pages(
+                    pagination_links=pagination_links,
+                    current_page=current_page,
+                ),
+                'next_page_url': self._extract_next_page_url(
+                    page_url=page_url,
+                    pagination_links=pagination_links,
+                    current_page=current_page,
+                )
             }
+
+    def _extract_current_page_number(self, page_url):
+        page_values = parse_qs(urlparse(page_url).query).get("page")
+        if not page_values:
+            return 1
+
+        try:
+            current_page = int(page_values[0])
+        except (TypeError, ValueError):
+            return 1
+
+        return max(current_page, 1)
+
+    def _extract_pagination_links(self, soup):
+        pagination_roots = []
+        seen_roots = set()
+
+        def add_root(root):
+            if not root or id(root) in seen_roots:
+                return
+
+            pagination_roots.append(root)
+            seen_roots.add(id(root))
+
+        for root in soup.select(".pagination-wrapper, .pagination"):
+            add_root(root)
+
+        for nav in soup.find_all("nav"):
+            nav_class = " ".join(nav.get("class", []))
+            nav_label = nav.get("aria-label", "")
+            if "pagination" in f"{nav_class} {nav_label}".lower():
+                add_root(nav)
+
+        links = []
+        seen_links = set()
+        for root in pagination_roots:
+            for link in root.find_all("a", href=True):
+                link_key = (link.get("href"), link.get_text(" ", strip=True))
+                if link_key in seen_links:
+                    continue
+
+                links.append(link)
+                seen_links.add(link_key)
+
+        if links:
+            return links
+
+        return [
+            link for link in soup.find_all("a", href=True)
+            if "page=" in link["href"]
+        ]
+
+    def _extract_total_pages(self, pagination_links, current_page):
+        page_numbers = [current_page]
+        for link in pagination_links:
+            text = link.get_text(" ", strip=True)
+            if text.isdigit():
+                page_numbers.append(int(text))
+
+        return max(page_numbers)
+
+    def _extract_next_page_url(self, page_url, pagination_links, current_page):
+        next_candidates = []
+
+        for link in pagination_links:
+            href = link.get("href")
+            page_number = self._extract_page_number_from_link(link)
+            if not href or page_number is None or page_number <= current_page:
+                continue
+
+            next_candidates.append((page_number, urljoin(page_url, href)))
+
+        if not next_candidates:
+            return None
+
+        return min(next_candidates, key=lambda candidate: candidate[0])[1]
+
+    def _extract_page_number_from_link(self, link):
+        text = link.get_text(" ", strip=True)
+        if text.isdigit():
+            return int(text)
+
+        page_values = parse_qs(urlparse(link.get("href", "")).query).get("page")
+        if not page_values:
+            return None
+
+        try:
+            return int(page_values[0])
+        except (TypeError, ValueError):
+            return None
     
     def get_product_listings(self, listings_page_url, page = 1):
         try:
-            page_content = self.get_page_content(listings_page_url)
+            page_content = self._get_listing_page_content(listings_page_url)
             soup = BeautifulSoup(page_content,"html.parser")
             product_links = []
             product_cards = soup.find_all("div",attrs={"class":"card__content"})
@@ -46,12 +163,18 @@ class BluOrngScraper(BaseScraper):
                 raise DataComponentNotFoundException(f"Product Component Not Found in Listings Page : {listings_page_url}")
             try:
                 for product_card in product_cards:
-                    product_link = product_card.find("a")['href']
-                    product_link = self.base_url + product_link[1:]
+                    product_link_tag = product_card.find("a", href=True)
+                    if not product_link_tag:
+                        continue
+
+                    product_link = urljoin(self.base_url, product_link_tag['href'])
                     if product_link not in product_links:
                         product_links.append(product_link)
             except Exception as e:
                 raise DataParsingException(f"Error parsing product card from {listings_page_url}")
+
+            if not product_links:
+                raise DataParsingException(f"Found BluOrng product cards on page {page} but extracted no product links")
             
             return product_links
         

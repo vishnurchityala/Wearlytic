@@ -6,12 +6,12 @@ from scraperkit.loaders.selenium_infinity_scroll_content_loader import (
 )
 
 
-BLUORNG_LISTING_URL = "https://bluorng.com/collections/polos"
-BLUORNG_TARGET_CLASS = "f-marquee"
+SOULED_STORE_LISTING_URL = "https://www.thesouledstore.com/men-classic-tshirts"
+SOULED_STORE_TARGET_CLASS = "tss-footer"
 
 
 def build_loader(**overrides):
-    overrides.setdefault("target_class_name", BLUORNG_TARGET_CLASS)
+    overrides.setdefault("target_class_name", SOULED_STORE_TARGET_CLASS)
     overrides.setdefault("scroll_delay", 2)
     overrides.setdefault("headless", True)
     overrides.setdefault("max_scrolls", 4)
@@ -20,7 +20,7 @@ def build_loader(**overrides):
 
 def extract_product_card_count(page_content):
     soup = BeautifulSoup(page_content, "html.parser")
-    return len(soup.find_all("div", attrs={"class": "card__content"}))
+    return len(soup.find_all("div", class_="productCard"))
 
 
 @pytest.mark.integration
@@ -28,7 +28,7 @@ def test_infinity_scroll_loader_loads_real_page_content():
     loader = build_loader(max_scrolls=2)
 
     try:
-        page_content = loader.load_content(BLUORNG_LISTING_URL)
+        page_content = loader.load_content(SOULED_STORE_LISTING_URL)
     finally:
         loader.close()
 
@@ -50,7 +50,7 @@ def test_infinity_scroll_loader_performs_multiple_scrolls_on_real_page():
     loader.driver.execute_script = tracked_execute_script
 
     try:
-        page_content = loader.load_content(BLUORNG_LISTING_URL)
+        page_content = loader.load_content(SOULED_STORE_LISTING_URL)
     finally:
         loader.close()
 
@@ -64,12 +64,12 @@ def test_infinity_scroll_loader_with_more_scrolls_keeps_or_increases_loaded_card
     long_loader = build_loader(max_scrolls=4)
 
     try:
-        short_content = short_loader.load_content(BLUORNG_LISTING_URL)
+        short_content = short_loader.load_content(SOULED_STORE_LISTING_URL)
     finally:
         short_loader.close()
 
     try:
-        long_content = long_loader.load_content(BLUORNG_LISTING_URL)
+        long_content = long_loader.load_content(SOULED_STORE_LISTING_URL)
     finally:
         long_loader.close()
 

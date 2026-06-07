@@ -25,7 +25,7 @@ SCRAPER_TEST_CASES = (
     ScraperCase(
         source_name="bluorng",
         scraper_cls=SCRAPER_URL_MAP["bluorng"],
-        listing_url="https://bluorng.com/collections/polos",
+        listing_url="https://bluorng.com/collections/t-shirts",
     ),
     ScraperCase(
         source_name="jaywalking",
