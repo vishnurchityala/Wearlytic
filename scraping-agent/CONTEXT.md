@@ -30,6 +30,7 @@ The scraper registry currently supports these domains:
 - `bluorng` -> `BluOrngScraper`
 - `jaywalking` -> `JayWalkingScraper`
 - `thesouledstore` -> `SouledStoreScraper`
+- `offduty` -> `OffDutyScraper`
 
 These mappings live in `scraperkit/__init__.py`.
 
@@ -85,7 +86,7 @@ Celery tasks usually scrape into `scraperkit.models.Product`, convert to JSON wi
 - `pytest.ini`
   - test roots and markers.
 - `README.md`
-  - high-level docs, but partially out of date.
+  - high-level service docs.
 - `TODO.md`
   - short planning note with future cleanup ideas.
 - `CONTEXT.md`
@@ -152,6 +153,8 @@ Celery tasks usually scrape into `scraperkit.models.Product`, convert to JSON wi
   - JayWalking implementation.
 - `scraperkit/scrapers/souled_store_scraper.py`
   - The Souled Store implementation.
+- `scraperkit/scrapers/offduty_scraper.py`
+  - OffDuty implementation.
 - `scraperkit/drivers/...`
   - bundled ChromeDriver binaries for multiple platforms.
 
@@ -165,14 +168,20 @@ Celery tasks usually scrape into `scraperkit.models.Product`, convert to JSON wi
   - tests for URL-to-domain resolution, scraper lookup, and driver path selection.
 - `tests/utils/test_scraper_lru_cache.py`
   - tests the custom cache behavior.
-- `tests/scrapers/test_scrapers.py`
-  - live end-to-end scraper tests against real websites.
+- `tests/scrapers/cases.py`
+  - live scraper manifest with source name, scraper class, and default listing URL.
+- `tests/scrapers/test_live_scraper_contract.py`
+  - live end-to-end scraper contract tests against real websites.
+- `tests/scrapers/test_scraper_manifest.py`
+  - manifest coverage for registered scrapers.
+- `tests/scrapers/regressions/*.py`
+  - static regression coverage for parser, listing, pagination, and source-specific behavior.
 - `tests/scrapers/scrape_artifact_logger.py`
   - logs HTML snapshots and JSON summaries for live scraper runs.
 - `tests/scrapers/test_scrape_artifact_logger.py`
   - unit tests for artifact logging.
 - `tests/artifacts/scraper_runs/...`
-  - stored outputs from real integration runs dated `2026-04-16`.
+  - stored outputs from real integration runs, including an OffDuty run from `2026-06-07`.
 
 
 ## Actual Runtime Architecture
@@ -208,7 +217,7 @@ Important note:
 
 Behavior:
 
-- Defines `POST /api/scrapingagent/scrape`
+- Defines `POST /api/scrapingagent/scrape/`
 - Requires bearer auth via `Depends(verify_token)`
 - Accepts `JobRequest`
 - Re-validates `priority` and `type_page` manually even though Pydantic already constrains them
@@ -218,7 +227,7 @@ Behavior:
 - Writes an initial `Job` to Mongo with:
   - `status='queued'`
   - `created_at=datetime.now()`
-- Returns `{"job_id": task.id}`
+- Returns `{"job_id": task_id}`
 
 Important notes:
 
@@ -238,8 +247,8 @@ Behavior:
 Important notes:
 
 - Both endpoints require bearer auth.
-- Both use very broad `try/except Exception` blocks and convert every failure to `404`.
-- This hides real operational errors such as Mongo connectivity issues.
+- Missing records return `404`.
+- Backend failures such as Mongo connectivity errors are logged and return `503`.
 - The function names are `get_listing_status` and `get_listing_result`, but they are generic for both listing and product jobs.
 
 ### Security
@@ -302,7 +311,7 @@ Core algorithm:
    - hard stop at `max_pages = 30`
 7. For each page:
    - call `scraper.get_pagination_details(current_url)`
-   - call `scraper.get_product_listings(current_url, pagination.get("current_page"))`
+   - call `scraper.get_product_listings(current_url)`
    - convert each listing URL into `ListingItem(url=..., page_rank=...)`
    - stop when `next_page_url` is missing or equals current URL
 8. Build `Listing(items=items)`.
@@ -314,11 +323,12 @@ Failure path:
 
 - creates a failed `JobResult` with `Listing(items=[])`
 - updates job to `failed`
+- closes the scraper resource instead of caching it
 - returns a plain string
 
 Important behavioral notes:
 
-- `get_product_listings()` receives `pagination.get("current_page")` as the `page` argument, which only matters for scrapers that use it.
+- `get_product_listings()` receives the resolved listing URL only. The optional `page` argument remains part of the scraper contract for compatibility, but the Celery loop follows `next_page_url` instead of passing page numbers.
 - Pagination termination relies entirely on scraper-provided `next_page_url`.
 - There is no deduplication at the Celery task level; deduplication is scraper-specific.
 - Success and failure timestamps use `datetime.now()` without timezone.
@@ -333,19 +343,22 @@ Core algorithm:
 4. Resolve domain and scraper.
 5. Call `scraper.get_product_details(product_page_url=url)`.
 6. Convert the returned scraper product to JSON with `model_dump(mode="json")`.
-7. Persist an API-side `JobResult`.
-8. Update job to `completed`.
-9. Cache the scraper object by domain.
+7. Replace `page_content` with `PAGE_BODY_CONTENT`.
+8. Persist an API-side `JobResult`.
+9. Update job to `completed`.
+10. Cache the scraper object by domain.
 
 Failure path:
 
-- creates a failed `JobResult` with `result={}`
+- creates a failed `JobResult` with `result=[]`
 - updates job to `failed`
+- closes the scraper resource instead of caching it
 
 Important behavioral notes:
 
 - Product results are written as dicts, not `scraperkit.models.Product` objects.
 - `api.models.JobResult` is responsible for coercing that dict into the API-side `Product`.
+- Raw product-page HTML is intentionally not persisted in job results; `page_content` is replaced with `PAGE_BODY_CONTENT`.
 
 
 ## Persistence Model
@@ -705,7 +718,7 @@ Implications:
 
 - Scraper instances are reused only if callers remember to put them back with `insert(...)`.
 - The Celery tasks reinsert scrapers only on success.
-- Failed tasks currently do not reinsert or explicitly close scrapers.
+- Failed tasks close the checked-out scraper instead of returning it to the cache.
 
 
 ## Source-Specific Scraper Behavior
@@ -913,6 +926,44 @@ Notes:
   - category like `Oversized Polos`
   - size extraction working for the sampled product
 
+### `OffDutyScraper`
+
+Loader:
+
+- defaults to `SeleniumContentLoader`
+
+Listing behavior:
+
+- pagination:
+  - parses pagination wrappers, pagination navs, and links containing `page=`
+  - derives the current page from the listing URL query string
+  - returns the next higher page URL when present
+- listings:
+  - scopes extraction to `ul.product-grid`
+  - parses `product-card.product-card` and `.product-card`
+  - prefers `a.product-card__link[href]`, then falls back to product anchors
+  - normalizes links against `https://offduty.in/`
+  - deduplicates in page order
+
+Product behavior:
+
+- id from canonical product URL handle or title with `offduty_` prefix
+- title from `.product-information h1`, falling back to Open Graph/Twitter title
+- category from JSON-LD `ProductGroup.category` or collection URL segment
+- price from price meta tags or `.product-information product-price`
+- description from product details, JSON-LD, or meta description
+- material inferred from description patterns such as composition, fabric, or material
+- image from image meta tags or JSON-LD image data
+- sizes and colors from variant fieldsets
+- gender inferred from title, description, and category text
+- rating/review count from JSON-LD aggregate rating or Judge.me badge markup
+
+Notes:
+
+- OffDuty caches listing page HTML between pagination and listing extraction for the same URL.
+- Static regression coverage lives in `tests/scrapers/regressions/test_offduty_scraper.py`.
+- A live artifact exists under `tests/artifacts/scraper_runs/20260607T193635Z_offduty/`.
+
 
 ## Tests and Verification Model
 
@@ -973,9 +1024,9 @@ What they assert:
 
 ### Scraper integration test
 
-`tests/scrapers/test_scrapers.py` is the most important real-world verification path.
+`tests/scrapers/test_live_scraper_contract.py` is the most important real-world verification path.
 
-For every supported scraper in `SCRAPER_URL_MAP` that also has a default listing URL:
+For every scraper case in `tests/scrapers/cases.py`:
 
 1. instantiate scraper
 2. attach `ScrapeArtifactLogger`
@@ -989,6 +1040,9 @@ For every supported scraper in `SCRAPER_URL_MAP` that also has a default listing
 7. coerce the product/listing payload into API-side models
 
 This test is effectively the best executable contract for end-to-end scraper correctness.
+
+`tests/scrapers/test_scraper_manifest.py` keeps the live case list aligned with
+registered scraper classes in `SCRAPER_URL_MAP`.
 
 ### Artifact logging
 
@@ -1036,9 +1090,9 @@ In tests:
 - `make setup-dev`
   - creates `venv/` and installs runtime + dev deps
 - `make run`
-  - starts Redis, MongoDB, Celery workers, and Uvicorn
+  - starts Redis, Celery workers, and Uvicorn
 - `make stop`
-  - stops workers, Mongo, Redis, and Uvicorn
+  - stops workers, Redis, and Uvicorn
 - `make test-scraperkit`
   - runs the full pytest suite via the venv Python
 
@@ -1089,7 +1143,8 @@ Selector updates will often be needed in:
 Always inspect:
 
 - the relevant scraper file
-- `tests/scrapers/test_scrapers.py`
+- `tests/scrapers/cases.py`
+- `tests/scrapers/test_live_scraper_contract.py`
 - the latest artifact HTML/summary for that source
 
 ### 2. The cache behaves like checkout/reinsert, not a persistent lookup cache
@@ -1100,7 +1155,7 @@ That means:
 
 - if a caller gets a scraper and crashes before reinserting it, the instance is lost from the cache
 - the Celery tasks reinsert only on success
-- failed product/listing tasks may leave browser resources alive and uncached
+- failed product/listing tasks close the checked-out scraper and do not cache it
 
 ### 3. Scraper eviction does not call `close()`
 
@@ -1113,17 +1168,15 @@ It does not:
 
 This can leak system resources under heavy reuse.
 
-### 4. Status/result endpoints swallow operational failures
+### 4. Status/result endpoints separate missing records from backend failures
 
-`api/routes/status.py` turns any exception into `404`.
+`api/routes/status.py` now returns:
 
-This means:
+- `404` for missing job/result records
+- `503` for backend failures such as Mongo connectivity errors
 
-- missing job -> `404`
-- Mongo unavailable -> also `404`
-- serialization issue -> also `404`
-
-Operational debugging is harder because errors are flattened.
+Operational debugging still depends on logs for exception details; the response
+body intentionally stays compact.
 
 ### 5. Timestamp handling is inconsistent
 
@@ -1137,17 +1190,18 @@ Scrapers often use:
 
 This can create mixed timezone semantics in Mongo documents.
 
-### 6. `page_content` is large
+### 6. `page_content` is replaced before result persistence
 
 Product payloads embed the page HTML in `page_content`.
 
-Implications:
+Current Celery behavior:
 
-- Mongo result documents can become very large
-- API responses can become heavy
-- test artifact summaries become large
+- scraper implementations may return the product page body in `page_content`
+- product job persistence replaces it with `PAGE_BODY_CONTENT`
+- live test artifacts can still contain large HTML snapshots/summaries
 
-This is intentional in current code because full HTML is used as part of the persisted output, but it is an important performance/storage tradeoff.
+This keeps Mongo job result documents smaller while preserving parser context in
+test artifacts when live tests are run.
 
 ### 7. Some scrapers intentionally return placeholder values
 
@@ -1206,7 +1260,7 @@ Minimum steps:
 4. Register the scraper in:
    - `scraperkit/scrapers/__init__.py`
    - `scraperkit/__init__.py` via `SCRAPER_URL_MAP`
-5. Add a live test case to `tests/scrapers/test_scrapers.py`.
+5. Add a live test case to `tests/scrapers/cases.py`.
 6. Choose the appropriate loader:
    - `RequestContentLoader`
    - `SeleniumContentLoader`
@@ -1240,8 +1294,8 @@ Remember:
 High-value refactor targets already hinted by the codebase:
 
 - extract shared Celery success/failure handling helpers
-- close scrapers on failure and on cache eviction
-- improve error specificity in status endpoints
+- close scrapers on cache eviction
+- add more granular status/result error bodies if operators need them
 - normalize timestamps to timezone-aware UTC
 - reduce duplication between API docs and actual routes
 - add supported-source discovery endpoint
@@ -1261,7 +1315,8 @@ When asked to change this repo, use this order:
 2. Read the relevant source file and its corresponding test file.
 3. If the change touches a specific source website, inspect:
    - that scraper
-   - `tests/scrapers/test_scrapers.py`
+   - `tests/scrapers/cases.py`
+   - `tests/scrapers/test_live_scraper_contract.py`
    - the latest artifact summary/html for that source
 4. Preserve compatibility between:
    - `scraperkit.models.Product`
@@ -1283,7 +1338,8 @@ If a future agent has limited time, these files give the best map of the system:
 - `api/models/job.py`
 - `scraperkit/utils/__init__.py`
 - `scraperkit/utils/scraper_lru_cache.py`
-- `tests/scrapers/test_scrapers.py`
+- `tests/scrapers/cases.py`
+- `tests/scrapers/test_live_scraper_contract.py`
 - `tests/scrapers/scrape_artifact_logger.py`
 
 

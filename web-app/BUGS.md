@@ -10,7 +10,7 @@ Inclusion bar:
 - broken backend integration paths,
 - user-facing workflows that can silently fail or corrupt UI state.
 
-Reviewed on: 2026-04-27.
+Reviewed on: 2026-06-08.
 
 ## High-Priority Bugs
 
@@ -70,7 +70,11 @@ Fix direction:
 - Update `user`, `token`, and `loading` from auth events.
 - Clean up the subscription on unmount.
 
-### 3. Image generation errors can be treated as successful generations
+## Resolved Bugs
+
+### Image generation errors could be treated as successful generations
+
+Status: Fixed on 2026-06-06.
 
 Affected files:
 
@@ -78,19 +82,20 @@ Affected files:
 - `src/pages/profile/components/PastImageGenerationCard.jsx`
 - `src/pages/profile/components/PastImageGenerations.jsx`
 
-What happens:
+What happened:
 
-- `ChatInputBar` treats any HTTP 2xx response from `/api/image_generations/` as a valid generation unless the JSON contains a `status` key.
-- The backend can return HTTP 200 with payloads such as `{"result": "Only Super Users are Allowed to use this feature."}`.
-- That payload is appended to the image-generation list even though it is not an `ImageGeneration` object.
+- `ChatInputBar` treated any HTTP 2xx response from `/api/image_generations/` as a valid generation unless the JSON contained a `status` key.
+- The backend could return success-like payloads for authorization failures.
+- Those payloads could be appended to the image-generation list even though they were not `ImageGeneration` objects.
 
 Why this is high priority:
 
-- Normal users can see a successful UI path for a failed generation.
-- Invalid generation objects can break rendering assumptions in generation cards and history views.
+- Normal users could see a successful UI path for a failed generation.
+- Invalid generation objects could break rendering assumptions in generation cards and history views.
 
-Fix direction:
+Resolution:
 
-- Validate the response shape before appending it to state.
-- Treat backend `result` error payloads as errors.
-- Align backend error status codes with frontend error handling.
+- `ChatInputBar` now checks the current user role before submitting.
+- Non-super-user generation is blocked in the UI with an inline warning.
+- Non-OK generation responses are handled as warnings/errors and are not appended to generated images.
+- The backend now returns `403 Forbidden` for non-super-user generation requests.

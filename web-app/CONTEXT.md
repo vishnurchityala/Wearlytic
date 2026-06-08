@@ -1,6 +1,6 @@
 # Wearlytic Web App Context
 
-Last updated: 2026-04-26
+Last updated: 2026-06-08
 
 This file is the working context for agents making changes in this `web-app` project. Read it before editing code so changes stay aligned with the current app structure, backend contracts, and local conventions.
 
@@ -155,7 +155,10 @@ Products paginated response:
       price: number,
       url: string,
       image_url: string,
-      category_id: string
+      category: {
+        id: string,
+        name: string
+      }
     }
   ],
   next: string | null,

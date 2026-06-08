@@ -33,6 +33,18 @@ npm run build
 npm run preview
 ```
 
+## Routes
+
+| Path | Auth | Purpose |
+| --- | --- | --- |
+| `/` | Public | Landing page. |
+| `/landing` | Public | Landing page. |
+| `/playground` | Required | Product browser, filters, selected-product canvas, and image generation. |
+| `/profile` | Required | Profile details, base image upload, and past generations. |
+
+`AuthProvider` reads the current Supabase session on mount. Protected routes
+redirect unauthenticated users to `/landing`.
+
 ## Environment
 
 Create `web-app/.env` with:
@@ -42,6 +54,15 @@ VITE_API_BASE_URL=
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 ```
+
+`VITE_API_BASE_URL` may be set to the backend API base, such as
+`http://localhost:8000/api`. The shared API helper in `src/api/env.js` trims
+trailing slashes, prevents duplicate `/api/api/...` paths, and rewrites
+paginated absolute URLs returned by Django back through the configured base.
+
+Current backend calls include product/category browsing, catalog metadata,
+profile reads/updates, base-image upload, generation history, and
+`POST /api/image_generations/` for `super_user` image generation.
 
 ## Deployment
 

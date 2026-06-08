@@ -12,11 +12,6 @@ the source of detailed implementation notes:
 
 ### Data Ingestion Reliability
 
-- [ ] Stagger ingestion schedules into listing scraping, batch creation, then batch processing.
-  - Owner: `data-ingestor`
-  - Avoid running scheduled listing scraping, batch creation, and batch processing at the same time or too close together.
-  - Make the ordered pipeline explicit so each stage is less dependent on the previous task's execution timing.
-
 - [ ] Add stale scraping-agent job timeout handling.
   - Owner: `data-ingestor`
   - Mark stuck `queued` or `processing` scrape statuses as failed after a configurable timeout.
