@@ -46,9 +46,13 @@ proxy manager boxes in the diagram are not present in the current package tree.
 - `BluOrngScraper`: BluOrng-specific scraper
 - `JayWalkingScraper`: Jaywalking-specific scraper
 - `MyntraScraper`: Myntra-specific scraper
+- `OffDutyScraper`: OffDuty-specific scraper
 - `SouledStoreScraper`: The Souled Store-specific scraper
 
 ## Sample Usage of Scrapers
+
+For instructions on adding a new source scraper, see
+[`SCRAPER_CREATION_GUIDE.md`](SCRAPER_CREATION_GUIDE.md).
 
 ```python
 from scraperkit.loaders.selenium_content_loader import SeleniumContentLoader
@@ -56,7 +60,7 @@ from scraperkit.scrapers.amazon_scraper import AmazonScraper
 
 # Initialize components
 loader = SeleniumContentLoader(headless=True)
-scraper = AmazonScraper(loader)
+scraper = AmazonScraper(content_loader=loader)
 
 # Scrape product data
 product_data = scraper.get_product_details("https://amazon.com/product/123")
@@ -119,5 +123,6 @@ scraperkit/
     ├── bluorng_scraper.py
     ├── jaywalking_scraper.py
     ├── myntra_scraper.py
+    ├── offduty_scraper.py
     └── souled_store_scraper.py
 ```

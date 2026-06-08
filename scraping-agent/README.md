@@ -34,12 +34,17 @@ Current scraper implementations live in `scraperkit/scrapers/` and include:
 - BluOrng
 - Jaywalking
 - Myntra
+- OffDuty
 - The Souled Store
 
 ## Scraper Implementation Contract
 
 Every website scraper must be a concrete class under `scraperkit/scrapers/`
 that extends `scraperkit.base.BaseScraper`.
+
+For the full new-source workflow, including selector inspection, registration,
+and test expectations, see
+[`scraperkit/SCRAPER_CREATION_GUIDE.md`](scraperkit/SCRAPER_CREATION_GUIDE.md).
 
 Use this shape:
 
@@ -169,8 +174,10 @@ PLATFORM=
 ```
 
 `REDIS_URL` is optional. If it is empty or unset, Celery uses local Redis at
-`redis://localhost:6379/0`. For Docker Compose, use `redis://redis:6379/0`.
-For Upstash, put the complete `rediss://...` connection URL in `REDIS_URL`.
+`redis://localhost:6379/0`. Docker Compose sets
+`redis://127.0.0.1:6379/0` because Redis runs inside the same scraping-agent
+container as Uvicorn and the Celery workers. For Upstash, put the complete
+`rediss://...` connection URL in `REDIS_URL`.
 
 ## Testing
 

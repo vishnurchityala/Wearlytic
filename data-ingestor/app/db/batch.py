@@ -108,7 +108,11 @@ class BatchManager:
             logging.info(f"[UPDATE] Adding ProductUrl '{product_url_id}' to Batch: {batch_id}")
             result = self.collection.update_one(
                 {"id": batch_id},
-                {"$addToSet": {"urls": product_url_id}, "$inc": {"batch_size": 1}}
+                {
+                    "$addToSet": {"urls": product_url_id},
+                    "$inc": {"batch_size": 1},
+                    "$set": {"last_processed": None},
+                }
             )
             if result.matched_count == 1:
                 logging.info(f"[UPDATE] Successfully added ProductUrl '{product_url_id}' to Batch: {batch_id}")

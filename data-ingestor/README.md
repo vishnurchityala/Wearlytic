@@ -56,6 +56,45 @@ make stop
 make test-scraping-agent
 ```
 
+`make run` starts local Redis through Homebrew when available, starts the
+Celery worker and beat processes, then starts Uvicorn on port `8081`. It does
+not start MongoDB automatically; use `make start-mongo` separately only when a
+local MongoDB service is required by your environment.
+
+## Admin And API Surface
+
+Most routes are dashboard form handlers and redirect back to `/dashboard`.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/` | Redirect to login or dashboard. |
+| `GET` | `/login` | Render admin login. |
+| `POST` | `/login` | Validate `ADMIN_USERNAME` and `ADMIN_PASSWORD`. |
+| `GET`/`POST` | `/logout` | Clear the admin session. |
+| `GET` | `/dashboard` | Render sources, listings, statuses, product URLs, batches, and product count. |
+| `GET` | `/api` | Small endpoint index. |
+| `POST` | `/api/sources` | Create a source. |
+| `POST` | `/api/sources/edit` | Edit a source and cascade active state to its listings. |
+| `POST` | `/api/sources/delete` | Delete a source and its listing records. |
+| `POST` | `/api/listings` | Create a listing under a source. |
+| `POST` | `/api/listings/edit` | Edit a listing URL. |
+| `POST` | `/api/listings/delete` | Delete a listing and detach it from its source. |
+| `POST` | `/api/trigger-listing-scrape` | Enqueue listing scrape dispatch. |
+| `POST` | `/api/trigger-batch-create` | Enqueue product URL batch creation. |
+| `POST` | `/api/trigger-batch-scrape` | Enqueue product batch scraping. |
+| `POST` | `/api/trigger-status-update` | Enqueue scraping-agent result polling. |
+
+## Celery Schedule
+
+Celery beat runs in `Asia/Kolkata` time:
+
+| Task | Schedule |
+| --- | --- |
+| `start_scraping_listing` | Daily at 07:00 and 19:00 IST. |
+| `create_product_batches` | Daily at 08:00 and 20:00 IST. |
+| `scrape_batch` | Daily at 09:00 and 21:00 IST. |
+| `fetch_results` | Every 15 minutes. |
+
 ## Environment
 
 ```bash

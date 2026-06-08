@@ -14,7 +14,6 @@ Upcoming development changes for this service should be listed here.
   - Keep the public REST API, Celery queue names, and scraper behavior unchanged.
   - Verify with unit tests for Mongo client reuse, connection-pool option wiring, manager construction failures, existing failure persistence, and a Docker product batch run that no task stays indefinitely pending after a transient Mongo connection failure.
 
-- [ ] Add OffDuty source support.
 - [ ] Add Rare Rabbit source support.
 
 - [ ] Refactor scraper creation to a config-driven factory pattern.

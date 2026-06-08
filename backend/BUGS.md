@@ -10,32 +10,11 @@ Inclusion bar:
 - authentication/storage failures,
 - user-facing API behavior that can silently fail or return misleading success responses.
 
-Reviewed on: 2026-04-27.
+Reviewed on: 2026-06-08.
 
 ## High-Priority Bugs
 
-### 1. Supabase auth auto-create path contains an invalid nested-quote f-string
-
-Affected files:
-
-- `api/authentication.py`
-
-What happens:
-
-- The auth auto-create path builds the default profile image path with an f-string containing `payload["sub"]` inside a double-quoted f-string.
-- This is a Python syntax error if the file is parsed as-is.
-
-Why this is high priority:
-
-- The backend may fail to import before serving any request.
-- Every protected endpoint depends on `SupabaseJWTAuthentication`.
-
-Fix direction:
-
-- Use single quotes inside the expression or assign `payload["sub"]` to a local variable before formatting.
-- Add at least a lightweight import/`manage.py check` test for authentication modules.
-
-### 2. Supabase clients and storage helpers are created at import time
+### 1. Supabase clients and storage helpers are created at import time
 
 Affected files:
 
@@ -62,6 +41,23 @@ Fix direction:
 
 ## Resolved Bugs
 
+### Supabase auth auto-create path contained an invalid nested-quote f-string
+
+Status: Fixed before 2026-06-08.
+
+Affected files:
+
+- `api/authentication.py`
+
+What happened:
+
+- The auth auto-create path originally built the default profile image path with a nested double-quote f-string expression around `payload["sub"]`.
+- That would have been a Python syntax error if parsed as-is.
+
+Resolution:
+
+- The path now uses a valid f-string expression: `f"/profile/{payload['sub']}.jpg"`.
+
 ### Image generation returned success-like responses for authorization and token failures
 
 Status: Fixed on 2026-06-06.
@@ -74,9 +70,9 @@ Affected files:
 
 What happened:
 
-- `image_generation_view` returns a normal DRF `Response` without an error status when a user has role `"user"`.
-- The same pattern is used when tokens are exhausted.
-- The frontend treats HTTP 2xx responses as successful unless the response contains a `status` field.
+- `image_generation_view` returned a normal DRF `Response` without an error status when a user had role `"user"`.
+- The same pattern was used when tokens were exhausted.
+- The frontend treated HTTP 2xx responses as successful unless the response contained a `status` field.
 
 Resolution:
 

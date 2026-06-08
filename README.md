@@ -30,7 +30,7 @@ For Docker shutdown, rebuild, and cleanup workflows, see [DOCKER.md](DOCKER.md).
 | `web-app/` | ![React](https://img.shields.io/badge/React-20232a?logo=react&logoColor=61dafb) ![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-06b6d4?logo=tailwindcss&logoColor=white) | React + Vite web app for authentication, product browsing, user profile management, and image-generation workflows. | [web-app/README.md](web-app/README.md) |
 | `backend/` | ![Django](https://img.shields.io/badge/Django-092e20?logo=django&logoColor=white) ![DRF](https://img.shields.io/badge/DRF-a30000) ![Supabase](https://img.shields.io/badge/Supabase-3fcf8e?logo=supabase&logoColor=white) | Django REST API for users, products, categories, Supabase JWT authentication, storage integration, and image generation. | [backend/README.md](backend/README.md) |
 | `scraping-agent/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![Celery](https://img.shields.io/badge/Celery-37814a) ![Selenium](https://img.shields.io/badge/Selenium-43b02a?logo=selenium&logoColor=white) | FastAPI + Celery service that runs website-specific product and listing scrapers. | [scraping-agent/README.md](scraping-agent/README.md) |
-| `data-ingestor/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white) | FastAPI + Celery orchestration service for sources, listings, scrape batches, job status, and product warehouse ingestion. | [data-ingestor/README.md](data-ingestor/README.md) |
+| `data-ingestor/` | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47a248?logo=mongodb&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169e1?logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-dc382d?logo=redis&logoColor=white) | FastAPI + Celery orchestration service for sources, listings, scrape batches, job status, and product warehouse ingestion. | [data-ingestor/README.md](data-ingestor/README.md) |
 
 ## Architecture Diagrams
 
@@ -70,7 +70,9 @@ not build or deploy `web-app` or `backend`.
 This project currently accepts external pull requests only for adding or improving website scrapers in `scraping-agent/`.
 
 Scraper implementations must follow the detailed contract in
-[scraping-agent/README.md](scraping-agent/README.md#scraper-implementation-contract).
+[scraping-agent/README.md](scraping-agent/README.md#scraper-implementation-contract)
+and the source-specific workflow in
+[scraping-agent/scraperkit/SCRAPER_CREATION_GUIDE.md](scraping-agent/scraperkit/SCRAPER_CREATION_GUIDE.md).
 At a minimum, a scraper should look like this:
 
 ```python

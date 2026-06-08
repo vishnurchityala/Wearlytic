@@ -11,7 +11,8 @@ This document is an AI-agent context file for the `data-ingestor` project. It is
 - recognize the operational dependencies and unsafe assumptions,
 - make changes without re-discovering the architecture from scratch.
 
-This file is based on a repository scan performed on `2026-04-18`.
+This file is based on repository scans performed on `2026-04-18` and updated
+against the current code on `2026-06-08`.
 
 ## Project Summary
 
@@ -516,38 +517,28 @@ Task: `fetch_results`
 When a product job is `completed`:
 
 1. Call Scraping Agent result endpoint.
-2. Look up existing product by `result.id`.
-3. If product exists:
-   - update selected mutable fields only:
-     - `price`
-     - `colors`
-     - `size`
-     - `rating`
-     - `review_count`
-     - `scraped_datetime`
-     - `page_content`
-4. If product does not exist:
-   - look up `ProductUrl` by `result.url`,
-   - create a new `Product`.
-5. Mark the `Status` row `completed` or `failed`.
+2. Require `result.url`; missing URLs fail the status.
+3. Look up the related `ProductUrl` by status `entity_id`, then by URL as a fallback.
+4. Upsert the backend app-facing product through `ProductManager.upsert_product()`.
+5. Store or update only the backend product shape in PostgreSQL:
+   - `title`
+   - `price`
+   - `url`
+   - `image_url`
+   - `category`
+6. Mark the `Status` row `completed` or `failed`.
 
 Expected product-result fields used by this service:
 
-- `result.id`
 - `result.title`
 - `result.price`
 - `result.category`
-- `result.gender`
 - `result.url`
 - `result.image_url`
-- `result.colors`
-- `result.size`
-- `result.material`
-- `result.description`
-- `result.rating`
-- `result.review_count`
-- `result.scraped_datetime`
-- `result.page_content`
+
+Rich scraper fields such as colors, sizes, material, descriptions, ratings,
+review counts, scrape timestamps, and raw page content are intentionally ignored
+by new product warehouse writes.
 
 ## Celery Schedule
 
@@ -696,7 +687,9 @@ The checked-in `.env` currently indicates:
 
 This matters because:
 
-- `make run` starts local Mongo and Redis through Homebrew,
+- `make run` starts local Redis through Homebrew,
+- Mongo must be started separately with `make start-mongo` if a local MongoDB
+  service is needed,
 - but the application may still talk to hosted Mongo unless `MONGO_URI` is changed.
 
 ## Dependency Snapshot
@@ -736,9 +729,11 @@ make run
 What `make run` does:
 
 1. starts Redis via Homebrew if available,
-2. starts Mongo via Homebrew if available,
-3. starts Celery worker and Celery beat,
-4. starts Uvicorn with reload on port `8081`.
+2. starts Celery worker and Celery beat,
+3. starts Uvicorn with reload on port `8081`.
+
+It does not start MongoDB automatically. Use `make start-mongo` separately when
+your environment needs a local MongoDB service instead of a hosted `MONGO_URI`.
 
 ### Important Operational Files
 
@@ -752,7 +747,7 @@ Generated/managed state in repo root may include:
 
 `make stop`:
 
-- stops worker, beat, Redis, Mongo,
+- stops worker, beat, and Redis,
 - stops Uvicorn,
 - removes Python cache directories.
 

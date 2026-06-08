@@ -485,7 +485,6 @@ the VPS.
 
 ## Known Caveats
 
-- `api/authentication.py` currently contains a nested quote pattern in an f-string around `payload["sub"]`; verify syntax/import before deploying or running tests.
 - `SECRET_KEY`, `DEBUG`, and CORS settings are development-friendly and should be hardened before production exposure.
 - `SupabaseBucketManager.from_env("image_assets")` is called at import time in multiple modules.
 - `ImageGenerationTask.product_ids` uses Postgres `ArrayField`, so SQLite fallback is not equivalent for all flows.

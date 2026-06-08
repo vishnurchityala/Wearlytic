@@ -31,6 +31,7 @@ class DummyScraper(BaseScraper):
         ("https://www.amazon.in/dp/B0TEST1234", "amazon"),
         ("https://www.myntra.com/men-tshirts", "myntra"),
         ("https://www.thesouledstore.com/men/t-shirts", "thesouledstore"),
+        ("https://offduty.in/collections/collection-men", "offduty"),
     ],
 )
 def test_extract_domain_returns_supported_source_name(url, expected_domain):
