@@ -167,7 +167,10 @@ class BluOrngScraper(BaseScraper):
                     if not product_link_tag:
                         continue
 
-                    product_link = urljoin(self.base_url, product_link_tag['href'])
+                    product_link = self._normalize_product_listing_url(product_link_tag["href"])
+                    if not product_link:
+                        continue
+
                     if product_link not in product_links:
                         product_links.append(product_link)
             except Exception as e:
@@ -182,6 +185,26 @@ class BluOrngScraper(BaseScraper):
             if isinstance(e, (DataComponentNotFoundException, ContentNotLoadedException)):
                             raise
             raise DataParsingException(f"Error parsing product listings from {listings_page_url}: {str(e)}")
+
+    def _normalize_product_listing_url(self, href):
+        if not href:
+            return None
+
+        absolute_url = urljoin(self.base_url, href)
+        parsed_url = urlparse(absolute_url)
+        host = parsed_url.netloc.lower()
+        if host.startswith("www."):
+            host = host[4:]
+
+        if host != "bluorng.com" or not parsed_url.path.startswith("/products/"):
+            return None
+
+        return parsed_url._replace(
+            scheme="https",
+            netloc="bluorng.com",
+            query="",
+            fragment="",
+        ).geturl()
     
     def _extract_id(self, soup: BeautifulSoup) -> str:
         try:
