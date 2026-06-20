@@ -142,3 +142,33 @@ def test_bluorng_listing_extraction_uses_resolved_page_url_and_cached_content():
         "https://bluorng.com/products/black-frozen-claw-t-shirt",
         "https://bluorng.com/products/blu-dragonfly-t-shirt",
     ]
+
+
+@pytest.mark.unit
+def test_bluorng_listing_extraction_strips_product_url_query_params():
+    page_html = """
+    <div class="card__content">
+      <a href="/products/blind-drop-6?_pos=252&_fid=2e525fc77&_ss=c&variant=47205081678104">
+        Blind Drop 6
+      </a>
+    </div>
+    <div class="card__content">
+      <a href="https://bluorng.com/products/blind-drop-6?_pos=253&_fid=another&_ss=c">
+        Blind Drop 6 Duplicate
+      </a>
+    </div>
+    <div class="card__content">
+      <a href="/products/black-crystal-t-shirt?_pos=1&_fid=2e525fc77&_ss=c#details">
+        Black Crystal T-Shirt
+      </a>
+    </div>
+    """
+    loader = RecordingPageLoader(default_html=page_html)
+    scraper = BluOrngScraper(content_loader=loader)
+
+    listings = scraper.get_product_listings(BLUORNG_PAGE_1_URL)
+
+    assert listings == [
+        "https://bluorng.com/products/blind-drop-6",
+        "https://bluorng.com/products/black-crystal-t-shirt",
+    ]
